@@ -393,7 +393,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
   .mobile-nav::-webkit-scrollbar{display:none}
   .mobile-nav-item{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-width:56px;flex:1;padding:5px 3px;cursor:pointer;
+    min-width:48px;flex:1;padding:5px 2px;cursor:pointer;
     font-size:9px;font-weight:600;color:var(--muted2);letter-spacing:.02em;
     border-top:2px solid transparent;transition:all .15s;user-select:none;
     position:relative;gap:2px;
@@ -946,7 +946,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
     <div class="week-grid" id="weekGrid"></div>
 
     <div style="font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;margin-top:20px">Дахин эхлэх</div>
-    <button onclick="resetWeek()" style="background:rgba(255,107,74,.08);border:1px solid rgba(255,107,74,.25);color:var(--train);font-family:var(--font);font-size:12px;font-weight:600;padding:10px 20px;border-radius:6px;cursor:pointer;letter-spacing:.04em;transition:all .15s" onmouseover="this.style.background='rgba(255,107,74,.14)'" onmouseout="this.style.background='rgba(255,107,74,.08)'">
+    <button onclick="resetWeek()" style="background:rgba(255,107,74,.08);border:1px solid rgba(255,107,74,.25);color:var(--train);font-family:var(--font);font-size:12px;font-weight:600;padding:12px 24px;border-radius:6px;cursor:pointer;letter-spacing:.04em;width:100%;display:block;margin-bottom:40px" onmouseover="this.style.background='rgba(255,107,74,.14)'" onmouseout="this.style.background='rgba(255,107,74,.08)'">
       🔄 Шинэ долоо хоног эхлэх
     </button>
   </div>
@@ -991,8 +991,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
     <span>Тайлан</span>
   </div>
   <div class="mobile-nav-item" id="mnavAch" onclick="showMobileAch()" style="border-left:1px solid var(--border)">
-    <div class="mobile-nav-dot" style="background:var(--xp);opacity:1"></div>
-    <span>🏅 Амжилт</span>
+    <span style="font-size:16px;line-height:1">🏅</span>
+    <span>Амжилт</span>
   </div>
 </nav>
 
