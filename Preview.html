@@ -421,6 +421,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
   backdrop-filter:blur(10px);
   transition:opacity .4s;
 }
+@media(max-width:768px){
+  #previewTimerBar{
+    bottom:60px;
+    z-index:150;
+  }
+}
 #previewTimerBar .timer-left{display:flex;align-items:center;gap:10px;flex:1}
 #previewTimerBar .timer-label{font-size:11px;color:var(--muted2);font-family:var(--mono);white-space:nowrap}
 #previewTimerBar .timer-track{flex:1;height:3px;background:var(--border2);border-radius:3px;overflow:hidden}
@@ -445,6 +451,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
   transition:opacity .5s, visibility .5s;
 }
 #previewPaywall.show{opacity:1;visibility:visible}
+@media(max-width:768px){
+  #previewPaywall{padding-bottom:160px;}
+}
 .pw-inner{text-align:center;max-width:480px;padding:0 24px;width:100%}
 .pw-name{font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-.02em}
 .pw-name span{background:linear-gradient(135deg,var(--xp),#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
