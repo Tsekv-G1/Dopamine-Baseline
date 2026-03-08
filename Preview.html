@@ -454,17 +454,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
   overflow-y:auto;
 }
 #previewPaywall.show{opacity:1;visibility:visible}
-@media(max-width:768px){
-  #previewPaywall{padding:16px 0 70px}
-  .pw-name{font-size:16px;margin-bottom:4px}
-  .pw-sub{font-size:9px;margin-bottom:5px}
-  .pw-icon{font-size:22px;margin-bottom:5px}
-  .pw-desc{font-size:12px;margin-bottom:10px}
-  .pw-chips{gap:4px;margin-bottom:12px}
-  .pw-chip{font-size:9px;padding:3px 8px}
-  .pw-btn{font-size:12px;padding:12px 16px;margin-bottom:6px}
-  .pw-note{font-size:9px}
-}
 .pw-inner{text-align:center;max-width:480px;padding:0 24px;width:100%}
 .pw-name{font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-.02em}
 .pw-name span{background:linear-gradient(135deg,var(--xp),#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -485,6 +474,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 }
 .pw-btn:hover{transform:scale(1.02);box-shadow:0 0 44px rgba(255,215,0,.4)}
 .pw-note{font-size:10px;color:var(--muted);font-family:var(--mono)}
+@media(max-width:768px){
+  #previewPaywall{padding:60px 0 70px}
+  #previewPaywall .pw-inner{padding:0 18px}
+  #previewPaywall .pw-name{font-size:17px;margin-bottom:3px;line-height:1.3;letter-spacing:-.01em}
+  #previewPaywall .pw-sub{font-size:9px;margin-bottom:4px}
+  #previewPaywall .pw-icon{font-size:20px;margin-bottom:4px}
+  #previewPaywall .pw-desc{font-size:11px;line-height:1.6;margin-bottom:8px}
+  #previewPaywall .pw-chips{gap:4px;margin-bottom:10px}
+  #previewPaywall .pw-chip{font-size:9px;padding:3px 8px}
+  #previewPaywall .pw-btn{font-size:12px;padding:12px 16px;margin-bottom:5px}
+  #previewPaywall .pw-note{font-size:9px}
+}
 
 /* Locked day overlay — sidebar nav click */
 #dayLockedMsg{
@@ -525,7 +526,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 <!-- PREVIEW PAYWALL OVERLAY -->
 <div id="previewPaywall">
   <div class="pw-inner">
-    <div class="pw-name">✦ Та ч гэсэн яг өөрийн <span>ийм системтэй</span> болмоор байна уу? ✦</div>
+    <div class="pw-name">Та ч гэсэн <span>ийм системтэй</span> болмоор байна уу?</div>
     <div class="pw-sub">Яг өөрийн амьдралдаа тохирсон хувийн загвар</div>
     <span class="pw-icon">🎯</span>
     <div class="pw-desc">Та дөнгөж Даваагийн хуваарийг харлаа — Deep Work, дасгал, хоол, унтах бүгд нарийн тооцоологдсон. Хэрэв та яг үүн шиг <strong style="color:var(--white)">өөрийн гэсэн 7 хоногийн системтэй болмоор байвал</strong> — таны мэдээлэлд тулгуурлан бүтэн загвар бэлэн болно.</div>
