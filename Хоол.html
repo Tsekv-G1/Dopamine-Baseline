@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хооллолтын Төлөвлөгөө</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;--sf:#111113;--sf2:#161618;
+  --bd:#1e1e22;--bd2:#2a2a2f;
+  --tx:#e8e8ec;--mt:#4a4a54;--mt2:#6a6a76;--wh:#fff;
+  --breakfast:#f5a623;--lunch:#3ecf8e;--snack:#4f8fff;
+  --dinner:#c9a96e;--protein:#ff6b4a;--carb:#7c6df2;--fat:#64c8d4;
+  --warn:#ff4444;
+  --r:6px;--fn:'Syne',sans-serif;--mo:'Syne Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--fn);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{display:flex;min-height:100vh}
+.sb{width:210px;flex-shrink:0;background:var(--sf);border-right:1px solid var(--bd);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
+.sbb{padding:24px 18px 18px;border-bottom:1px solid var(--bd)}
+.sbn{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wh)}
+.sbs{font-size:10px;color:var(--mt2);margin-top:2px;font-family:var(--mo)}
+.ns{padding:14px 0 6px}
+.nl{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mt);padding:0 18px 7px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-size:12px;font-weight:500;color:var(--mt2);border-left:2px solid transparent;transition:all .15s;user-select:none}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.03)}
+.ni.on{color:var(--wh);border-left-color:var(--wh);background:rgba(255,255,255,.04)}
+.nd{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:.3}
+.ni.on .nd{opacity:1}
+.ct{flex:1;padding:40px 36px 80px;max-width:980px}
+.pn{display:none}
+.pn.on{display:block;animation:up .2s ease both}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ph{margin-bottom:28px}
+.pe{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mt2);font-family:var(--mo);margin-bottom:6px}
+.pt{font-size:clamp(22px,3.5vw,34px);font-weight:800;letter-spacing:-.02em;color:var(--wh);line-height:1.1;margin-bottom:8px}
+.pt span{font-weight:400;color:var(--mt2)}
+.pn2{font-size:12px;color:var(--mt2);line-height:1.6;max-width:580px;padding:10px 14px;background:rgba(255,255,255,.03);border-left:2px solid var(--bd2);border-radius:0 var(--r) var(--r) 0}
+.sb2{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.sc{background:var(--sf);padding:10px 14px}
+.sl{font-size:9px;color:var(--mt);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.sv{font-size:15px;font-weight:700;color:var(--wh);font-family:var(--mo)}
+.sv small{font-size:10px;color:var(--mt2);font-weight:400}
+/* cutoff banner */
+.cutoff-banner{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);border-radius:var(--r);margin-bottom:24px}
+.cb-icon{font-size:20px;flex-shrink:0}
+.cb-title{font-size:12px;font-weight:700;color:var(--warn);letter-spacing:.04em;margin-bottom:2px}
+.cb-text{font-size:11.5px;color:var(--mt2);line-height:1.5}
+/* meal card */
+.meal-grid{display:flex;flex-direction:column;gap:12px}
+.mc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.mc-head{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--bd);position:relative}
+.mc-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r) 0 0 var(--r)}
+.mc-time{font-family:var(--mo);font-size:12px;color:var(--mt2);min-width:46px;flex-shrink:0}
+.mc-icon{font-size:19px;flex-shrink:0}
+.mc-info{flex:1}
+.mc-title{font-size:14px;font-weight:700;color:var(--wh);letter-spacing:-.01em;margin-bottom:2px}
+.mc-sub{font-size:11px;color:var(--mt2)}
+.mc-macros{display:flex;gap:7px;margin-left:auto;flex-shrink:0}
+.mpill{font-size:10px;font-family:var(--mo);padding:2px 8px;border-radius:20px;font-weight:500}
+.mc-body{padding:14px 18px}
+.ft{width:100%;border-collapse:collapse;margin-bottom:12px}
+.ft th{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt);font-weight:600;text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--bd)}
+.ft td{padding:7px 10px 7px 0;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ft tr:last-child td{border-bottom:none}
+.ft td:last-child{text-align:right;padding-right:0;font-family:var(--mo);font-size:11px;color:var(--mt2)}
+.fn{font-weight:600;color:var(--wh)}
+.fa{font-size:11px;color:var(--mt2);margin-top:1px}
+.fp{color:var(--protein);font-weight:700;font-family:var(--mo);font-size:12px}
+/* cook box */
+.ck{background:rgba(255,255,255,.025);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px;margin-bottom:10px}
+.ck-t{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.ck-t::before{content:'';width:12px;height:1.5px;background:var(--mt);border-radius:1px}
+.cks{display:flex;flex-direction:column;gap:5px}
+.ck-s{display:flex;gap:9px;font-size:12px;color:var(--mt2);line-height:1.55}
+.cn{font-family:var(--mo);font-size:10px;color:var(--mt);flex-shrink:0;min-width:15px;margin-top:1px}
+/* why */
+.why{padding:9px 12px;background:rgba(255,255,255,.02);border-radius:var(--r);border-left:2px solid;font-size:11.5px;color:var(--mt2);line-height:1.65;margin-top:8px}
+.why strong{font-size:9px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:3px;opacity:.6}
+/* timing */
+.timing{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:rgba(255,255,255,.02);border-radius:var(--r);border-left:2px solid var(--bd2);font-size:11.5px;color:var(--mt2);line-height:1.6;margin-top:8px}
+/* section title */
+.sec{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mt);font-weight:600;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--bd)}
+/* tips grid */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:24px}
+.tc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px 16px;overflow:hidden;position:relative;transition:border-color .2s}
+.tc:hover{border-color:var(--bd2)}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.ti{font-size:17px;margin-bottom:7px;display:block}
+.tt{font-size:12px;font-weight:700;color:var(--wh);margin-bottom:4px}
+.tx2{font-size:11.5px;color:var(--mt2);line-height:1.6}
+/* macros overview */
+.mo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.mo-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px}
+.mo-t{font-size:12px;font-weight:700;color:var(--wh);margin-bottom:3px}
+.mo-s{font-size:11px;color:var(--mt2);margin-bottom:12px}
+.mbars{display:flex;flex-direction:column;gap:8px}
+.mb{display:flex;align-items:center;gap:10px}
+.ml{font-size:10px;color:var(--mt2);width:70px;flex-shrink:0}
+.mw{flex:1;height:5px;background:var(--bd2);border-radius:3px;overflow:hidden}
+.mb-b{height:100%;border-radius:3px}
+.mv{font-size:10px;font-family:var(--mo);color:var(--mt2);min-width:50px;text-align:right}
+/* week table */
+.wt{width:100%;border-collapse:collapse;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.wt th{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt);font-weight:600;padding:9px 13px;background:rgba(255,255,255,.03);text-align:left;border-bottom:1px solid var(--bd)}
+.wt td{padding:9px 13px;font-size:12px;border-bottom:1px solid var(--bd);color:var(--mt2);vertical-align:top}
+.wt tr:last-child td{border-bottom:none}
+.wt td:first-child{font-family:var(--mo);font-size:11px;color:var(--wh)}
+.badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-right:3px;margin-bottom:2px}
+/* prep card */
+.pc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;margin-bottom:10px}
+.pc-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pc-icon{font-size:18px}
+.pc-t{font-size:13px;font-weight:700;color:var(--wh);letter-spacing:-.01em}
+.pc-s{font-size:11px;color:var(--mt2)}
+.ps{display:flex;flex-direction:column;gap:7px}
+.ps-r{display:flex;gap:12px;align-items:flex-start}
+.ps-n{width:20px;height:20px;border-radius:50%;background:var(--bd2);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--mo);color:var(--mt);flex-shrink:0;margin-top:1px}
+.ps-t{font-size:12px;color:var(--mt2);line-height:1.6}
+.ps-t strong{color:var(--tx)}
+/* shop */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:16px}
+.scard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.scat{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt);margin-bottom:8px;font-weight:600}
+.si{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.si:last-of-type{border-bottom:none}
+.sin{color:var(--tx)}
+.siq{font-family:var(--mo);font-size:10px;color:var(--mt2)}
+.sfr{font-size:10px;color:var(--mt2);margin-top:6px}
+/* cutoff line in timeline */
+.cutoff-row{display:flex;align-items:center;gap:10px;padding:8px 0;margin:6px 0}
+.cutoff-line{flex:1;height:1px;background:var(--warn);opacity:.4}
+.cutoff-label{font-size:10px;font-family:var(--mo);color:var(--warn);letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;padding:2px 8px;background:rgba(255,68,68,.08);border-radius:3px;border:1px solid rgba(255,68,68,.2)}
+@media(max-width:680px){
+  .shell{flex-direction:column}
+  .sb{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--bd)}
+  .ns{display:flex;flex-wrap:wrap;gap:4px;padding:10px}
+  .nl{display:none}
+  .ni{padding:6px 10px;border-left:none;border-radius:4px;border:1px solid var(--bd)}
+  .ni.on{background:rgba(255,255,255,.07);border-color:var(--bd2)}
+  .ct{padding:20px 14px 60px}
+  .sb2{grid-template-columns:repeat(3,1fr)}
+  .mo-grid{grid-template-columns:1fr}
+  .mc-macros{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sb">
+  <div class="sbb">
+    <div class="sbn">Хооллолт</div>
+    <div class="sbs">69кг · 173см · 19:30 хязгаар</div>
+  </div>
+  <div class="ns">
+    <div class="nl">Хуудсууд</div>
+    <div class="ni on" onclick="go(0)"><div class="nd" style="background:#fff"></div>Тойм & Тооцоо</div>
+    <div class="ni" onclick="go(1)"><div class="nd" style="background:var(--breakfast)"></div>Өглөөний хоол</div>
+    <div class="ni" onclick="go(2)"><div class="nd" style="background:var(--lunch)"></div>Өдрийн хоол</div>
+    <div class="ni" onclick="go(3)"><div class="nd" style="background:var(--snack)"></div>Завсрын зуушны хоол</div>
+    <div class="ni" onclick="go(4)"><div class="nd" style="background:var(--dinner)"></div>Оройн хоол</div>
+    <div class="ni" onclick="go(5)"><div class="nd" style="background:var(--protein)"></div>Дасгалын өмнө/дараа</div>
+    <div class="ni" onclick="go(6)"><div class="nd" style="background:var(--mt2)"></div>7 хоногийн хуваарь</div>
+    <div class="ni" onclick="go(7)"><div class="nd" style="background:var(--carb)"></div>Batch Cooking систем</div>
+    <div class="ni" onclick="go(8)"><div class="nd" style="background:var(--fat)"></div>Дэлгүүрийн жагсаалт</div>
+  </div>
+</aside>
+
+<main class="ct">
+
+<!-- ══ 0 OVERVIEW ══ -->
+<div class="pn on" id="p0">
+  <div class="ph">
+    <div class="pe">TsekvG · Хооллолтын систем</div>
+    <div class="pt">Хооллолтын <span>Тойм & Тооцоо</span></div>
+    <div class="pn2">Монголд байдаг, хямд орц · Загас, хулуу, сахар, чихэр хэрэггүй · 19:30-аас хойш юу ч идэхгүй · 1800–2000 ккал/өдөр</div>
+  </div>
+
+  <div class="cutoff-banner">
+    <div class="cb-icon">🚫</div>
+    <div>
+      <div class="cb-title">19:30 — Хоолны хатуу хязгаар</div>
+      <div class="cb-text">Орой 7 цаг 30 минутаас хойш юу ч идэхгүй. Ус, цай (чихэргүй) л зөвшөөрөгдөнө. Оройн хоол 18:30–19:00-д дуусгана. Дасгалын дараах хоол 19:10-д багтаана.</div>
+    </div>
+  </div>
+
+  <div class="sb2">
+    <div class="sc"><div class="sl">Нийт калори</div><div class="sv">1850<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Уураг</div><div class="sv">150<small>г</small></div></div>
+    <div class="sc"><div class="sl">Нүүрс ус</div><div class="sv">185<small>г</small></div></div>
+    <div class="sc"><div class="sl">Өөх тос</div><div class="sv">52<small>г</small></div></div>
+    <div class="sc"><div class="sl">Хоолны цонх</div><div class="sv">07:50<small>–19:30</small></div></div>
+  </div>
+
+  <div class="mo-grid">
+    <div class="mo-card">
+      <div class="mo-t">Дасгалтай өдөр</div>
+      <div class="mo-s">Нүүрс ус нэмэх — будаагаар</div>
+      <div class="mbars">
+        <div class="mb"><div class="ml" style="color:var(--protein)">Уураг</div><div class="mw"><div class="mb-b" style="width:75%;background:var(--protein)"></div></div><div class="mv">150г</div></div>
+        <div class="mb"><div class="ml" style="color:var(--carb)">Нүүрс ус</div><div class="mw"><div class="mb-b" style="width:95%;background:var(--carb)"></div></div><div class="mv">195г</div></div>
+        <div class="mb"><div class="ml" style="color:var(--fat)">Өөх тос</div><div class="mw"><div class="mb-b" style="width:26%;background:var(--fat)"></div></div><div class="mv">52г</div></div>
+        <div class="mb"><div class="ml">Нийт</div><div class="mw"><div class="mb-b" style="width:100%;background:var(--mt2)"></div></div><div class="mv">~1950ккал</div></div>
+      </div>
+    </div>
+    <div class="mo-card">
+      <div class="mo-t">Дасгалгүй өдөр</div>
+      <div class="mo-s">Нүүрс ус бага — ногоо, уураг нэм</div>
+      <div class="mbars">
+        <div class="mb"><div class="ml" style="color:var(--protein)">Уураг</div><div class="mw"><div class="mb-b" style="width:75%;background:var(--protein)"></div></div><div class="mv">150г</div></div>
+        <div class="mb"><div class="ml" style="color:var(--carb)">Нүүрс ус</div><div class="mw"><div class="mb-b" style="width:73%;background:var(--carb)"></div></div><div class="mv">145г</div></div>
+        <div class="mb"><div class="ml" style="color:var(--fat)">Өөх тос</div><div class="mw"><div class="mb-b" style="width:26%;background:var(--fat)"></div></div><div class="mv">52г</div></div>
+        <div class="mb"><div class="ml">Нийт</div><div class="mw"><div class="mb-b" style="width:88%;background:var(--mt2)"></div></div><div class="mv">~1750ккал</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">Хоолны цагийн хуваарь — Дасгалтай өдөр</div>
+  <table class="wt">
+    <thead><tr><th>Цаг</th><th>Хоол</th><th>Калори</th><th>Уураг</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td>07:50</td><td><span class="badge" style="background:rgba(245,166,35,.1);color:var(--breakfast)">Өглөо</span>Шарсан өндөг + Талх + Тараг</td><td style="font-family:var(--mo);color:var(--mt2)">480ккал</td><td style="font-family:var(--mo);color:var(--protein)">36г</td><td>Deep Work дараа</td></tr>
+      <tr><td>12:30</td><td><span class="badge" style="background:rgba(62,207,142,.1);color:var(--lunch)">Өдөр</span>Тахиа + Будаа + Байцаа</td><td style="font-family:var(--mo);color:var(--mt2)">580ккал</td><td style="font-family:var(--mo);color:var(--protein)">42г</td><td>Batch-аас</td></tr>
+      <tr><td>16:00</td><td><span class="badge" style="background:rgba(79,143,255,.1);color:var(--snack)">Зуушны</span>Тараг + Самар</td><td style="font-family:var(--mo);color:var(--mt2)">220ккал</td><td style="font-family:var(--mo);color:var(--protein)">14г</td><td>Ажлаас авч явна</td></tr>
+      <tr><td>17:30</td><td><span class="badge" style="background:rgba(255,107,74,.1);color:var(--protein)">Дасгал өмнө</span>Тараг + Будаа жижиг</td><td style="font-family:var(--mo);color:var(--mt2)">200ккал</td><td style="font-family:var(--mo);color:var(--protein)">12г</td><td>Дасгалаас 90 мин өмнө</td></tr>
+      <tr><td>19:00</td><td><span class="badge" style="background:rgba(255,107,74,.1);color:var(--protein)">Дасгал дараа</span>Шарсан өндөг 3ш + Тараг</td><td style="font-family:var(--mo);color:var(--mt2)">290ккал</td><td style="font-family:var(--mo);color:var(--protein)">28г</td><td>19:10-д дуусгана</td></tr>
+      <tr style="background:rgba(255,68,68,.04)">
+        <td colspan="5">
+          <div class="cutoff-row">
+            <div class="cutoff-line"></div>
+            <div class="cutoff-label">19:30 — Хоолны хязгаар</div>
+            <div class="cutoff-line"></div>
+          </div>
+        </td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02)"><td>Нийт</td><td style="color:var(--wh);font-weight:600">5 удаагийн хоол</td><td style="font-family:var(--mo);color:var(--wh);font-weight:700">1770ккал</td><td style="font-family:var(--mo);color:var(--protein);font-weight:700">132г</td><td style="color:var(--mt2);font-size:11px">+тос, давс ~80ккал</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sec">Хасагдсан зүйлс ба орлуулалт</div>
+  <div class="tg">
+    <div class="tc" style="border-top:2px solid var(--warn)">
+      <span class="ti">🚫</span>
+      <div class="tt">Хулуу → Байцаа, Лоол, Өргөст хэмх</div>
+      <div class="tx2">Хулуугийн оронд байцаа (хэт хямд), лоол, өргөст хэмх ашиглана. Тэжээллэг чанар ижилхэн, монголд бүгд байна.</div>
+    </div>
+    <div class="tc" style="border-top:2px solid var(--warn)">
+      <span class="ti">🚫</span>
+      <div class="tt">Сахар, чихэр → Бүрэн хасав</div>
+      <div class="tx2">Банан, жимсний шүүс, чихэрт тараг, талхны чихэр — бүгдийг хасав. Чихэргүй тараг, чанасан будааг нүүрс усны гол эх үүсвэр болгосон.</div>
+    </div>
+    <div class="tc" style="border-top:2px solid var(--warn)">
+      <span class="ti">⏰</span>
+      <div class="tt">19:30 хязгаар → Хоолны цагийг шилжүүлэв</div>
+      <div class="tx2">Дасгал 19:00-д дуусч, дараах хоолыг 19:00–19:20-д багтаана. Оройн хоол гэдэг ойлголт байхгүй болсон — дасгалын дараах хоол сүүлийн хоол.</div>
+    </div>
+    <div class="tc" style="border-top:2px solid var(--protein)">
+      <span class="ti">🔄</span>
+      <div class="tt">Банан → Будаа (дасгалын нүүрс ус)</div>
+      <div class="tx2">Дасгалын өмнөх банантай нүүрс усыг 100г чанасан будаагаар орлуулав. Удаан шингэдэг тул дасгал даяар энерги тогтмол байна.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 1 BREAKFAST ══ -->
+<div class="pn" id="p1">
+  <div class="ph">
+    <div class="pe">Хоол #1 · 07:50</div>
+    <div class="pt">Өглөөний <span>хоол</span></div>
+    <div class="pn2">Deep Work дуусгаад шагнал болгон идэнэ. Уургаар баялаг, сахаргүй. 10 минутад бэлэн болно.</div>
+  </div>
+  <div class="sb2">
+    <div class="sc"><div class="sl">Калори</div><div class="sv">480<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Уураг</div><div class="sv">36<small>г</small></div></div>
+    <div class="sc"><div class="sl">Нүүрс ус</div><div class="sv">40<small>г</small></div></div>
+    <div class="sc"><div class="sl">Өөх тос</div><div class="sv">18<small>г</small></div></div>
+    <div class="sc"><div class="sl">Бэлдэх</div><div class="sv">10<small>мин</small></div></div>
+  </div>
+  <div class="meal-grid">
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--breakfast)"></div>
+        <div class="mc-time">07:50</div>
+        <div class="mc-icon">🍳</div>
+        <div class="mc-info">
+          <div class="mc-title">А — Шарсан өндөг + Талх + Тараг</div>
+          <div class="mc-sub">Хамгийн хурдан · Бүх өдрүүдэд тохиромжтой</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(255,107,74,.1);color:var(--protein)">36г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">480ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Өндөг</div><div class="fa">Шарна эсвэл хутгана</div></td><td>4ш</td><td class="fp">28г</td><td>280</td></tr>
+            <tr><td><div class="fn">Цагаан талх</div><div class="fa">2 зүсэм · чихэргүй талхыг сонго</div></td><td>80г</td><td class="fp">6г</td><td>200</td></tr>
+            <tr><td><div class="fn">Тараг (чихэргүй)</div><div class="fa">1 аяга</div></td><td>200г</td><td class="fp">8г</td><td>100</td></tr>
+            <tr><td><div class="fn">Цөцгийн тос жижиг</div><div class="fa">Шарахад</div></td><td>5г</td><td class="fp">—</td><td>36</td></tr>
+          </tbody>
+        </table>
+        <div class="ck">
+          <div class="ck-t">Яаж бэлдэх — 8 мин</div>
+          <div class="cks">
+            <div class="ck-s"><span class="cn">1</span><span>Тавган дээр цөцгийн тос хайлуулна → дулааруулна — 1 мин</span></div>
+            <div class="ck-s"><span class="cn">2</span><span>Өндөг 4-ийг хуваан хийнэ, давс, (сонголтоор чинжүү) нэм → дунд галаар 3-4 мин</span></div>
+            <div class="ck-s"><span class="cn">3</span><span>Талх, тараг аягалж хажуудань тавина</span></div>
+            <div class="ck-s"><span class="cn">4</span><span>Утасгүй, тайван 10 минутад идэнэ</span></div>
+          </div>
+        </div>
+        <div class="why" style="border-color:var(--breakfast)">
+          <strong>Яагаад энэ хоол</strong>
+          Өндөг бол монголын хамгийн хямд уургийн эх үүсвэр (1ш ≈ 7г уураг, ~400₮). 4 өндөг нь өдрийн уургийн 19%-ийг хангана. Тараг нь нэмэлт уураг + гэдэсний эрүүл байдал.
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--breakfast)"></div>
+        <div class="mc-time">07:50</div>
+        <div class="mc-icon">🥣</div>
+        <div class="mc-info">
+          <div class="mc-title">Б — Өндөг + Будаа + Тараг (Хөлний/Full Body өдрүүд)</div>
+          <div class="mc-sub">Нүүрс ус их шаардлагатай Пүрэв, Бымба</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(255,107,74,.1);color:var(--protein)">38г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">520ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Өндөг (хутгаж шарна)</div></td><td>4ш</td><td class="fp">28г</td><td>280</td></tr>
+            <tr><td><div class="fn">Чанасан будаа</div><div class="fa">Batch-аас → microwave 2 мин</div></td><td>150г</td><td class="fp">4г</td><td>195</td></tr>
+            <tr><td><div class="fn">Тараг (чихэргүй)</div></td><td>100г</td><td class="fp">4г</td><td>50</td></tr>
+          </tbody>
+        </table>
+        <div class="why" style="border-color:var(--carb)">
+          <strong>Яагаад будаа нэмэх вэ</strong>
+          Хөлний болон Full Body дасгал нь мөр/нуруутай харьцуулахад 2 дахин их нүүрс ус шаарддаг. Өглөө нэмэлт будаа идэх нь дасгалын гүйцэтгэлийг мэдэгдэхүйц сайжруулна.
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--mt2)"></div>
+        <div class="mc-time">07:50</div>
+        <div class="mc-icon">⚡</div>
+        <div class="mc-info">
+          <div class="mc-title">В — Яаралтай (чанасан өндөг + талх)</div>
+          <div class="mc-sub">5 минут · Ням оройд өндгийг урьдчилан чанасан байна</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(255,107,74,.1);color:var(--protein)">27г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">340ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Чанасан өндөг</div><div class="fa">Ням оройд 8-10ш чанаж хадгалсан</div></td><td>4ш</td><td class="fp">28г</td><td>280</td></tr>
+            <tr><td><div class="fn">Талх</div></td><td>1 зүсэм</td><td class="fp">3г</td><td>100</td></tr>
+          </tbody>
+        </table>
+        <div class="timing">
+          <span>💡</span>
+          <div>Ням оройд 8-10 өндөг чанаж хөргөгчид хийнэ. Долоо хоногийн яаралтай өглөөнд хальсыг авахад 30 секунд.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 2 LUNCH ══ -->
+<div class="pn" id="p2">
+  <div class="ph">
+    <div class="pe">Хоол #2 · 12:30</div>
+    <div class="pt">Өдрийн <span>хоол</span></div>
+    <div class="pn2">Ажлын завсарлагааны хоол. Batch-аас container авч явна. Хулуугийн оронд байцаа, лоол, өргөст хэмх. Цатгалан байдал 4-5 цаг.</div>
+  </div>
+  <div class="sb2">
+    <div class="sc"><div class="sl">Калори</div><div class="sv">570<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Уураг</div><div class="sv">42<small>г</small></div></div>
+    <div class="sc"><div class="sl">Нүүрс ус</div><div class="sv">58<small>г</small></div></div>
+    <div class="sc"><div class="sl">Өөх тос</div><div class="sv">14<small>г</small></div></div>
+    <div class="sc"><div class="sl">Бэлдэх</div><div class="sv">Batch<small>-аас</small></div></div>
+  </div>
+  <div class="meal-grid">
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--lunch)"></div>
+        <div class="mc-time">12:30</div>
+        <div class="mc-icon">🍛</div>
+        <div class="mc-info">
+          <div class="mc-title">А — Тахиа + Будаа + Байцаа/Лоол</div>
+          <div class="mc-sub">Дасгалтай өдрүүд · Batch хийсэн · Microwave-д дулааруулна</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(62,207,142,.1);color:var(--lunch)">42г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">570ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Тахианы цээж (batch-аас)</div><div class="fa">Шарсан, хадгалагдсан</div></td><td>180г</td><td class="fp">36г</td><td>190</td></tr>
+            <tr><td><div class="fn">Чанасан будаа (batch-аас)</div></td><td>180г</td><td class="fp">4г</td><td>235</td></tr>
+            <tr><td><div class="fn">Байцаа + Лоол + Өргөст хэмх</div><div class="fa">Хулуугийн оролт — сахаргүй ногоо</div></td><td>150г</td><td class="fp">2г</td><td>40</td></tr>
+            <tr><td><div class="fn">Ургамлын тос (хуурахад)</div></td><td>5г</td><td class="fp">—</td><td>45</td></tr>
+          </tbody>
+        </table>
+        <div class="ck">
+          <div class="ck-t">Ажилдаа авч явах — 2 мин бэлтгэл</div>
+          <div class="cks">
+            <div class="ck-s"><span class="cn">1</span><span>Batch-аас тахиа + будаа нэг container-т хийж хаана</span></div>
+            <div class="ck-s"><span class="cn">2</span><span>Байцаа, лоолоо жижиглэж хажуу container-т хийнэ (эсвэл зип bag)</span></div>
+            <div class="ck-s"><span class="cn">3</span><span>Завсарлагаанд microwave 3 мин дулааруулж идэнэ</span></div>
+          </div>
+        </div>
+        <div class="why" style="border-color:var(--lunch)">
+          <strong>Байцаа ямар давуу талтай вэ</strong>
+          Байцаа нь хулуунаас 30-40% хямд, монголд жилийн туршид байдаг. Fiber агуулга их тул цатгалан байдлыг уртасгана. Лоол нь lycopene (антиоксидант) агуулдаг.
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--lunch)"></div>
+        <div class="mc-time">12:30</div>
+        <div class="mc-icon">🥩</div>
+        <div class="mc-info">
+          <div class="mc-title">Б — Үхрийн мах + Төмс + Байцаа</div>
+          <div class="mc-sub">Дасгалгүй өдрүүд (Лхагва, Ням) · Нүүрс ус бага</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(62,207,142,.1);color:var(--lunch)">38г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">530ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Үхрийн мах (batch-аас)</div></td><td>160г</td><td class="fp">32г</td><td>270</td></tr>
+            <tr><td><div class="fn">Буцалгасан төмс (batch-аас)</div></td><td>200г</td><td class="fp">4г</td><td>160</td></tr>
+            <tr><td><div class="fn">Байцаа (хуурсан эсвэл түүхий)</div></td><td>150г</td><td class="fp">2г</td><td>35</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3 SNACK ══ -->
+<div class="pn" id="p3">
+  <div class="ph">
+    <div class="pe">Хоол #3 · 16:00</div>
+    <div class="pt">Завсрын <span>зуушны хоол</span></div>
+    <div class="pn2">Ажлын цагт 16:00-д. Банан хасагдсан тул тараг + самар л байна. Гэрээс container-т авч явна.</div>
+  </div>
+  <div class="sb2">
+    <div class="sc"><div class="sl">Калори</div><div class="sv">220<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Уураг</div><div class="sv">14<small>г</small></div></div>
+    <div class="sc"><div class="sl">Нүүрс ус</div><div class="sv">12<small>г</small></div></div>
+    <div class="sc"><div class="sl">Өөх тос</div><div class="sv">12<small>г</small></div></div>
+    <div class="sc"><div class="sl">Бэлдэх</div><div class="sv">1<small>мин</small></div></div>
+  </div>
+  <div class="meal-grid">
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--snack)"></div>
+        <div class="mc-time">16:00</div>
+        <div class="mc-icon">🥛</div>
+        <div class="mc-info">
+          <div class="mc-title">Тараг + Самар (буурцаг / земляной)</div>
+          <div class="mc-sub">Бүх өдрүүдэд · Авч явахад хялбар · Сахаргүй</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(79,143,255,.1);color:var(--snack)">14г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">220ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Тараг (чихэргүй, өтгөн)</div><div class="fa">Чихэр нэмсэн тараг биш — шошгыг уншина</div></td><td>200г</td><td class="fp">8г</td><td>100</td></tr>
+            <tr><td><div class="fn">Буурцаг самар / Земляной самар</div><div class="fa">Давссан биш, чихэр цацаагүй хувилбар</div></td><td>30г</td><td class="fp">8г</td><td>175</td></tr>
+          </tbody>
+        </table>
+        <div class="why" style="border-color:var(--snack)">
+          <strong>Яагаад банан хасаад самар нэмэв</strong>
+          Банан нь фруктоз (байгалийн сахар) агуулдаг тул хасагдсан. Самар нь сахаргүй, удаан шингэдэг — цусны сахарын хэлбэлзлийг тогтмол байлгана. Тараг + самарын хослол 4-5 цагийн цатгалан өгнө.
+        </div>
+        <div class="timing">
+          <span>🎒</span>
+          <div><strong>Гэрээс авч явах</strong> — Тараг жижиг container-т, самарыг zip bag-т хийнэ. Ажлын хөргөгчид хийх хэрэгтэй эсвэл дулаанд 4-5 цаг ч байдаг.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--snack)"></div>
+        <div class="mc-time">16:00</div>
+        <div class="mc-icon">🥚</div>
+        <div class="mc-info">
+          <div class="mc-title">Хувилбар — Чанасан өндөг + Бяслаг</div>
+          <div class="mc-sub">Тараг байхгүй үед · Уураг илүү</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(79,143,255,.1);color:var(--snack)">22г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">270ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Чанасан өндөг</div></td><td>3ш</td><td class="fp">21г</td><td>210</td></tr>
+            <tr><td><div class="fn">Монгол бяслаг</div><div class="fa">Давсалсан, хатуу — чихэргүй</div></td><td>30г</td><td class="fp">6г</td><td>90</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 4 DINNER → Now pre+post workout ══ -->
+<div class="pn" id="p4">
+  <div class="ph">
+    <div class="pe">Хоол #4 · 19:30 хязгаар</div>
+    <div class="pt">Оройн <span>хоол (сүүлийн)</span></div>
+    <div class="pn2">19:30-аас хойш юу ч идэхгүй тул оройн хоол гэдэг ойлголт байхгүй болсон. Дасгалтай өдрүүдэд дасгалын дараах хоол л сүүлийн хоол. Дасгалгүй өдрүүдэд 18:30–19:00-д хоолоо дуусгана.</div>
+  </div>
+
+  <div class="cutoff-banner">
+    <div class="cb-icon">⏰</div>
+    <div>
+      <div class="cb-title">Дасгалтай өдрүүд: сүүлийн хоол 19:00–19:20</div>
+      <div class="cb-text">Дасгал 19:00-д дуусна → 19:00–19:20 дотор шарсан өндөг 3 + тараг идэнэ → 19:30-д бүрэн дуусна. Цаг хагас ч орхиж болохгүй.</div>
+    </div>
+  </div>
+
+  <div class="sb2">
+    <div class="sc"><div class="sl">Дасгалтай өдөр</div><div class="sv">19:00<small>–19:20</small></div></div>
+    <div class="sc"><div class="sl">Дасгалгүй өдөр</div><div class="sv">18:30<small>–19:00</small></div></div>
+    <div class="sc"><div class="sl">Сүүлийн хоол</div><div class="sv">290<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Уураг</div><div class="sv">26<small>г</small></div></div>
+    <div class="sc"><div class="sl">Хязгаар</div><div class="sv" style="color:var(--warn)">19:30</div></div>
+  </div>
+
+  <div class="meal-grid">
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--protein)"></div>
+        <div class="mc-time">19:00</div>
+        <div class="mc-icon">💪</div>
+        <div class="mc-info">
+          <div class="mc-title">Дасгалтай өдөр — Дасгалын дараах хоол (СҮҮЛИЙН)</div>
+          <div class="mc-sub">Дасгал дуусаад 10-15 мин дотор · 19:20-д дуусгана</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(255,107,74,.1);color:var(--protein)">26г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">290ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Шарсан өндөг</div><div class="fa">Тавган дээр шууд 5 мин</div></td><td>3ш</td><td class="fp">21г</td><td>210</td></tr>
+            <tr><td><div class="fn">Тараг (чихэргүй)</div><div class="fa">Хажуу</div></td><td>100г</td><td class="fp">4г</td><td>50</td></tr>
+            <tr><td><div class="fn">Монгол бяслаг (сонголттой)</div></td><td>30г</td><td class="fp">6г</td><td>90</td></tr>
+          </tbody>
+        </table>
+        <div class="ck">
+          <div class="ck-t">Яаж хурдан хийх — 5 мин</div>
+          <div class="cks">
+            <div class="ck-s"><span class="cn">1</span><span>Дасгал дуусмагц шууд гал тавина — тавган дулааруулна</span></div>
+            <div class="ck-s"><span class="cn">2</span><span>Тос → өндөг 3 хийж 4-5 мин шарна</span></div>
+            <div class="ck-s"><span class="cn">3</span><span>Тараг аягалж хажуудань тавина → 19:20-д дуусна</span></div>
+          </div>
+        </div>
+        <div class="why" style="border-color:var(--protein)">
+          <strong>Банангүй яах вэ — нүүрс ус хаанаас нэмэх вэ</strong>
+          Банан хасагдсан тул гликогений нөхөлтийг дасгалын ӨМНӨХ будаагаар хангана (17:30-ийн хоол). Дасгалын дараа уураг л хамгийн чухал — өндөг + тараг хангалттай.
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--dinner)"></div>
+        <div class="mc-time">18:30</div>
+        <div class="mc-icon">🍲</div>
+        <div class="mc-info">
+          <div class="mc-title">Дасгалгүй өдөр — Оройн хоол (СҮҮЛИЙН)</div>
+          <div class="mc-sub">Лхагва, Ням · 18:30–19:00-д дуусна · Нүүрс ус бага</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(201,169,110,.1);color:var(--dinner)">34г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">380ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Үхрийн мах (batch-аас)</div></td><td>150г</td><td class="fp">30г</td><td>250</td></tr>
+            <tr><td><div class="fn">Байцаа хуурсан</div></td><td>200г</td><td class="fp">3г</td><td>80</td></tr>
+            <tr><td><div class="fn">Өндөг</div></td><td>1ш</td><td class="fp">7г</td><td>70</td></tr>
+          </tbody>
+        </table>
+        <div class="why" style="border-color:var(--dinner)">
+          <strong>Нүүрс ус яагаад бага</strong>
+          Дасгалгүй тул биед нүүрс усны их хэрэгцээ байхгүй. Уураг + ногоо хослол нь шөнийн булчины сэргэлтийг дэмжиж, гэдэсний өөхийн задралыг хурдасгана.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 5 PRE/POST ══ -->
+<div class="pn" id="p5">
+  <div class="ph">
+    <div class="pe">Дасгалын хоол</div>
+    <div class="pt">Дасгалын өмнө <span>& дараа</span></div>
+    <div class="pn2">Банан хасагдсан тул нүүрс усыг будаагаар хангана. Дасгалын дараах хоол 19:00–19:20-д дуусна — 19:30-ийн хязгаарт багтана.</div>
+  </div>
+  <div class="sb2">
+    <div class="sc"><div class="sl">Өмнөх цаг</div><div class="sv">17:30<small></small></div></div>
+    <div class="sc"><div class="sl">Өмнөх калори</div><div class="sv">200<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Дараах цаг</div><div class="sv">19:00<small>–19:20</small></div></div>
+    <div class="sc"><div class="sl">Дараах калори</div><div class="sv">290<small>ккал</small></div></div>
+    <div class="sc"><div class="sl">Хязгаар</div><div class="sv" style="color:var(--warn)">19:30</div></div>
+  </div>
+  <div class="meal-grid">
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--carb)"></div>
+        <div class="mc-time">17:30</div>
+        <div class="mc-icon">⚡</div>
+        <div class="mc-info">
+          <div class="mc-title">Дасгалын ӨМНӨХ хоол — 17:30</div>
+          <div class="mc-sub">Дасгалаас 90 мин өмнө · Нүүрс ус + уураг · Банангүй</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(124,109,242,.1);color:var(--carb)">12г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">200ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Тараг (чихэргүй)</div><div class="fa">Хурдан уураг</div></td><td>150г</td><td class="fp">6г</td><td>75</td></tr>
+            <tr><td><div class="fn">Чанасан будаа</div><div class="fa">Банангийн орлуулалт — нүүрс ус</div></td><td>100г</td><td class="fp">3г</td><td>130</td></tr>
+          </tbody>
+        </table>
+        <div class="why" style="border-color:var(--carb)">
+          <strong>Яагаад будаа банан хоёр адилгүй вэ</strong>
+          Банан нь хурдан шингэдэг (простой нүүрс ус), будаа нь удаан (цогц нүүрс ус). Будаа нь дасгал даяар тогтмол энерги өгдөг тул дасгалын гүйцэтгэлд илүү тохиромжтой. Банан зөвхөн кардио дасгалд давуу.
+        </div>
+      </div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-head">
+        <div class="mc-stripe" style="background:var(--protein)"></div>
+        <div class="mc-time">19:00</div>
+        <div class="mc-icon">💪</div>
+        <div class="mc-info">
+          <div class="mc-title">Дасгалын ДАРААХ хоол — 19:00–19:20</div>
+          <div class="mc-sub">Анаболик цонх · 19:30-ийн хязгаарт яг багтана</div>
+        </div>
+        <div class="mc-macros">
+          <span class="mpill" style="background:rgba(255,107,74,.1);color:var(--protein)">26г уураг</span>
+          <span class="mpill" style="background:rgba(255,255,255,.05);color:var(--mt2)">290ккал</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <table class="ft">
+          <thead><tr><th>Орц</th><th>Хэмжээ</th><th>Уураг</th><th>Ккал</th></tr></thead>
+          <tbody>
+            <tr><td><div class="fn">Шарсан өндөг</div></td><td>3ш</td><td class="fp">21г</td><td>210</td></tr>
+            <tr><td><div class="fn">Тараг (чихэргүй)</div></td><td>100г</td><td class="fp">4г</td><td>50</td></tr>
+            <tr><td><div class="fn">Бяслаг (сонголттой)</div></td><td>30г</td><td class="fp">6г</td><td>90</td></tr>
+          </tbody>
+        </table>
+        <div class="ck">
+          <div class="ck-t">Цагийн хуваарь — 19:30 хязгаарт багтаах</div>
+          <div class="cks">
+            <div class="ck-s"><span class="cn">19:00</span><span>Дасгал дуусна → шууд гал тавина</span></div>
+            <div class="ck-s"><span class="cn">19:05</span><span>Өндөг шарч эхэлнэ — 5 мин</span></div>
+            <div class="ck-s"><span class="cn">19:10</span><span>Хоол бэлэн → идэж эхэлнэ</span></div>
+            <div class="ck-s"><span class="cn">19:20</span><span>Дуусгана — 19:30-аас 10 мин өмнө ✓</span></div>
+          </div>
+        </div>
+        <div class="why" style="border-color:var(--protein)">
+          <strong>19:30-ийн хязгаарт яаж багтах вэ</strong>
+          Дасгал 19:00-д дууссан тохиолдолд л 19:30-ийн хязгаарт багтана. Дасгал хойшлогдвол (19:15 гэх мэт) дасгалын дараах хоолыг орхиж болохгүй — харин хурдан шарсан өндөг 2ш л идэнэ.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 6 WEEKLY SCHEDULE ══ -->
+<div class="pn" id="p6">
+  <div class="ph">
+    <div class="pe">Долоо хоногийн хуваарь</div>
+    <div class="pt">7 хоногийн <span>хооллолтын систем</span></div>
+    <div class="pn2">Дасгалтай өдрүүдэд нүүрс ус (будаа) нэмнэ. Дасгалгүй өдрүүдэд ногоо, уураг нэмнэ. Бүх өдрүүдэд 19:30-аас хойш идэхгүй.</div>
+  </div>
+  <table class="wt">
+    <thead><tr><th>Гараг</th><th>Дасгал</th><th>Өглөо (07:50)</th><th>Өдөр (12:30)</th><th>Зуушны (16:00)</th><th>Сүүлийн хоол</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Даваа</td>
+        <td><span class="badge" style="background:rgba(79,143,255,.1);color:var(--snack)">Мөр+Гар</span></td>
+        <td>А хувилбар<br><small style="color:var(--mt2)">4 өндөг+талх+тараг</small></td>
+        <td>А хувилбар<br><small style="color:var(--mt2)">Тахиа+будаа+байцаа</small></td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--protein)">19:00–19:20<br>Өндөг 3+тараг</td>
+      </tr>
+      <tr>
+        <td>Мягмар</td>
+        <td><span class="badge" style="background:rgba(62,207,142,.1);color:var(--lunch)">Нуруу</span></td>
+        <td>А хувилбар</td>
+        <td>А хувилбар</td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--protein)">19:00–19:20<br>Өндөг 3+тараг</td>
+      </tr>
+      <tr>
+        <td>Лхагва</td>
+        <td><span class="badge" style="background:rgba(100,200,212,.1);color:var(--fat)">Амралт</span></td>
+        <td>А хувилбар<br><small style="color:var(--mt2)">Будаа бага</small></td>
+        <td>Б хувилбар<br><small style="color:var(--mt2)">Мах+төмс</small></td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--dinner)">18:30–19:00<br>Мах+байцаа+өндөг</td>
+      </tr>
+      <tr>
+        <td>Пүрэв</td>
+        <td><span class="badge" style="background:rgba(245,166,35,.1);color:var(--breakfast)">Хөл+Гөлөм</span></td>
+        <td><strong style="color:var(--wh)">Б хувилбар</strong><br><small style="color:var(--carb)">+будаа нэм</small></td>
+        <td>А хувилбар</td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--protein)">19:00–19:20<br>Өндөг 3+тараг</td>
+      </tr>
+      <tr>
+        <td>Баасан</td>
+        <td><span class="badge" style="background:rgba(255,107,74,.1);color:var(--protein)">Core</span></td>
+        <td>А хувилбар</td>
+        <td>А хувилбар</td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--protein)">19:00–19:20<br>Өндөг 3+тараг</td>
+      </tr>
+      <tr>
+        <td>Бымба</td>
+        <td><span class="badge" style="background:rgba(124,109,242,.1);color:var(--carb)">Full Body</span></td>
+        <td><strong style="color:var(--wh)">Б хувилбар</strong><br><small style="color:var(--carb)">+будаа нэм</small></td>
+        <td>А хувилбар</td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--protein)">19:10–19:25<br>Өндөг 3+тараг</td>
+      </tr>
+      <tr>
+        <td>Ням</td>
+        <td><span class="badge" style="background:rgba(62,207,142,.1);color:var(--lunch)">Амралт</span></td>
+        <td>А хувилбар</td>
+        <td>Б хувилбар</td>
+        <td>Тараг+самар</td>
+        <td style="font-size:11px;color:var(--dinner)">18:30–19:00<br>Мах+байцаа · Batch хийнэ</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="why" style="border-color:var(--warn)">
+    <strong>19:30 хязгаарын биологийн үр дүн</strong>
+    Оройн 19:30-аас хойш хоол идэхгүй байх нь ~12 цагийн intermittent fasting үүсгэнэ (07:50 хүртэл). Энэ хугацаанд insuliny түвшин буурч, биед хадгалагдсан өөхийг эрчим хүч болгон ашигладаг. Тусгайлан калори тоолохгүй ч гэдэс нимгэлэх хамгийн үр дүнтэй дадал.
+  </div>
+</div>
+
+<!-- ══ 7 BATCH COOKING ══ -->
+<div class="pn" id="p7">
+  <div class="ph">
+    <div class="pe">Batch Cooking систем</div>
+    <div class="pt">Ням оройн <span>60 минут</span></div>
+    <div class="pn2">Ням орой нэг удаа хийж долоо хоногийн хоолны 70%-ийг бэлдэнэ. Ажлын өдрүүдэд зөвхөн дулааруулна.</div>
+  </div>
+
+  <div class="cutoff-banner">
+    <div class="cb-icon">🍳</div>
+    <div>
+      <div class="cb-title">Ням batch-ийн хуваарь: 17:30–18:30</div>
+      <div class="cb-text">19:30 хязгаар дагуу Ням оройн хоолоо 18:30–19:00-д идэх тул batch-ийг 17:30–18:30-д хийнэ. Хоолоо идсэний дараа бусад batch-ийн зүйлсийг хийж болно.</div>
+    </div>
+  </div>
+
+  <div class="pc">
+    <div class="pc-h"><div class="pc-icon">🍗</div><div><div class="pc-t">1. Тахианы цээж шарах — 20 мин</div><div class="pc-s">4 хоногийн хэрэгцээ · Хөргөгчид 4 хоног хадгалагдана</div></div></div>
+    <div class="ps">
+      <div class="ps-r"><div class="ps-n">1</div><div class="ps-t"><strong>Хэмжээ:</strong> 800г–1кг тахианы цээж → давс, чинжүү, часнок нэм</div></div>
+      <div class="ps-r"><div class="ps-n">2</div><div class="ps-t">Тавган дээр ургамлын тосоор хоёр талаас 15–18 мин шарна (дунд гал). Дотор нь цагаан болсон = болсон</div></div>
+      <div class="ps-r"><div class="ps-n">3</div><div class="ps-t">Хөргөж 160–180г тус тус container-т хийнэ → Нийт 5–6 порц (Да, Мя, Пү, Ба, Бы)</div></div>
+    </div>
+  </div>
+
+  <div class="pc">
+    <div class="pc-h"><div class="pc-icon">🍚</div><div><div class="pc-t">2. Будаа чанах — 25 мин (идэвхгүй)</div><div class="pc-s">4 хоногийн хэрэгцээ · 5 хоног хадгалагдана</div></div></div>
+    <div class="ps">
+      <div class="ps-r"><div class="ps-n">1</div><div class="ps-t"><strong>Хэмжээ:</strong> 3 аяга будаа + 6 аяга ус → 20–25 мин чанана</div></div>
+      <div class="ps-r"><div class="ps-n">2</div><div class="ps-t">Хөргөж 150–200г тус тус container-т хийнэ → 4–5 порц (өглөо + өдрийн хоол)</div></div>
+    </div>
+  </div>
+
+  <div class="pc">
+    <div class="pc-h"><div class="pc-icon">🥚</div><div><div class="pc-t">3. Өндөг чанах — 12 мин</div><div class="pc-s">7 хоногийн хэрэгцээ · Хөргөгчид 1 долоо хоног хадгалагдана</div></div></div>
+    <div class="ps">
+      <div class="ps-r"><div class="ps-n">1</div><div class="ps-t"><strong>Хэмжээ:</strong> 8–10 өндөг → буцалсан усанд 10 мин чанана</div></div>
+      <div class="ps-r"><div class="ps-n">2</div><div class="ps-t">Хүйтэн усанд хийнэ (хальс хялбар авна) → хөргөгчид хийнэ</div></div>
+      <div class="ps-r"><div class="ps-n">3</div><div class="ps-t">Өглөөний хоол (В хувилбар), 16:00 зуушны, дасгалын дараах хоолд ашиглана</div></div>
+    </div>
+  </div>
+
+  <div class="pc">
+    <div class="pc-h"><div class="pc-icon">🥩</div><div><div class="pc-t">4. Үхрийн мах шарах — 20 мин</div><div class="pc-s">Лхагва, Ням-ийн хоол · 3 порц</div></div></div>
+    <div class="ps">
+      <div class="ps-r"><div class="ps-n">1</div><div class="ps-t"><strong>Хэмжээ:</strong> 500г → жижиглэж давс, чинжүү, сонгино нэм → 15 мин шарна</div></div>
+      <div class="ps-r"><div class="ps-n">2</div><div class="ps-t">150–160г container-т хийж хадгална</div></div>
+    </div>
+  </div>
+
+  <div class="pc">
+    <div class="pc-h"><div class="pc-icon">🥔</div><div><div class="pc-t">5. Төмс буцалгах — 20 мин</div><div class="pc-s">Дасгалгүй өдрүүдийн хоолд</div></div></div>
+    <div class="ps">
+      <div class="ps-r"><div class="ps-n">1</div><div class="ps-t">6–8 дунд зэргийн төмс → хальстай 20 мин чанана → 200г container-т хийнэ</div></div>
+    </div>
+  </div>
+
+  <div class="sec" style="margin-top:22px">Ням оройн batch хуваарь</div>
+  <table class="wt">
+    <thead><tr><th>Цаг</th><th>Юу хийж байгаа</th><th>Хугацаа</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td>17:30</td><td>Будаа эхлэх</td><td>25 мин (идэвхгүй)</td><td style="color:var(--mt2);font-size:11px">Чанаж байхад бусдыг хий</td></tr>
+      <tr><td>17:35</td><td>Тахиа бэлдэж шарах</td><td>20 мин</td><td style="color:var(--mt2);font-size:11px">Давс, часнок нэм</td></tr>
+      <tr><td>17:40</td><td>Өндөг чанах</td><td>12 мин (идэвхгүй)</td><td style="color:var(--mt2);font-size:11px">Тахиатай зэрэг</td></tr>
+      <tr><td>17:55</td><td>Үхрийн мах + Төмс</td><td>20 мин</td><td style="color:var(--mt2);font-size:11px">Зэрэг хийж болно</td></tr>
+      <tr><td>18:20</td><td>Container-т хийх</td><td>10 мин</td><td style="color:var(--mt2);font-size:11px">Гараг, хоолыг шошголно</td></tr>
+      <tr><td>18:30</td><td>Дуусгах → Хоол идэх</td><td>—</td><td style="color:var(--mt2);font-size:11px">19:00-д дуусгана</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ 8 SHOPPING ══ -->
+<div class="pn" id="p8">
+  <div class="ph">
+    <div class="pe">Дэлгүүрийн жагсаалт</div>
+    <div class="pt">7 хоногийн <span>худалдан авалт</span></div>
+    <div class="pn2">Загас, хулуу, банан, сахар, чихэр — бүгд хасагдсан. Монголд байдаг, хямд, энгийн бүтээгдэхүүн.</div>
+  </div>
+  <div class="sg">
+    <div class="scard" style="border-top:2px solid var(--protein)">
+      <div class="scat">🥩 Уургийн эх үүсвэр</div>
+      <div class="si"><span class="sin">Тахианы цээж</span><span class="siq">1.5кг/7 хоног</span></div>
+      <div class="si"><span class="sin">Үхрийн мах</span><span class="siq">700г/7 хоног</span></div>
+      <div class="si"><span class="sin">Өндөг</span><span class="siq">30ш/7 хоног</span></div>
+      <div class="sfr">Хэзээ: Бымба эсвэл Ням</div>
+    </div>
+    <div class="scard" style="border-top:2px solid var(--breakfast)">
+      <div class="scat">🥛 Сүүн бүтээгдэхүүн</div>
+      <div class="si"><span class="sin">Тараг — чихэргүй заавал</span><span class="siq">2кг/7 хоног</span></div>
+      <div class="si"><span class="sin">Монгол бяслаг</span><span class="siq">200г/7 хоног</span></div>
+      <div class="si"><span class="sin">Цөцгийн тос (жижиг)</span><span class="siq">100г/7 хоног</span></div>
+      <div class="sfr">⚠ Чихэрт тараг бүү ав — шошгыг уншина</div>
+    </div>
+    <div class="scard" style="border-top:2px solid var(--carb)">
+      <div class="scat">🌾 Нүүрс ус</div>
+      <div class="si"><span class="sin">Цагаан будаа</span><span class="siq">2кг/2 долоо хоног</span></div>
+      <div class="si"><span class="sin">Цагаан талх — чихэргүй</span><span class="siq">1 дарс/7 хоног</span></div>
+      <div class="si"><span class="sin">Төмс</span><span class="siq">1кг/7 хоног</span></div>
+      <div class="sfr">⚠ Чихэртэй талх биш — ердийн талх</div>
+    </div>
+    <div class="scard" style="border-top:2px solid var(--lunch)">
+      <div class="scat">🥦 Ногоо (хулуугүй)</div>
+      <div class="si"><span class="sin">Байцаа</span><span class="siq">1 толгой/7 хоног</span></div>
+      <div class="si"><span class="sin">Лоол</span><span class="siq">500г/7 хоног</span></div>
+      <div class="si"><span class="sin">Өргөст хэмх</span><span class="siq">500г/7 хоног</span></div>
+      <div class="si"><span class="sin">Сонгино + Часнок</span><span class="siq">Сарын нөөц</span></div>
+      <div class="sfr">Байцаа хамгийн хямд, жилийн турш байна</div>
+    </div>
+    <div class="scard" style="border-top:2px solid var(--fat)">
+      <div class="scat">🌰 Тос & Самар</div>
+      <div class="si"><span class="sin">Буурцаг/Земляной самар</span><span class="siq">500г/2 долоо хоног</span></div>
+      <div class="si"><span class="sin">Ургамлын тос</span><span class="siq">1л/сар</span></div>
+      <div class="sfr">⚠ Самар давссан биш, чихэргүй хувилбар</div>
+    </div>
+    <div class="scard" style="border-top:2px solid var(--mt2)">
+      <div class="scat">🧂 Орчим зүйлс</div>
+      <div class="si"><span class="sin">Давс</span><span class="siq">Сарын нөөц</span></div>
+      <div class="si"><span class="sin">Хар чинжүү</span><span class="siq">Сарын нөөц</span></div>
+      <div class="si"><span class="sin">Часнок (хатаасан)</span><span class="siq">Сарын нөөц</span></div>
+    </div>
+  </div>
+
+  <div class="sec">Ойролцоо зардал (7 хоног)</div>
+  <table class="wt">
+    <thead><tr><th>Бүтээгдэхүүн</th><th>Хэмжээ</th><th>Ойролцоо үнэ</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td>Тахианы цээж</td><td>1.5кг</td><td style="font-family:var(--mo);color:var(--wh)">~15,000₮</td><td style="color:var(--mt2);font-size:11px">Хамгийн чухал</td></tr>
+      <tr><td>Үхрийн мах</td><td>700г</td><td style="font-family:var(--mo);color:var(--wh)">~12,000₮</td><td style="color:var(--mt2);font-size:11px">Хямдыг сонго</td></tr>
+      <tr><td>Өндөг</td><td>30ш</td><td style="font-family:var(--mo);color:var(--wh)">~12,000₮</td><td style="color:var(--mt2);font-size:11px">Хамгийн хямд уураг</td></tr>
+      <tr><td>Тараг (чихэргүй)</td><td>2кг</td><td style="font-family:var(--mo);color:var(--wh)">~8,000₮</td><td style="color:var(--mt2);font-size:11px">Том сав</td></tr>
+      <tr><td>Будаа</td><td>2кг</td><td style="font-family:var(--mo);color:var(--wh)">~5,000₮</td><td style="color:var(--mt2);font-size:11px">2 долоо хоногт</td></tr>
+      <tr><td>Ногоо (байцаа, лоол, өргөст хэмх)</td><td>—</td><td style="font-family:var(--mo);color:var(--wh)">~6,000₮</td><td style="color:var(--mt2);font-size:11px">Хулуугүй → хямд болсон</td></tr>
+      <tr><td>Самар, бусад</td><td>—</td><td style="font-family:var(--mo);color:var(--wh)">~5,000₮</td><td style="color:var(--mt2);font-size:11px"></td></tr>
+      <tr style="background:rgba(255,255,255,.03)"><td><strong>Нийт</strong></td><td></td><td style="font-family:var(--mo);color:var(--protein);font-weight:700;font-size:15px">~63,000₮</td><td style="color:var(--mt2);font-size:11px">7 хоногт · Хулуу хасснаар бага болсон</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
+</div>
+
+<script>
+function go(i){
+  document.querySelectorAll('.pn').forEach((p,j)=>p.classList.toggle('on',j===i));
+  document.querySelectorAll('.ni').forEach((n,j)=>n.classList.toggle('on',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
