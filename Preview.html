@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> LifeOS - Зөвхөн танд зориулсан төлөвлөгч </title>
+<title>LifeOS - Зөвхөн танд зориулсан төлөвлөгч</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -443,25 +443,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 /* Paywall overlay */
 #previewPaywall{
   position:fixed;inset:0;z-index:290;
-  background:linear-gradient(to top, var(--bg) 0%, var(--bg) 40%, rgba(8,8,9,0.96) 65%, transparent 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  padding-bottom:90px;
+  background:rgba(8,8,9,0.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px 0 90px;
   pointer-events:all;
   opacity:0;visibility:hidden;
   transition:opacity .5s, visibility .5s;
+  overflow-y:auto;
 }
 #previewPaywall.show{opacity:1;visibility:visible}
 @media(max-width:768px){
-  #previewPaywall{
-    padding-bottom:70px;
-    padding-top:20px;
-    justify-content:flex-start;
-    overflow-y:auto;
-  }
-  .pw-inner{padding:0 20px}
-  .pw-name{font-size:15px;margin-bottom:4px}
+  #previewPaywall{padding:16px 0 70px}
+  .pw-name{font-size:16px;margin-bottom:4px}
   .pw-sub{font-size:9px;margin-bottom:5px}
-  .pw-icon{font-size:20px;margin-bottom:5px}
+  .pw-icon{font-size:22px;margin-bottom:5px}
   .pw-desc{font-size:12px;margin-bottom:10px}
   .pw-chips{gap:4px;margin-bottom:12px}
   .pw-chip{font-size:9px;padding:3px 8px}
