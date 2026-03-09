@@ -2586,10 +2586,10 @@ Funnel:
     try{
       const res=await fetch('https://lifeos-proxy.contentmarketing976.workers.dev/',{
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:hist})
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1000,messages:[{role:'system',content:SYS},...hist]})
       });
       const data=await res.json();
-      let reply=(data.content?.[0]?.text)||(data.error?.message)||'Уучлаарай, алдаа гарлаа.';
+      let reply=data.choices?.[0]?.message?.content||'Уучлаарай, алдаа гарлаа.';
       const showCTA=reply.includes('PAYMENT_READY')&&!ctaDone;
       if(showCTA) ctaDone=true;
       reply=reply.replace(/PAYMENT_READY/g,'').trim();
