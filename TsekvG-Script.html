@@ -1364,10 +1364,35 @@ const CCL={'4c':'c-4c',ugc:'c-ugc',vo:'c-vo',txt:'c-txt',pain:'c-pain',social:'c
 const CNM={'4c':'4C Framework',ugc:'UGC Style',vo:'Voiceover',txt:'Text Only',pain:'Pain Point',social:'Social Proof',proof:'Value/Offer',edu:'Education'};
 const CATS=['4c','ugc','vo','txt','pain','social','proof','edu'];
 
+// ══════════════════════════════════════════════════
+// SUPABASE SYNC — cross-device storage
+// ══════════════════════════════════════════════════
+const SB_URL='https://xpxotgpqxrupkgcppzmn.supabase.co';
+const SB_KEY='sb_publishable_6ERlknf37ZfGJc5rkd53gA_uimHPfUE';
+async function sbGet(key){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/reel_data?key=eq.${key}&select=value`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(!r.ok)return null;
+    const d=await r.json();
+    return d.length?d[0].value:null;
+  }catch(e){return null;}
+}
+async function sbSet(key,value){
+  try{
+    await fetch(`${SB_URL}/rest/v1/reel_data`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({key,value,updated_at:new Date().toISOString()})});
+  }catch(e){}
+}
+// ══════════════════════════════════════════════════
+
 const SK='reel_v1';
 function loadSt(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return{};}
-function saveSt(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function saveSt(){
+  try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}
+  sbSet(SK,ST);
+}
 let ST=loadSt();
+// Async load from Supabase on start
+sbGet(SK).then(d=>{if(d){ST=d;try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}});
 function gc(id){if(!ST[id])ST[id]={checks:{},views:'',comments:'',note:'',rating:'',repeat:false};return ST[id];}
 
 function esc(s){return(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$').replace(/\n/g,'\\n').replace(/'/g,"\\'")}
@@ -1583,8 +1608,12 @@ function updStats(){
 let CUSTOM=[];
 const CSK='reel_custom_v1';
 function loadCustom(){try{const r=localStorage.getItem(CSK);if(r)return JSON.parse(r);}catch(e){}return[];}
-function saveCustomData(){try{localStorage.setItem(CSK,JSON.stringify(CUSTOM));}catch(e){}}
+function saveCustomData(){
+  try{localStorage.setItem(CSK,JSON.stringify(CUSTOM));}catch(e){}
+  sbSet(CSK,CUSTOM);
+}
 CUSTOM=loadCustom();
+sbGet(CSK).then(d=>{if(d){CUSTOM=d;try{localStorage.setItem(CSK,JSON.stringify(CUSTOM));}catch(e){}}});
 
 let editingCat='custom';let editingId=null;
 
@@ -1682,12 +1711,19 @@ const STREAK_KEY='reel_streak_v1';const DAILY_KEY='reel_daily_v1';const GOAL_KEY
 function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function dayLabel(ds){const days=['Ня','Да','Мя','Лх','Пү','Ба','Бя'];const parts=ds.split('-');const d=new Date(+parts[0],+parts[1]-1,+parts[2]);return days[d.getDay()];}
 function loadStreak(){try{const r=localStorage.getItem(STREAK_KEY);return r?JSON.parse(r):{days:[],best:0};}catch(e){return{days:[],best:0};}}
-function saveStreak(s){try{localStorage.setItem(STREAK_KEY,JSON.stringify(s));}catch(e){}}
+function saveStreak(s){try{localStorage.setItem(STREAK_KEY,JSON.stringify(s));}catch(e){} sbSet(STREAK_KEY,s);}
 function loadHeatmap(){try{const r=localStorage.getItem(HEATMAP_KEY);return r?JSON.parse(r):{};}catch(e){return{};}}
-function saveHeatmap(h){try{localStorage.setItem(HEATMAP_KEY,JSON.stringify(h));}catch(e){}}
+function saveHeatmap(h){try{localStorage.setItem(HEATMAP_KEY,JSON.stringify(h));}catch(e){} sbSet(HEATMAP_KEY,h);}
 function loadGoal(){try{const r=localStorage.getItem(GOAL_KEY);return r?parseInt(r):3;}catch(e){return 3;}}
 function loadDaily(){try{const r=localStorage.getItem(DAILY_KEY);return r?JSON.parse(r):{date:'',done:0};}catch(e){return{date:'',done:0};}}
-function saveDaily(d){try{localStorage.setItem(DAILY_KEY,JSON.stringify(d));}catch(e){}}
+function saveDaily(d){try{localStorage.setItem(DAILY_KEY,JSON.stringify(d));}catch(e){} sbSet(DAILY_KEY,d);}
+// Sync from Supabase on load
+Promise.all([sbGet(STREAK_KEY),sbGet(HEATMAP_KEY),sbGet(DAILY_KEY),sbGet(GOAL_KEY)]).then(([streak,hm,daily,goal])=>{
+  if(streak)try{localStorage.setItem(STREAK_KEY,JSON.stringify(streak));}catch(e){}
+  if(hm)try{localStorage.setItem(HEATMAP_KEY,JSON.stringify(hm));}catch(e){}
+  if(daily)try{localStorage.setItem(DAILY_KEY,JSON.stringify(daily));}catch(e){}
+  if(goal)try{localStorage.setItem(GOAL_KEY,String(goal));}catch(e){}
+});
 
 function markVisitToday(){
   const today=todayStr();const s=loadStreak();
@@ -1712,7 +1748,7 @@ function markDailyDone(){
 
 function setGoal(){
   const cur=loadGoal();const val=prompt('Өдөрт хэдэн script ажиллуулах вэ?',cur);
-  if(val&&!isNaN(parseInt(val))&&parseInt(val)>0){localStorage.setItem(GOAL_KEY,parseInt(val));updDailyGoal();showToast('Зорилго: '+parseInt(val)+' script/өдөр ✓');}
+  if(val&&!isNaN(parseInt(val))&&parseInt(val)>0){localStorage.setItem(GOAL_KEY,parseInt(val));sbSet(GOAL_KEY,parseInt(val));updDailyGoal();showToast('Зорилго: '+parseInt(val)+' script/өдөр ✓');}
 }
 
 function updDailyGoal(){
@@ -2058,7 +2094,9 @@ function cpAi(btn,i){
 // CALENDAR
 const CAL_KEY='reel_cal_v1';let calWeekOffset=0;let cspTargetDate=null;
 function loadCal(){try{const r=localStorage.getItem(CAL_KEY);return r?JSON.parse(r):{};}catch(e){}return{};}
-function saveCal(c){try{localStorage.setItem(CAL_KEY,JSON.stringify(c));}catch(e){}}
+function saveCal(c){try{localStorage.setItem(CAL_KEY,JSON.stringify(c));}catch(e){} sbSet(CAL_KEY,c);}
+// Sync calendar from Supabase on load
+sbGet(CAL_KEY).then(d=>{if(d)try{localStorage.setItem(CAL_KEY,JSON.stringify(d));}catch(e){}})
 function getWeekDates(offset){
   const today=new Date();const dow=today.getDay();const monday=new Date(today);
   monday.setDate(today.getDate()-((dow+6)%7)+offset*7);
