@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>IG DM Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{--bg:#000;--bg2:#0f0f0f;--bg3:#1a1a1a;--bg4:#262626;--border:#222;--text:#fff;--muted:#aaa;--dim:#666;--blue:#3797f0;--green:#22c55e}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg2);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;min-height:100vh}
+
+/* LAYOUT */
+.wrap{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--bg3);border-bottom:0.5px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:13px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+.content{display:flex;flex:1;overflow:hidden}
+
+/* PANEL */
+.panel{width:320px;flex-shrink:0;background:var(--bg3);border-right:0.5px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.p-sec{padding:16px 16px 0;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px}
+.p-body{padding:10px 16px}
+.p-row{margin-bottom:10px}
+.p-row label{font-size:11px;color:#777;display:block;margin-bottom:4px}
+.p-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+input[type=text]{width:100%;background:#111;border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:inherit;transition:border .2s}
+input[type=text]:focus{border-color:#555}
+input[type=file]{display:none}
+.av-row{display:flex;align-items:center;gap:10px}
+.av-thumb{width:40px;height:40px;border-radius:50%;background:#2a2a2a;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.av-thumb img{width:100%;height:100%;object-fit:cover}
+.pick-btn{background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:7px 13px;color:#bbb;font-size:12px;cursor:pointer;transition:background .2s}
+.pick-btn:hover{background:#2a2a2a}
+
+/* MSG LIST */
+.msg-list{padding:0 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.msg-card{background:#111;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.msg-card-top{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 0}
+.who-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.who-them{color:#aaa;background:#1e1e1e}
+.who-me{color:var(--blue);background:rgba(55,151,240,.12)}
+.msg-card textarea{width:100%;background:transparent;border:none;color:#ccc;font-size:13px;resize:none;outline:none;font-family:inherit;padding:6px 10px 4px;min-height:44px}
+.msg-card-bot{display:flex;align-items:center;justify-content:space-between;padding:0 8px 6px;gap:6px}
+.img-attach{display:flex;align-items:center;gap:6px}
+.img-attach-btn{background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;color:#777;font-size:11px;cursor:pointer}
+.img-attach-btn:hover{border-color:#555;color:#aaa}
+.img-name{font-size:10px;color:#555;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.del-btn{background:none;border:none;color:#444;cursor:pointer;font-size:14px;padding:2px 4px;margin-left:auto}
+.del-btn:hover{color:#f55}
+.drag-handle{font-size:16px;color:#444;cursor:grab;padding:0 4px;user-select:none;letter-spacing:-1px}
+.drag-handle:active{cursor:grabbing}
+.msg-card.dragging{opacity:.4}
+.msg-card.drag-over{border-color:#555;background:#1a1a1a}
+.img-preview-thumb{position:relative;display:inline-flex;align-items:center;gap:6px}
+.img-preview-thumb img{width:36px;height:36px;border-radius:6px;object-fit:cover}
+.rm-img-btn{background:#333;border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rm-img-btn:hover{background:#f55}
+.add-row{padding:0 16px 8px;display:flex;gap:6px}
+.add-btn{flex:1;background:transparent;border:1px dashed #2a2a2a;border-radius:8px;padding:8px;font-size:12px;color:#555;cursor:pointer;transition:all .2s}
+.add-btn:hover{border-color:#555;color:#aaa}
+.add-btn.me{border-color:rgba(55,151,240,.3);color:rgba(55,151,240,.6)}
+.add-btn.me:hover{border-color:var(--blue);color:var(--blue)}
+
+.dl-row{padding:12px 16px 20px}
+.dl-btn{width:100%;background:var(--blue);border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background .2s}
+.dl-btn:hover{background:#2d86df}
+.dl-btn:active{transform:scale(.98)}
+
+/* PHONE PREVIEW */
+.preview{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;background:var(--bg2)}
+.phone{width:390px;height:844px;background:#000;overflow:hidden;flex-shrink:0;display:flex;flex-direction:column}
+
+/* IG UI */
+.ig-sb{padding:14px 20px 5px;display:flex;justify-content:space-between;align-items:center;background:#000;flex-shrink:0}
+.ig-sb-t{font-size:16px;font-weight:600;color:#fff}
+.ig-sb-r{display:flex;align-items:center;gap:5px}
+.ig-hdr{padding:7px 14px 10px;display:flex;align-items:center;gap:10px;background:#000;flex-shrink:0}
+.ig-back{font-size:28px;font-weight:200;color:#fff;line-height:1}
+.ig-hdr-av-w{position:relative}
+.ig-hdr-av{width:36px;height:36px;border-radius:50%;overflow:hidden;background:#bbb;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ig-hdr-av img{width:100%;height:100%;object-fit:cover}
+.ig-odot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #000}
+.ig-hdr-info{flex:1}
+.ig-hdr-name{font-size:15px;font-weight:600;color:#fff}
+.ig-hdr-ics{display:flex;gap:18px}
+.ig-sep{height:.5px;background:#1c1c1c;flex-shrink:0}
+.ig-prof{display:flex;flex-direction:column;align-items:center;padding:16px 20px 10px;background:#000;gap:3px;flex-shrink:0}
+.ig-prof-av{width:80px;height:80px;border-radius:50%;overflow:hidden;background:#bbb;display:flex;align-items:center;justify-content:center;margin-bottom:3px}
+.ig-prof-av img{width:100%;height:100%;object-fit:cover}
+.def-av-img{width:100%;height:100%;background:linear-gradient(160deg,#c8c8c8,#969696);display:flex;align-items:center;justify-content:center}
+.def-av-img svg{fill:#777}
+.ig-pname{font-size:17px;font-weight:700;color:#fff;text-align:center}
+.ig-puser{font-size:14px;color:var(--muted)}
+.ig-pmeta{font-size:13px;color:var(--muted)}
+.ig-pfollow{font-size:13px;color:var(--muted)}
+.ig-vbtn{background:#1c1c1e;border:none;border-radius:10px;padding:8px 0;font-size:14px;font-weight:600;color:#fff;margin-top:8px;width:160px;text-align:center}
+.ig-scroll{flex:1;overflow-y:auto;background:#000}
+.ig-scroll::-webkit-scrollbar{display:none}
+.ig-scroll{scrollbar-width:none;-ms-overflow-style:none}
+.ig-msgs{background:#000;padding:6px 12px 10px;display:flex;flex-direction:column;gap:2px}
+.ig-tsep{text-align:center;font-size:12px;color:#555;margin:4px 0 8px}
+.ig-mrow{display:flex;align-items:flex-end;gap:7px}
+.ig-mrow.me{justify-content:flex-end}
+.ig-sav{width:26px;height:26px;border-radius:50%;overflow:hidden;background:#555;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ig-sav img{width:100%;height:100%;object-fit:cover}
+.ig-ghost{width:26px;flex-shrink:0}
+.ig-bub{background:var(--bg4);border-radius:20px;padding:9px 14px;max-width:238px;font-size:15px;color:#fff;line-height:1.45;word-break:break-word;white-space:pre-wrap}
+.ig-bub.me{background:var(--blue)}
+.ig-img-bub{max-width:220px;border-radius:16px;overflow:hidden}
+.ig-img-bub img{width:100%;display:block}
+.ig-seen{text-align:right;font-size:11px;color:#555;padding-right:4px;margin-top:2px}
+.ig-bot{padding:8px 16px 12px;display:flex;align-items:center;background:#000;flex-shrink:0}
+.ig-inp-wrap{flex:1;background:#1c1c1e;border-radius:24px;padding:10px 14px 10px 18px;display:flex;align-items:center;gap:14px}
+.ig-inp-txt{flex:1;font-size:15px;color:#555}
+.ig-bics{display:flex;gap:16px;align-items:center}
+.ig-home{display:flex;justify-content:center;padding:8px 0 14px;background:#000;flex-shrink:0}
+.ig-home{display:flex;justify-content:center;padding:6px 0 10px;background:#000}
+.ig-pill{width:120px;height:5px;background:#fff;border-radius:3px}
+
+/* MOBILE TABS */
+@media(max-width:700px){
+  .content{flex-direction:column;overflow:visible}
+  .panel{width:100%;border-right:none;border-bottom:none;display:none;overflow-y:visible}
+  .panel.active{display:flex}
+  .preview{display:none;padding:0;justify-content:center;background:var(--bg2)}
+  .preview.active{display:flex}
+  .phone{width:100vw;max-width:390px;height:calc(100vw * 844/390);max-height:844px}
+  .tab-bar{display:flex;background:var(--bg3);border-bottom:.5px solid var(--border)}
+  .tab-bar button{flex:1;padding:12px;font-size:13px;font-weight:600;color:#666;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+  .tab-bar button.on{color:#fff;border-bottom-color:var(--blue)}
+}
+@media(min-width:701px){
+  .tab-bar{display:none}
+  .panel{display:flex!important}
+  .preview{display:flex!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>IG DM Generator</h1>
+    <button class="dl-btn" style="width:auto;padding:8px 18px;font-size:13px;border-radius:8px" onclick="doDownload()">⬇ PNG татах</button>
+  </div>
+  <div class="tab-bar">
+    <button class="on" id="tabEdit" onclick="switchTab('edit')">✏️ Засах</button>
+    <button id="tabPreview" onclick="switchTab('preview')">👁 Preview</button>
+  </div>
+  <div class="content">
+    <!-- PANEL -->
+    <div class="panel active" id="panelEl">
+      <div class="p-sec" style="padding-top:14px">Профайл</div>
+      <div class="p-body">
+        <div class="p-row2">
+          <div><label>Нэр</label><input type="text" id="iName" value="Батбаяр" oninput="render()"></div>
+          <div><label>Username</label><input type="text" id="iUser" value="batbayar_mn" oninput="render()"></div>
+        </div>
+        <div class="p-row"><label>Followers · Posts</label><input type="text" id="iMeta" value="847 followers · 12 posts" oninput="render()"></div>
+        <div class="p-row">
+          <label>Профайл зураг</label>
+          <div class="av-row">
+            <div class="av-thumb" id="avThumb"><div class="def-av-img"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div></div>
+            <button class="pick-btn" onclick="document.getElementById('avFile').click()">Зураг сонгох</button>
+            <input type="file" id="avFile" accept="image/*" onchange="loadAv(event)">
+          </div>
+        </div>
+        <div class="p-row2">
+          <div><label>Цаг</label><input type="text" id="iTime" value="22:06" oninput="render()"></div>
+          <div><label>Огноо</label><input type="text" id="iDate" value="TUE 18:48" oninput="render()"></div>
+        </div>
+      </div>
+
+      <div class="p-sec">Мессежүүд</div>
+      <div class="p-body" style="padding-bottom:4px">
+        <div id="mList"></div>
+      </div>
+      <div class="add-row">
+        <button class="add-btn" onclick="addM('them')">+ Тэдний</button>
+        <button class="add-btn me" onclick="addM('me')">+ Миний</button>
+      </div>
+      <div class="dl-row">
+        <button class="dl-btn" onclick="doDownload()">⬇ PNG татах</button>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview" id="previewEl">
+      <div class="phone" id="phone">
+        <!-- status bar -->
+        <div class="ig-sb">
+          <span class="ig-sb-t" id="dTime">22:06</span>
+          <div class="ig-sb-r">
+            <svg width="16" height="12" viewBox="0 0 17 12" fill="#fff"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+            <span style="font-size:13px;font-weight:600;color:#fff">4G</span>
+            <svg width="26" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y="1.5" width="22" height="10" rx="2.5" stroke="#fff" stroke-width="1"/><rect x="23" y="4.5" width="2.5" height="4" rx="1" fill="#fff"/><rect x="2" y="3" width="16" height="7" rx="1.5" fill="#fff"/></svg>
+          </div>
+        </div>
+        <!-- header -->
+        <div class="ig-hdr">
+          <span class="ig-back">‹</span>
+          <div class="ig-hdr-av-w">
+            <div class="ig-hdr-av" id="hAv"><div class="def-av-img"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div></div>
+            <div class="ig-odot"></div>
+          </div>
+          <div class="ig-hdr-info">
+            <span class="ig-hdr-name" id="dHN">batbayar_mn</span>&nbsp;<span style="color:#fff;font-size:13px">›</span>
+          </div>
+          <div class="ig-hdr-ics">
+            <!-- Handset phone icon matching reference image 1 -->
+            <svg width="26" height="26" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M25 10 C20 10, 12 16, 12 26 C12 60, 40 88, 74 88 C84 88, 90 80, 90 75 L90 62 C90 58, 87 55, 84 54 L70 50 C67 49, 64 50, 62 53 L57 60 C45 54, 46 55, 40 43 L47 38 C50 36, 51 33, 50 30 L46 16 C45 13, 42 10, 38 10 Z"/>
+            </svg>
+            <!-- Video camera icon matching reference image 2 -->
+            <svg width="28" height="26" viewBox="0 0 28 20" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="2" width="17" height="16" rx="3"/>
+              <path d="M18 7.5L27 3v14l-9-4.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="ig-sep"></div>
+        <!-- scrollable area: profile + messages -->
+        <div class="ig-scroll">
+          <div class="ig-prof">
+            <div class="ig-prof-av" id="pAv"><div class="def-av-img"><svg width="46" height="46" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div></div>
+            <div class="ig-pname" id="dPN">Батбаяр</div>
+            <div class="ig-puser" id="dPU">batbayar_mn</div>
+            <div class="ig-pmeta" id="dPM">847 followers · 12 posts</div>
+            <div class="ig-pfollow">You follow each other on Instagram</div>
+            <button class="ig-vbtn">View profile</button>
+          </div>
+          <div class="ig-msgs" id="msgsEl">
+            <div class="ig-tsep" id="dDate">TUE 18:48</div>
+          </div>
+        </div>
+        <!-- bottom -->
+        <div class="ig-bot">
+          <div class="ig-inp-wrap">
+            <span class="ig-inp-txt">Message...</span>
+            <div class="ig-bics">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="8.5" cy="10.5" r="1" fill="#fff" stroke="none"/><circle cx="12" cy="10.5" r="1" fill="#fff" stroke="none"/><circle cx="15.5" cy="10.5" r="1" fill="#fff" stroke="none"/></svg>
+              <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#fff" stroke-width="1.6"/><line x1="14" y1="8" x2="14" y2="20" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="14" x2="20" y2="14" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="ig-home"><div class="ig-pill"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const DEF_SVG_SM = `<div class="def-av-img"><svg width="14" height="14" viewBox="0 0 24 24" fill="#777"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>`;
+
+let avUrl = null;
+let msgs = [
+  {w:'them', t:'Drop авлаа, туршиж үзье 👍', img:null},
+  {w:'them', t:'10 минутад Portable Blender олов 😮\nAlibaba дээр ₮8,500 — Монголд ₮35,000 зарж болно гэж харуулж байна', img:null},
+  {w:'them', t:'2 цаг хайж байсан барааг 10 минутад олов 🔥 үнэхээр ашигтай байна', img:null},
+  {w:'me',   t:'Баярлалаа! Screenshot авч болох уу? 🙏', img:null},
+];
+
+function loadAv(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{avUrl=ev.target.result; updateAvs(); render();};
+  r.readAsDataURL(f);
+}
+
+function setElAv(id, size){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML = avUrl ? `<img src="${avUrl}">` : `<div class="def-av-img"><svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="#777"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>`;
+}
+
+function updateAvs(){
+  setElAv('avThumb', 20);
+  setElAv('hAv', 18);
+  setElAv('pAv', 46);
+}
+
+function setSafe(id, val){
+  const el=document.getElementById(id);
+  if(el) el.textContent=val;
+}
+
+function render(){
+  const name = document.getElementById('iName').value;
+  const user = document.getElementById('iUser').value;
+  const meta = document.getElementById('iMeta').value;
+  const date = document.getElementById('iDate').value;
+  const time = document.getElementById('iTime').value;
+
+  setSafe('dTime', time);
+  setSafe('dHN', user);
+  setSafe('dPN', name);
+  setSafe('dPU', user);
+  setSafe('dPM', meta);
+  setSafe('dDate', date);
+  updateAvs();
+
+  const el = document.getElementById('msgsEl');
+  if(!el) return;
+  el.innerHTML = `<div class="ig-tsep">${date}</div>`;
+
+  msgs.forEach((m,i)=>{
+    const isMe = m.w==='me';
+    const hasContent = (m.t && m.t.trim()) || m.img;
+    if(!hasContent) return;
+    const nextSame = i<msgs.length-1 && msgs[i+1].w===m.w;
+    const prevSame = i>0 && msgs[i-1].w===m.w;
+
+    const row = document.createElement('div');
+    row.className = 'ig-mrow' + (isMe?' me':'');
+    // bigger gap when sender switches
+    const prevDiff = i>0 && msgs[i-1].w !== m.w;
+    if(prevDiff) row.style.marginTop = '8px';
+
+    if(!isMe){
+      const av = document.createElement('div');
+      if(!nextSame){
+        av.className='ig-sav';
+        av.innerHTML = avUrl ? `<img src="${avUrl}">` : DEF_SVG_SM;
+      } else {
+        av.className='ig-ghost';
+      }
+      row.appendChild(av);
+    }
+
+    const msgWrap = document.createElement('div');
+    msgWrap.style.display='flex';
+    msgWrap.style.flexDirection='column';
+    msgWrap.style.gap='4px';
+    msgWrap.style.alignItems = isMe?'flex-end':'flex-start';
+
+    if(m.img){
+      const imgBub = document.createElement('div');
+      imgBub.className='ig-img-bub';
+      imgBub.innerHTML=`<img src="${m.img}" style="border-radius:${isMe?'16px 16px 4px 16px':'16px 16px 16px 4px'}">`;
+      msgWrap.appendChild(imgBub);
+    }
+
+    if(m.t && m.t.trim()){
+      let br='20px';
+      if(!isMe){
+        if(prevSame&&nextSame) br='4px 20px 20px 4px';
+        else if(prevSame&&!nextSame) br='4px 20px 20px 20px';
+        else if(!prevSame&&nextSame) br='20px 20px 20px 4px';
+      } else {
+        if(prevSame&&nextSame) br='20px 4px 4px 20px';
+        else if(prevSame&&!nextSame) br='20px 4px 20px 20px';
+        else if(!prevSame&&nextSame) br='20px 20px 4px 20px';
+      }
+      const bub=document.createElement('div');
+      bub.className='ig-bub'+(isMe?' me':'');
+      bub.style.borderRadius=br;
+      bub.textContent=m.t;
+      msgWrap.appendChild(bub);
+    }
+
+    row.appendChild(msgWrap);
+    el.appendChild(row);
+  });
+
+  const lastMeExists = msgs.some(m=>m.w==='me' && ((m.t&&m.t.trim())||m.img));
+  if(lastMeExists){
+    const s=document.createElement('div');
+    s.className='ig-seen'; s.textContent='Seen';
+    el.appendChild(s);
+  }
+}
+
+function buildList(){
+  const list=document.getElementById('mList');
+  if(!list)return;
+  list.innerHTML='';
+  msgs.forEach((m,i)=>{
+    const d=document.createElement('div');
+    d.className='msg-card';
+    d.draggable=true;
+    d.dataset.idx=i;
+    d.innerHTML=`
+<div class="msg-card-top">
+  <span class="drag-handle" title="Зөөх">⠿</span>
+  <span class="who-tag ${m.w==='me'?'who-me':'who-them'}">${m.w==='me'?'● Миний':'● Тэдний'}</span>
+  <button class="del-btn" onclick="delMsg(${i})">✕</button>
+</div>
+<textarea data-idx="${i}" oninput="msgs[${i}].t=this.value;render()" placeholder="Мессеж бичнэ үү...">${m.t||''}</textarea>
+<div class="msg-card-bot">
+  <div class="img-attach">
+    ${m.img
+      ? `<div class="img-preview-thumb"><img src="${m.img}"><button class="rm-img-btn" onclick="removeImg(${i})">✕</button></div>`
+      : `<button class="img-attach-btn" onclick="document.getElementById('imgF${i}').click()">📷 Зураг</button><input type="file" id="imgF${i}" accept="image/*" onchange="loadMsgImg(event,${i})">`
+    }
+  </div>
+</div>`;
+
+    // drag events
+    d.addEventListener('dragstart',e=>{
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',i);
+      d.classList.add('dragging');
+    });
+    d.addEventListener('dragend',()=>d.classList.remove('dragging'));
+    d.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      d.classList.add('drag-over');
+    });
+    d.addEventListener('dragleave',()=>d.classList.remove('drag-over'));
+    d.addEventListener('drop',e=>{
+      e.preventDefault();
+      d.classList.remove('drag-over');
+      const from=parseInt(e.dataTransfer.getData('text/plain'));
+      const to=parseInt(d.dataset.idx);
+      if(from===to)return;
+      const item=msgs.splice(from,1)[0];
+      msgs.splice(to,0,item);
+      buildList(); render();
+    });
+
+    list.appendChild(d);
+  });
+}
+
+function removeImg(i){
+  msgs[i].img=null;
+  buildList(); render();
+}
+
+function loadMsgImg(e,idx){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    msgs[idx].img=ev.target.result;
+    buildList(); render();
+  };
+  r.readAsDataURL(f);
+}
+
+function delMsg(i){
+  msgs.splice(i,1);
+  buildList(); render();
+}
+
+function addM(w){
+  msgs.push({w,t:'',img:null});
+  buildList(); render();
+  const cards=document.querySelectorAll('.msg-card');
+  const last=cards[cards.length-1];
+  if(last){
+    const ta=last.querySelector('textarea');
+    if(ta){ta.focus(); last.scrollIntoView({behavior:'smooth'});}
+  }
+}
+
+function doDownload(){
+  const el=document.getElementById('phone');
+  if(!el)return;
+  html2canvas(el,{scale:3,backgroundColor:'#000',useCORS:true,logging:false,allowTaint:true}).then(c=>{
+    const a=document.createElement('a');
+    a.download='ig_dm_'+Date.now()+'.png';
+    a.href=c.toDataURL('image/png');
+    a.click();
+  });
+}
+
+function switchTab(t){
+  const isMobile=window.innerWidth<=700;
+  if(!isMobile)return;
+  document.getElementById('panelEl').classList.toggle('active',t==='edit');
+  document.getElementById('previewEl').classList.toggle('active',t==='preview');
+  document.getElementById('tabEdit').classList.toggle('on',t==='edit');
+  document.getElementById('tabPreview').classList.toggle('on',t==='preview');
+}
+
+buildList();
+render();
+</script>
+</body>
+</html>
