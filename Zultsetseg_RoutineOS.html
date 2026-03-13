@@ -1170,7 +1170,65 @@ function renderStats(range=7){
   set('statDone',avg);
   const weekXp=days.reduce((s,d)=>s+(d.xp||0),0);
   const xt=document.getElementById('statXpTrend');if(xt){xt.textContent=`↑ ${weekXp} энэ 7хон`;xt.className='sc-trend up';}
-  renderHeatmap();renderCatBars();renderAchFull();
+  renderXpChart(range);renderHeatmap();renderCatBars();renderAchFull();
+}
+function renderXpChart(range=7){
+  const canvas=document.getElementById('xpChart');if(!canvas)return;
+  const hist=state.history||{};
+  const today=new Date();
+  const labels=[];const data=[];
+  for(let i=range-1;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const ds=d.toDateString();
+    labels.push(d.getDate()+'/'+(d.getMonth()+1));
+    data.push(hist[ds]?.xp||0);
+  }
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.parentElement.clientWidth-24;
+  const H=96;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const maxVal=Math.max(...data,10);
+  const pad={l:28,r:8,t:8,b:22};
+  const cW=W-pad.l-pad.r;const cH=H-pad.t-pad.b;
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  for(let g=0;g<=4;g++){const y=pad.t+cH*(1-g/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cW,y);ctx.stroke();}
+  // Y labels
+  ctx.fillStyle='rgba(110,110,154,0.7)';ctx.font=`9px monospace`;ctx.textAlign='right';
+  for(let g=0;g<=4;g++){const y=pad.t+cH*(1-g/4);ctx.fillText(Math.round(maxVal*g/4),pad.l-4,y+3);}
+  // Area fill
+  const pts=data.map((v,i)=>({x:pad.l+i/(data.length-1||1)*cW,y:pad.t+cH*(1-v/maxVal)}));
+  if(pts.length>1){
+    const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+    grad.addColorStop(0,'rgba(255,107,157,0.35)');grad.addColorStop(1,'rgba(255,107,157,0.02)');
+    ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);
+    pts.forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();
+    ctx.fillStyle=grad;ctx.fill();
+    // Line
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++){
+      const cp1x=(pts[i-1].x+pts[i].x)/2;
+      ctx.bezierCurveTo(cp1x,pts[i-1].y,cp1x,pts[i].y,pts[i].x,pts[i].y);
+    }
+    ctx.strokeStyle='var(--pink,#ff6b9d)';ctx.lineWidth=2;ctx.stroke();
+    // Dots
+    pts.forEach((p,i)=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);
+      ctx.fillStyle=data[i]>0?'#ff6b9d':'rgba(110,110,154,0.4)';ctx.fill();
+    });
+  }else{
+    // No data placeholder
+    ctx.fillStyle='rgba(110,110,154,0.3)';ctx.font='12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Өгөгдөл алга — checklist дүүргэж эхэл!',W/2,H/2);
+  }
+  // X labels
+  ctx.fillStyle='rgba(110,110,154,0.7)';ctx.font='9px monospace';ctx.textAlign='center';
+  const step=Math.ceil(data.length/7);
+  pts.forEach((p,i)=>{if(i%step===0||i===pts.length-1)ctx.fillText(labels[i],p.x,H-4);});
 }
 function setRange(r,btn){document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStats(r);}
 function renderHeatmap(){
