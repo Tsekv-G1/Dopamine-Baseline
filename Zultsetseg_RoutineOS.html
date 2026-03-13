@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Routine OS — Зулцэцэг</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050a;--s1:#0a0a12;--s2:#0f0f1a;--s3:#161624;
+  --b1:#1e1e30;--b2:#282840;--b3:#32325a;
+  --text:#d4d4f0;--dim:#6e6e9a;--faint:#3a3a5c;--white:#f0f0ff;
+  --blue:#5b8fff;--orange:#f5a623;--red:#ff5f4a;--green:#3ecf8e;
+  --gold:#ffd700;--purple:#9b8df5;--teal:#4ecdc4;--pink:#ff6b9d;
+  --r:10px;--font:'Syne',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+.shell{display:grid;grid-template-columns:220px 1fr;height:100vh;overflow:hidden}
+@media(max-width:768px){.shell{grid-template-columns:1fr;grid-template-rows:1fr auto}}
+
+.sidebar{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;height:100vh;position:relative}
+@media(max-width:768px){.sidebar{display:none}}
+.sidebar-scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.sidebar-scroll::-webkit-scrollbar{display:none}
+.sidebar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none;z-index:10}
+
+.brand{padding:18px 16px 14px;border-bottom:1px solid var(--b1)}
+.brand-logo{font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--white);display:flex;align-items:center;gap:6px}
+.brand-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.brand-sub{font-size:11px;color:var(--dim);letter-spacing:.08em;margin-top:3px;font-family:var(--mono)}
+
+.xp-block{padding:12px 16px;border-bottom:1px solid var(--b1)}
+.xp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.xp-lvl{font-size:12px;font-weight:700;color:var(--green);font-family:var(--mono);letter-spacing:.04em}
+.xp-pts{font-size:11px;color:var(--dim);font-family:var(--mono)}
+.xp-track{height:3px;background:var(--b2);border-radius:3px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--pink),#ffb3d1);border-radius:3px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.xp-bottom{display:flex;justify-content:space-between;margin-top:6px}
+.streak-pill{display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--mono);font-weight:700;color:var(--orange)}
+.week-pill{font-size:11px;color:var(--dim);font-family:var(--mono)}
+
+.freeze-btn{margin-top:8px;font-size:11px;font-family:var(--mono);font-weight:600;color:var(--teal);background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2);border-radius:6px;padding:5px 10px;cursor:pointer;text-align:center;transition:all .15s}
+.freeze-btn:hover{background:rgba(78,205,196,.15)}
+.freeze-btn.used{color:var(--faint);border-color:var(--faint);pointer-events:none}
+
+.ach-strip{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--b1)}
+.ach-strip::-webkit-scrollbar{display:none}
+.ach-item{flex-shrink:0;width:32px;height:32px;border-radius:8px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s;position:relative}
+.ach-item:hover{border-color:var(--b3);transform:scale(1.08)}
+.ach-item.unlocked{background:rgba(255,215,0,.08);border-color:rgba(255,215,0,.3);box-shadow:0 0 8px rgba(255,215,0,.15)}
+.ach-item.locked{filter:grayscale(1);opacity:.3}
+.ach-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.4);color:var(--gold);font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 20px;border-radius:20px;z-index:1000;transition:transform .5s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ach-toast.show{transform:translateX(-50%) translateY(0)}
+
+.nav-group{padding:8px 0}
+.nav-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);padding:0 16px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--dim);letter-spacing:.01em;border-left:2px solid transparent;transition:all .12s;user-select:none}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.02)}
+.nav-item.active{color:var(--white);border-left-color:var(--pink);background:rgba(255,107,157,.06)}
+.nav-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;background:var(--faint);transition:all .15s}
+.nav-item.active .nav-dot{background:var(--pink);box-shadow:0 0 6px var(--pink)}
+.nav-item.done .nav-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.nav-item.done{color:var(--green)}
+.nav-check{margin-left:auto;font-size:11px;font-family:var(--mono);color:var(--green);opacity:0;transition:opacity .2s}
+.nav-item.done .nav-check{opacity:1}
+
+.main{display:flex;flex-direction:column;overflow:hidden;height:100vh}
+@media(max-width:768px){.main{height:calc(100vh - 68px)}}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 12px;border-bottom:1px solid var(--b1);background:var(--bg);flex-shrink:0;gap:12px}
+.topbar-left{min-width:0;flex:1}
+.page-title{font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--white);line-height:1}
+.page-title span{color:var(--dim);font-weight:400}
+.page-meta{font-size:11px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.topbar-btn{background:var(--s2);border:1px solid var(--b2);color:var(--dim);font-size:12px;font-family:var(--mono);padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.topbar-btn:hover{color:var(--text);border-color:var(--b3)}
+.day-xp{background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);color:var(--gold);font-size:12px;font-family:var(--mono);font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap}
+
+.tabs{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--b1);background:var(--bg);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 16px;font-size:12px;font-weight:700;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.08em;text-transform:uppercase;transition:all .12s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--white);border-bottom-color:var(--pink)}
+
+.scroll-area{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
+.scroll-area::-webkit-scrollbar{width:3px}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+.tab-panel{display:none;padding:20px 28px 80px;animation:fadeUp .2s ease}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.cal-strip{display:flex;gap:4px;padding:12px 28px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.cal-strip::-webkit-scrollbar{display:none}
+.cal-day{flex-shrink:0;width:36px;display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid transparent;position:relative}
+.cal-day:hover{background:rgba(255,255,255,.04)}
+.cal-day.active{background:rgba(255,107,157,.12);border-color:rgba(255,107,157,.3)}
+.cal-day.today{border-color:rgba(255,107,157,.5)}
+.cal-day.past-done{background:rgba(62,207,142,.06);border-color:rgba(62,207,142,.2)}
+.cal-day.past-miss{opacity:.5}
+.cal-wd{font-size:7px;font-family:var(--mono);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.cal-num{font-size:13px;font-weight:800;color:var(--white);line-height:1}
+.cal-dot{width:4px;height:4px;border-radius:50%;margin-top:3px}
+.cal-day.past-done .cal-dot{background:var(--green)}
+.cal-day.active .cal-dot{background:var(--pink)}
+.cal-day.today .cal-dot{background:var(--orange)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--b1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.stat{background:var(--s1);padding:10px 12px}
+.stat-label{font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.stat-val{font-size:16px;font-weight:700;color:var(--white);font-family:var(--mono)}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+.tl-row{display:grid;grid-template-columns:52px 1px 1fr;gap:0 14px;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
+.tl-row.show{opacity:1;transform:none}
+.tl-time{padding-top:18px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.04em;line-height:1}
+.tl-axis{display:flex;flex-direction:column;align-items:center}
+.tl-node{width:8px;height:8px;border-radius:50%;margin-top:18px;flex-shrink:0;position:relative;z-index:2;transition:transform .2s,box-shadow .2s;cursor:pointer}
+.tl-row:hover .tl-node{transform:scale(1.8)}
+.tl-line{flex:1;width:1px;background:var(--b1);margin-top:2px}
+.tl-row:last-child .tl-line{display:none}
+.tl-body{padding:10px 0 14px}
+.tl-cat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.tl-cat::before{content:'';width:12px;height:1.5px;border-radius:1px}
+.tl-title{font-size:16px;font-weight:700;color:var(--white);letter-spacing:-.01em;margin-bottom:3px;line-height:1.25;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tl-dur{font-size:12px;color:var(--dim);font-family:var(--mono);font-weight:400}
+.tl-desc{font-size:13px;color:var(--dim);line-height:1.7;margin-top:3px;max-width:540px}
+.tl-chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.chip{font-size:11px;padding:3px 9px;border-radius:3px;background:var(--b2);color:var(--dim)}
+.why-box{margin-top:7px;padding:9px 13px;border-radius:8px;background:rgba(255,255,255,.02);border-left:2px solid;font-size:12px;color:var(--dim);line-height:1.7;max-width:500px}
+.why-box strong{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;opacity:.5}
+.tl-timer-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-family:var(--mono);font-weight:600;color:var(--pink);background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.2);border-radius:6px;padding:3px 9px;cursor:pointer;transition:all .15s;margin-top:4px}
+.tl-timer-btn:hover{background:rgba(255,107,157,.2)}
+
+.c-deep .tl-node{background:var(--blue);box-shadow:0 0 8px rgba(91,143,255,.4)}.c-deep .tl-cat{color:var(--blue)}.c-deep .tl-cat::before,.c-deep .why-box{border-color:var(--blue)}
+.c-work .tl-node{background:var(--orange);box-shadow:0 0 8px rgba(245,166,35,.4)}.c-work .tl-cat{color:var(--orange)}.c-work .tl-cat::before,.c-work .why-box{border-color:var(--orange)}
+.c-train .tl-node{background:var(--red);box-shadow:0 0 8px rgba(255,95,74,.4)}.c-train .tl-cat{color:var(--red)}.c-train .tl-cat::before,.c-train .why-box{border-color:var(--red)}
+.c-rest .tl-node{background:var(--green);box-shadow:0 0 8px rgba(62,207,142,.4)}.c-rest .tl-cat{color:var(--green)}.c-rest .tl-cat::before,.c-rest .why-box{border-color:var(--green)}
+.c-food .tl-node{background:#c9a96e;box-shadow:0 0 8px rgba(201,169,110,.4)}.c-food .tl-cat{color:#c9a96e}.c-food .tl-cat::before,.c-food .why-box{border-color:#c9a96e}
+.c-sleep .tl-node{background:var(--purple);box-shadow:0 0 8px rgba(155,141,245,.4)}.c-sleep .tl-cat{color:var(--purple)}.c-sleep .tl-cat::before,.c-sleep .why-box{border-color:var(--purple)}
+.c-biz .tl-node{background:var(--pink);box-shadow:0 0 8px rgba(255,107,157,.4)}.c-biz .tl-cat{color:var(--pink)}.c-biz .tl-cat::before,.c-biz .why-box{border-color:var(--pink)}
+
+.pomo-panel{position:fixed;bottom:80px;right:20px;width:220px;background:var(--s2);border:1px solid var(--b2);border-radius:16px;padding:18px;z-index:500;box-shadow:0 16px 40px rgba(0,0,0,.6);transition:all .3s cubic-bezier(.34,1.56,.64,1);transform:scale(.9) translateY(20px);opacity:0;pointer-events:none}
+.pomo-panel.open{transform:none;opacity:1;pointer-events:all}
+.pomo-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.pomo-close{cursor:pointer;color:var(--dim);font-size:16px;transition:color .15s}
+.pomo-close:hover{color:var(--text)}
+.pomo-ring{position:relative;width:100px;height:100px;margin:0 auto 14px}
+.pomo-svg{transform:rotate(-90deg)}
+.pomo-track{fill:none;stroke:var(--b2);stroke-width:6}
+.pomo-prog{fill:none;stroke:var(--pink);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .5s linear,stroke .3s}
+.pomo-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pomo-mins{font-size:26px;font-weight:800;color:var(--white);font-family:var(--mono);line-height:1}
+.pomo-label{font-size:10px;color:var(--dim);font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.pomo-modes{display:flex;gap:4px;margin-bottom:12px;justify-content:center}
+.pomo-mode{font-size:11px;font-family:var(--mono);font-weight:600;padding:5px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--b2);color:var(--dim);transition:all .15s}
+.pomo-mode.active{background:rgba(255,107,157,.15);border-color:var(--pink);color:var(--pink)}
+.pomo-controls{display:flex;justify-content:center;gap:8px}
+.pomo-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--b3);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;color:var(--text)}
+.pomo-btn:hover{background:var(--b2)}
+.pomo-btn.primary{background:var(--pink);border-color:var(--pink);color:#fff;font-size:18px}
+.pomo-btn.primary:hover{background:#e0558a}
+.pomo-session{font-size:11px;text-align:center;color:var(--dim);font-family:var(--mono);margin-top:8px}
+.timer-fab{position:fixed;bottom:80px;right:20px;width:44px;height:44px;background:var(--pink);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(255,107,157,.4);z-index:499;transition:all .2s;font-size:18px}
+.timer-fab:hover{transform:scale(1.1)}
+.timer-fab.active{background:var(--red);box-shadow:0 4px 16px rgba(255,95,74,.4)}
+@media(max-width:768px){.timer-fab{bottom:78px}.pomo-panel{bottom:78px;right:10px;left:10px;width:auto}}
+
+.cl-wrap{}
+.cl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cl-title{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.cl-prog-text{font-size:11px;font-family:var(--mono);color:var(--dim)}
+.prog-wrap{height:3px;background:var(--b2);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--pink),#ffb3d1);border-radius:3px;transition:width .5s ease}
+.cl-section{margin-bottom:14px}
+.cl-sec-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--b1)}
+.cl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border-radius:8px;transition:background .1s;position:relative;overflow:hidden}
+.cl-item:hover{background:rgba(255,255,255,.025)}
+.cl-item::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(62,207,142,.08),transparent);transform:scaleX(0);transform-origin:left;transition:transform .3s ease;border-radius:8px}
+.cl-item.checked::after{transform:scaleX(1)}
+.cl-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--b3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;background:transparent;position:relative;overflow:hidden}
+.cl-item.checked .cl-box{background:var(--green);border-color:var(--green)}
+.cl-check-icon{font-size:11px;font-weight:700;color:var(--bg);opacity:0;transform:scale(0) rotate(-20deg);transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.cl-item.checked .cl-check-icon{opacity:1;transform:scale(1) rotate(0)}
+.cl-text{flex:1;min-width:0}
+.cl-label{font-size:14px;color:var(--text);line-height:1.35;transition:color .2s}
+.cl-item.checked .cl-label{color:var(--dim);text-decoration:line-through}
+.cl-xp{font-size:11px;font-family:var(--mono);color:var(--gold);opacity:.5;margin-top:1px}
+.cl-item.checked .cl-xp{opacity:.25}
+.ripple{position:absolute;border-radius:50%;background:rgba(62,207,142,.3);transform:scale(0);animation:rippleAnim .5s ease;pointer-events:none}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+.boss-card{background:linear-gradient(135deg,rgba(255,107,157,.06),rgba(255,215,0,.03));border:1px solid rgba(255,107,157,.2);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.boss-card:hover{border-color:rgba(255,107,157,.4)}
+.boss-glow{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,107,157,.03),transparent);animation:shimmer 3s ease infinite}
+@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.boss-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.boss-icon-wrap{font-size:18px}
+.boss-badge{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);font-family:var(--mono);font-weight:700}
+.boss-xp{margin-left:auto;background:rgba(255,107,157,.15);color:var(--pink);font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px}
+.boss-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px}
+.boss-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:10px}
+.boss-counter{display:flex;align-items:center;gap:10px}
+.boss-steps{display:flex;gap:5px}
+.boss-step{width:28px;height:8px;border-radius:4px;background:var(--b2);border:1px solid var(--b3);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.boss-step.done{background:var(--pink);border-color:var(--pink);box-shadow:0 0 6px rgba(255,107,157,.5)}
+.boss-step::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2));opacity:0;transition:opacity .2s}
+.boss-step.done::after{opacity:1}
+.boss-count-label{font-size:9px;font-family:var(--mono);color:var(--dim)}
+.boss-count-label.complete{color:var(--pink);font-weight:700}
+.boss-done-overlay{position:absolute;inset:0;background:rgba(62,207,142,.06);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;border-radius:var(--r);pointer-events:none}
+.boss-done-overlay.show{opacity:1}
+.boss-done-text{font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono);letter-spacing:.08em;text-shadow:0 0 20px var(--green)}
+
+.day-complete{display:none;align-items:center;gap:12px;background:rgba(62,207,142,.05);border:1px solid rgba(62,207,142,.18);border-radius:var(--r);padding:14px 16px;margin-bottom:18px}
+.day-complete.show{display:flex;animation:fadeUp .4s ease}
+.dc-icon{font-size:22px}
+.dc-title{font-size:14px;font-weight:700;color:var(--green)}
+.dc-sub{font-size:12px;color:var(--dim);margin-top:1px}
+.dc-xp{margin-left:auto;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gold)}
+
+.missions{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;margin-bottom:16px}
+.missions-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:10px;font-family:var(--mono)}
+.mission-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--b1)}
+.mission-item:last-child{border:none}
+.m-icon{font-size:14px;flex-shrink:0}
+.m-text{flex:1;font-size:13px;color:var(--text)}
+.m-xp{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:700}
+.m-check{font-size:13px;color:var(--green);opacity:0;transition:opacity .2s}
+.mission-item.done .m-text{color:var(--dim);text-decoration:line-through}
+.mission-item.done .m-check{opacity:1}
+.m-mini-bar{height:2px;background:var(--b2);border-radius:2px;overflow:hidden;margin-top:3px;width:60px}
+.m-mini-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+
+.stats-section{margin-bottom:24px}
+.stats-section-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px}
+.range-btns{display:flex;gap:4px;margin-left:auto}
+.range-btn{font-size:11px;font-family:var(--mono);font-weight:600;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--b2);color:var(--dim);transition:all .12s}
+.range-btn.active{background:rgba(255,107,157,.12);border-color:var(--pink);color:var(--pink)}
+.xp-chart{height:120px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px;position:relative;overflow:hidden}
+.chart-canvas{width:100%;height:100%}
+.heatmap-grid{display:flex;gap:2px;flex-wrap:wrap}
+.hm-cell{width:14px;height:14px;border-radius:2px;background:var(--b1);cursor:pointer;transition:transform .1s;position:relative}
+.hm-cell:hover{transform:scale(1.3);z-index:10}
+.hm-cell.l1{background:rgba(62,207,142,.15)}
+.hm-cell.l2{background:rgba(62,207,142,.35)}
+.hm-cell.l3{background:rgba(62,207,142,.6)}
+.hm-cell.l4{background:rgba(62,207,142,.9);box-shadow:0 0 4px rgba(62,207,142,.4)}
+.hm-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--b2);color:var(--text);font-size:9px;font-family:var(--mono);padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:100;opacity:0;transition:opacity .15s}
+.hm-cell:hover .hm-tooltip{opacity:1}
+.stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px}
+.sc-icon{font-size:18px;margin-bottom:6px}
+.sc-val{font-size:22px;font-weight:800;color:var(--white);font-family:var(--mono);line-height:1}
+.sc-label{font-size:11px;color:var(--dim);letter-spacing:.06em;margin-top:3px}
+.sc-trend{font-size:11px;font-family:var(--mono);margin-top:4px}
+.sc-trend.up{color:var(--green)}
+.sc-trend.down{color:var(--red)}
+@media(max-width:600px){.stat-cards{grid-template-columns:repeat(2,1fr)}}
+.cat-bars{display:flex;flex-direction:column;gap:6px}
+.cat-bar-item{display:flex;align-items:center;gap:10px}
+.cat-bar-label{font-size:12px;color:var(--dim);width:90px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-bar-track{flex:1;height:6px;background:var(--b2);border-radius:3px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.cat-bar-val{font-size:11px;font-family:var(--mono);color:var(--dim);width:44px;text-align:right;flex-shrink:0}
+
+.editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.editor-title{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.editor-add-btn{display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);font-weight:600;color:var(--pink);background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.2);border-radius:6px;padding:5px 10px;cursor:pointer;transition:all .15s}
+.editor-add-btn:hover{background:rgba(255,107,157,.2)}
+.editor-item{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:grab;transition:all .2s;position:relative;display:flex;align-items:flex-start;gap:10px}
+.editor-item:active{cursor:grabbing}
+.editor-item.dragging{opacity:.5;border-color:var(--pink);background:rgba(255,107,157,.06)}
+.editor-item.drag-over{border-top:2px solid var(--pink)}
+.editor-drag-handle{color:var(--faint);font-size:14px;cursor:grab;flex-shrink:0;padding-top:2px;transition:color .15s}
+.editor-item:hover .editor-drag-handle{color:var(--dim)}
+.editor-item-body{flex:1;min-width:0}
+.editor-item-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.editor-time-input{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--white);background:var(--s2);border:1px solid var(--b2);border-radius:4px;padding:3px 7px;width:74px;cursor:pointer;transition:border-color .15s;outline:none}
+.editor-time-input:focus{border-color:var(--pink)}
+.editor-cat-select{font-size:12px;font-family:var(--mono);background:var(--s2);border:1px solid var(--b2);border-radius:4px;padding:3px 7px;color:var(--text);cursor:pointer;outline:none;transition:border-color .15s}
+.editor-cat-select:focus{border-color:var(--pink)}
+.editor-title-input{font-size:14px;font-weight:600;color:var(--white);background:transparent;border:none;border-bottom:1px solid var(--b2);padding:2px 0;width:100%;outline:none;transition:border-color .15s;font-family:var(--font)}
+.editor-title-input:focus{border-color:var(--pink)}
+.editor-desc-input{font-size:13px;color:var(--dim);background:transparent;border:none;border-bottom:1px solid var(--b1);padding:2px 0;width:100%;outline:none;resize:none;font-family:var(--font);line-height:1.5;margin-top:4px;transition:border-color .15s}
+.editor-desc-input:focus{border-color:var(--pink)}
+.editor-item-actions{display:flex;gap:4px;flex-shrink:0}
+.editor-del-btn{width:24px;height:24px;border-radius:5px;background:transparent;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--faint);transition:all .15s}
+.editor-del-btn:hover{background:rgba(255,95,74,.1);border-color:rgba(255,95,74,.2);color:var(--red)}
+.editor-save-banner{background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;display:none}
+.editor-save-banner.show{display:flex;animation:fadeUp .2s}
+.esb-text{font-size:11px;color:var(--green)}
+.esb-btn{font-size:10px;font-family:var(--mono);font-weight:700;color:var(--bg);background:var(--green);border:none;border-radius:5px;padding:4px 12px;cursor:pointer}
+
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px}
+.wk-cell{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.wk-cell:hover{border-color:var(--b2)}
+.wk-cell.done{background:rgba(62,207,142,.05);border-color:rgba(62,207,142,.18)}
+.wk-day{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em;margin-bottom:4px}
+.wk-pct{font-size:18px;font-weight:800;color:var(--white);font-family:var(--mono);line-height:1}
+.wk-xp{font-size:11px;font-family:var(--mono);color:var(--gold);margin-top:3px}
+@media(max-width:600px){.week-grid{grid-template-columns:repeat(4,1fr)}}
+
+.tips-grid{display:flex;flex-direction:column;gap:8px}
+.tip-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:border-color .15s}
+.tip-card:hover{border-color:var(--b2)}
+.tip-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.tip-icon{font-size:20px;margin-bottom:7px}
+.tip-title{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
+.tip-body{font-size:12px;color:var(--dim);line-height:1.65}
+
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--b1);z-index:100;height:68px}
+@media(max-width:768px){.mobile-nav{display:flex}}
+.mn-scroll{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
+.mn-scroll::-webkit-scrollbar{display:none}
+.mob-nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 12px;cursor:pointer;flex-shrink:0;transition:all .15s;min-width:56px;user-select:none;border-bottom:2px solid transparent}
+.mob-nav-btn.active{border-bottom-color:var(--pink)}
+.mob-nav-btn.active .mn-label{color:var(--white)}
+.mob-nav-btn.done .mn-label{color:var(--green)}
+.mn-icon{font-size:18px;line-height:1}
+.mn-label{font-size:10px;font-family:var(--mono);font-weight:700;color:var(--dim);letter-spacing:.04em;white-space:nowrap;transition:color .15s}
+.mn-actions{display:flex;flex-shrink:0}
+.mn-action-btn{width:52px;height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border-left:1px solid var(--b1)}
+.mn-action-icon{font-size:18px}
+.mn-action-label{font-size:9px;font-family:var(--mono);color:var(--dim)}
+
+.mob-xp{display:none;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0}
+@media(max-width:768px){.mob-xp{display:flex;align-items:center;gap:10px}}
+.mob-xp-fill-wrap{flex:1;height:4px;background:var(--b2);border-radius:3px;overflow:hidden}
+.mob-xp-fill{height:100%;background:linear-gradient(90deg,var(--pink),#ffb3d1);border-radius:3px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.mob-lvl{font-size:11px;font-family:var(--mono);font-weight:700;color:var(--green);white-space:nowrap}
+.mob-streak{font-size:11px;font-family:var(--mono);font-weight:700;color:var(--orange);display:flex;align-items:center;gap:3px}
+
+.mob-ach-panel{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;padding-bottom:70px}
+.mob-ach-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--b1);position:sticky;top:0;background:var(--bg);z-index:10}
+.mob-ach-title{font-size:17px;font-weight:800;color:var(--white)}
+.mob-ach-close{font-size:12px;color:var(--dim);cursor:pointer;padding:6px 12px;background:var(--s2);border-radius:6px;border:1px solid var(--b2)}
+.mob-ach-item{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:8px}
+.mob-ach-item.unlocked{border-color:rgba(255,215,0,.25);background:rgba(255,215,0,.03)}
+
+.xp-popup{position:fixed;right:28px;bottom:100px;pointer-events:none;z-index:600;opacity:0;transform:translateY(0);transition:opacity .2s,transform .6s cubic-bezier(.34,1.56,.64,1)}
+.xp-popup.show{opacity:1;transform:translateY(-24px)}
+.xp-popup-inner{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:var(--gold);font-family:var(--mono);font-size:15px;font-weight:800;padding:7px 16px;border-radius:20px;letter-spacing:.06em;white-space:nowrap}
+.combo-wrap{position:fixed;right:28px;bottom:140px;pointer-events:none;z-index:599;text-align:right;opacity:0;transition:opacity .3s}
+.combo-wrap.show{opacity:1}
+.combo-fire{font-size:20px;animation:comboPulse .35s ease infinite alternate}
+.combo-mult{font-family:var(--mono);font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+@keyframes comboPulse{from{transform:scale(1)}to{transform:scale(1.12)}}
+@media(max-width:768px){.xp-popup,.combo-wrap{right:16px;bottom:80px}}
+.streak-fire{animation:streakPulse 1.5s ease infinite}
+@keyframes streakPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.15)}}
+.lvlup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(4px)}
+.lvlup-overlay.show{opacity:1;pointer-events:all}
+.lvlup-box{text-align:center;transform:scale(.6);transition:transform .6s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1}
+.lvlup-overlay.show .lvlup-box{transform:scale(1)}
+.lvlup-glow{position:absolute;inset:-40px;background:radial-gradient(circle,rgba(255,215,0,.08),transparent 70%);pointer-events:none}
+.lvlup-icon{font-size:68px;display:block;animation:lvlSpin .8s cubic-bezier(.34,1.56,.64,1) both;margin-bottom:10px}
+@keyframes lvlSpin{from{transform:rotate(-30deg) scale(0)}to{transform:rotate(0) scale(1)}}
+.lvlup-sub-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;font-family:var(--mono)}
+.lvlup-name{font-size:38px;font-weight:800;letter-spacing:-.04em;background:linear-gradient(135deg,var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:12px}
+.lvlup-desc{font-size:14px;color:var(--dim);margin-bottom:24px}
+.lvlup-btn{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;font-family:var(--mono);font-weight:800;font-size:13px;letter-spacing:.1em;padding:13px 30px;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;transition:transform .15s}
+.lvlup-btn:hover{transform:scale(1.05)}
+.particles-wrap{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.particle{position:absolute;border-radius:50%;animation:particleFly 1.4s ease forwards}
+@keyframes particleFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+
+.quote-toast{position:fixed;bottom:80px;left:20px;right:80px;background:rgba(10,10,20,.95);border:1px solid var(--b2);border-radius:12px;padding:12px 16px;z-index:400;opacity:0;transform:translateY(10px);transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:360px}
+.quote-toast.show{opacity:1;transform:translateY(0)}
+.qt-text{font-size:14px;color:var(--text);line-height:1.6;font-style:italic}
+.qt-close{font-size:12px;color:var(--dim);margin-top:6px;cursor:pointer;pointer-events:all;display:inline-block;font-family:var(--mono)}
+@media(max-width:768px){.quote-toast{left:16px;right:16px;bottom:78px;max-width:none}}
+
+.sec-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;font-family:var(--mono)}
+.day-panel{display:none}
+.day-panel.active{display:block}
+input,select,textarea{color-scheme:dark}
+</style>
+</head>
+<body>
+<div id="xpPopup" class="xp-popup"><div class="xp-popup-inner" id="xpPopupInner">+10 XP</div></div>
+<div id="comboWrap" class="combo-wrap">
+  <div class="combo-fire">🔥</div>
+  <div class="combo-mult" id="comboMult">×2</div>
+</div>
+<div id="achToast" class="ach-toast"><span id="achToastIcon">⭐</span><span id="achToastText">Achievement unlocked</span></div>
+<div id="lvlupOverlay" class="lvlup-overlay">
+  <div class="particles-wrap" id="lvlupParticles"></div>
+  <div class="lvlup-box">
+    <div class="lvlup-glow"></div>
+    <span class="lvlup-icon">✨</span>
+    <div class="lvlup-sub-label">Level Up!</div>
+    <div class="lvlup-name" id="lvlupName">Хүчтэй</div>
+    <div class="lvlup-desc" id="lvlupDesc">Та шинэ түвшинд хүрлээ!</div>
+    <button class="lvlup-btn" onclick="closeLvlUp()">Үргэлжлүүлэх →</button>
+  </div>
+</div>
+<div id="quoteToast" class="quote-toast">
+  <div class="qt-text" id="quoteToastText"></div>
+  <div class="qt-close" onclick="closeQuote()">✕ Хаах</div>
+</div>
+<div id="pomoPanel" class="pomo-panel">
+  <div class="pomo-title"><span>⏱ POMODORO</span><span class="pomo-close" onclick="togglePomo()">✕</span></div>
+  <div class="pomo-modes">
+    <div class="pomo-mode active" id="modeWork" onclick="setPomoDuration(25,'Фокус','modeWork')">25мин</div>
+    <div class="pomo-mode" id="modeShort" onclick="setPomoDuration(5,'Завсар','modeShort')">5мин</div>
+    <div class="pomo-mode" id="modeLong" onclick="setPomoDuration(15,'Урт завсар','modeLong')">15мин</div>
+  </div>
+  <div class="pomo-ring">
+    <svg class="pomo-svg" width="100" height="100" viewBox="0 0 100 100">
+      <circle class="pomo-track" cx="50" cy="50" r="42"/>
+      <circle class="pomo-prog" id="pomoProg" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="0"/>
+    </svg>
+    <div class="pomo-time"><div class="pomo-mins" id="pomoDisplay">25:00</div><div class="pomo-label" id="pomoModeLabel">Фокус</div></div>
+  </div>
+  <div class="pomo-controls">
+    <div class="pomo-btn" onclick="resetPomo()" title="Reset">↺</div>
+    <div class="pomo-btn primary" id="pomoPlayBtn" onclick="togglePomoRun()">▶</div>
+    <div class="pomo-btn" onclick="skipPomo()" title="Skip">⏭</div>
+  </div>
+  <div class="pomo-session" id="pomoSession">Сессий #1 · Нийт 0мин</div>
+</div>
+<div id="timerFab" class="timer-fab" onclick="togglePomo()" title="Pomodoro таймер">⏱</div>
+
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo"><div class="brand-dot"></div> Routine OS</div>
+    <div class="brand-sub">v3.0 — Зулцэцэг</div>
+  </div>
+  <div class="xp-block">
+    <div class="xp-row">
+      <div class="xp-lvl" id="lvlLabel">🌱 LVL 1 · Анхлагч</div>
+      <div class="xp-pts" id="xpLabel">0 / 700 XP</div>
+    </div>
+    <div class="xp-track"><div class="xp-fill" id="xpBar" style="width:0%"></div></div>
+    <div class="xp-bottom">
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span id="streakNum">0</span> streak</div>
+      <div class="week-pill" id="weekScore">7н: 0 XP</div>
+    </div>
+    <div id="freezeBtn" class="freeze-btn" onclick="useStreakFreeze()">🧊 Streak Freeze</div>
+  </div>
+  <div class="sidebar-scroll">
+    <div class="ach-strip" id="achStrip"></div>
+    <div class="nav-group">
+      <div class="nav-label">Ажлын өдрүүд</div>
+      <div class="nav-item active" id="nav0" onclick="showDay(0)"><div class="nav-dot"></div>Даваа<span class="nav-check">✓</span></div>
+      <div class="nav-item" id="nav1" onclick="showDay(1)"><div class="nav-dot"></div>Мягмар<span class="nav-check">✓</span></div>
+      <div class="nav-item" id="nav2" onclick="showDay(2)"><div class="nav-dot"></div>Лхагва<span class="nav-check">✓</span></div>
+      <div class="nav-item" id="nav3" onclick="showDay(3)"><div class="nav-dot"></div>Пүрэв<span class="nav-check">✓</span></div>
+      <div class="nav-item" id="nav4" onclick="showDay(4)"><div class="nav-dot"></div>Баасан<span class="nav-check">✓</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Амралтын өдрүүд</div>
+      <div class="nav-item" id="nav5" onclick="showDay(5)"><div class="nav-dot"></div>Бямба<span class="nav-check">✓</span></div>
+      <div class="nav-item" id="nav6" onclick="showDay(6)"><div class="nav-dot"></div>Ням<span class="nav-check">✓</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Хэрэгсэл</div>
+      <div class="nav-item" id="nav7" onclick="showDay(7)"><div class="nav-dot" style="background:var(--purple)"></div>📊 Статистик</div>
+      <div class="nav-item" id="nav8" onclick="showDay(8)"><div class="nav-dot" style="background:var(--pink)"></div>✏️ Засварлах</div>
+      <div class="nav-item" id="nav9" onclick="showDay(9)"><div class="nav-dot" style="background:var(--gold)"></div>📅 7н Тайлан</div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="mob-xp">
+    <div class="mob-lvl" id="mLvlLabel">LVL 1</div>
+    <div class="mob-xp-fill-wrap"><div class="mob-xp-fill" id="mXpBar" style="width:0%"></div></div>
+    <div class="mob-streak"><span class="streak-fire">🔥</span><span id="mStreakNum">0</span></div>
+  </div>
+  <div class="cal-strip" id="calStrip"></div>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="topTitle">Даваа <span>гараг</span></div>
+      <div class="page-meta" id="topMeta">ӨЗ #1 — MON · БИЗНЕС & ӨСӨЛТ</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-btn" onclick="showQuote()">💬</div>
+      <div class="day-xp" id="dayXpBadge">+100 XP</div>
+    </div>
+  </div>
+  <div class="tabs" id="tabBar">
+    <div class="tab active" onclick="showTab(0)">Хуваарь</div>
+    <div class="tab" onclick="showTab(1)">✓ Checklist</div>
+  </div>
+  <div class="scroll-area" id="mainScroll">
+    <div id="dp0" class="day-panel"></div>
+    <div id="dp1" class="day-panel" style="display:none"></div>
+    <div id="dp2" class="day-panel" style="display:none"></div>
+    <div id="dp3" class="day-panel" style="display:none"></div>
+    <div id="dp4" class="day-panel" style="display:none"></div>
+    <div id="dp5" class="day-panel" style="display:none"></div>
+    <div id="dp6" class="day-panel" style="display:none"></div>
+    <div id="dp7" class="day-panel" style="display:none">
+      <div class="tab-panel active" style="display:block">
+        <div class="stats-section">
+          <div class="stats-section-title">📊 Урт хугацааны дэвшил
+            <div class="range-btns">
+              <div class="range-btn active" onclick="setRange(7,this)">7 хон</div>
+              <div class="range-btn" onclick="setRange(30,this)">30 хон</div>
+              <div class="range-btn" onclick="setRange(90,this)">90 хон</div>
+            </div>
+          </div>
+          <div class="xp-chart"><canvas id="xpChart" class="chart-canvas"></canvas></div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-section-title">🔥 Идэвхийн хэлхээ</div>
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-section-title">⚡ Ерөнхий үзүүлэлт</div>
+          <div class="stat-cards">
+            <div class="stat-card"><div class="sc-icon">🏆</div><div class="sc-val" id="statTotalXp">0</div><div class="sc-label">Нийт XP</div><div class="sc-trend up" id="statXpTrend">↑ 0 энэ 7хон</div></div>
+            <div class="stat-card"><div class="sc-icon">🔥</div><div class="sc-val" id="statStreak">0</div><div class="sc-label">Streak (өдөр)</div><div class="sc-trend" id="statStreakTrend">--</div></div>
+            <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-val" id="statDone">0%</div><div class="sc-label">7хон дундаж</div><div class="sc-trend" id="statDoneTrend">--</div></div>
+          </div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-section-title">🎯 Ангилал дахь идэвх</div>
+          <div class="cat-bars" id="catBars"></div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-section-title">🏅 Амжилтууд</div>
+          <div id="achFullGrid" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+    </div>
+    <div id="dp8" class="day-panel" style="display:none">
+      <div class="tab-panel active" style="display:block">
+        <div class="editor-save-banner" id="editorSaveBanner">
+          <span class="esb-text">✓ Хуваарь хадгалагдлаа</span>
+          <button class="esb-btn" onclick="hideSaveBanner()">OK</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em">ӨДӨР СОНГОХ</div>
+          <div style="display:flex;gap:4px" id="editorDayBtns"></div>
+        </div>
+        <div class="editor-header">
+          <div class="editor-title" id="editorDayTitle">Даваагийн хуваарь</div>
+          <div class="editor-add-btn" onclick="addEditorItem()">＋ Үйл явдал нэмэх</div>
+        </div>
+        <div id="editorList"></div>
+      </div>
+    </div>
+    <div id="dp9" class="day-panel" style="display:none">
+      <div class="tab-panel active" style="display:block">
+        <div class="week-grid" id="weekGrid"></div>
+        <div class="stats" style="margin-bottom:20px">
+          <div class="stat"><div class="stat-label">7н нийт XP</div><div class="stat-val" id="totalXpVal">0</div></div>
+          <div class="stat"><div class="stat-label">Дууссан өдөр</div><div class="stat-val" id="totalDoneVal">0/7</div></div>
+          <div class="stat"><div class="stat-label">Streak</div><div class="stat-val" id="totalStreakVal">0</div></div>
+          <div class="stat"><div class="stat-label">Дундаж %</div><div class="stat-val" id="totalAvgVal">0%</div></div>
+        </div>
+        <div class="sec-title">Сайжруулалтын санал</div>
+        <div class="tips-grid" id="improveTips"></div>
+        <div style="text-align:center;margin-top:20px">
+          <div class="topbar-btn" onclick="resetWeek()" style="display:inline-block">↺ Долоо хоног дахин эхлүүлэх</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mn-scroll" id="mnScroll"></div>
+  <div class="mn-actions">
+    <div class="mn-action-btn" onclick="togglePomo()"><div class="mn-action-icon">⏱</div><div class="mn-action-label">Таймер</div></div>
+    <div class="mn-action-btn" onclick="showMobAch()"><div class="mn-action-icon">🏅</div><div class="mn-action-label">Амжилт</div></div>
+  </div>
+</nav>
+<div id="mobAchPanel" class="mob-ach-panel">
+  <div class="mob-ach-header">
+    <div class="mob-ach-title">🏅 Амжилтууд</div>
+    <div class="mob-ach-close" onclick="hideMobAch()">✕ Хаах</div>
+  </div>
+  <div style="padding:14px" id="mobAchList"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// DATA — Зулцэцэгийн хувийн хуваарь
+// ══════════════════════════════════════════════════════════════
+const DAYS = [
+  { name:'Даваа', short:'Да', meta:'ӨЗ #1 — MON · БИЗНЕС & ДАСГАЛ', xp:100, badge:'+100 XP', quote:'"Чиний ирээдүй өнөөдрийн 07:30-аас эхэлдэг."', emoji:'💼' },
+  { name:'Мягмар', short:'Мя', meta:'ӨЗ #2 — TUE · БИЗНЕС СТРАТЕГИ', xp:100, badge:'+100 XP', quote:'"Мэдлэг олох нь хамгийн шилдэг хөрөнгө оруулалт."', emoji:'📚' },
+  { name:'Лхагва', short:'Лх', meta:'ӨЗ #3 — WED · КОНТЕНТ & ХООЛ', xp:110, badge:'+110 XP', quote:'"Бодол гаргах нь бизнесийн үндэс."', emoji:'✍️' },
+  { name:'Пүрэв', short:'Пү', meta:'ӨЗ #4 — THU · ХЭЛНИЙ АЖИЛ', xp:100, badge:'+100 XP', quote:'"Олон хэл мэдэх — олон дэлхийд нэвтрэх хаалга."', emoji:'🌍' },
+  { name:'Баасан', short:'Ба', meta:'ӨЗ #5 — FRI · SELFCARE & ТАЙЛАН', xp:100, badge:'+100 XP', quote:'"Өөртөө итгэх нь хамгийн чухал ур чадвар."', emoji:'✨' },
+  { name:'Бямба', short:'Бя', meta:'АЗ #1 — SAT · УРТ БИЗНЕС БЛОК', xp:130, badge:'+130 XP', quote:'"Бямба — ирээдүйгээ бүтээх хамгийн сайн өдөр."', emoji:'🚀' },
+  { name:'Ням', short:'Ня', meta:'АЗ #2 — SUN · RELOAD & БЭЛТГЭЛ', xp:130, badge:'+130 XP', quote:'"Ням бол ирэх долоо хоногийн амжилтыг тавьдаг өдөр."', emoji:'🌟' },
+];
+
+const DEFAULT_TIMELINES = [
+  // Даваа — Бизнес суурь + анхны дасгал
+  [
+    {time:'07:30',cat:'c-sleep',catName:'Сэрэх',title:'Өглөөний бэлтгэл',dur:'30 мин',desc:'Ус 500мл → нүүр угаах → 5 мин сунгалт → өдрийн 1 зорилт дэвтэрт бичих. Яарахгүй, тайван.',why:'Өглөөний бэлтгэл оюун санааг тогтворжуулж, өдрийг зорилготой эхлүүлнэ.',timerMins:30},
+    {time:'08:00',cat:'c-biz',catName:'🌸 Бизнес блок #1',title:'Бизнесийн судалгаа & суурь',dur:'2 цаг',desc:'Бизнесийн загварчлал, зах зээлийн судалгаа, санаагаа цаасан дээр гаргах. Утас нисгэлтэн горим.',chips:['Business model canvas','Зах зээл судлах','Санааны тэмдэглэл'],why:'Өглөөний 2 цаг — тархи хамгийн сэргэг, бүтээлч цаг. Хамгийн чухал ажилдаа зарна.',timerMins:120},
+    {time:'10:00',cat:'c-rest',catName:'Завсарлага',title:'Цай + хөнгөн хөдөлгөөн',dur:'15 мин',desc:'Цай уух, босоод 5 мин алхаж бие сэргээнэ.',timerMins:15},
+    {time:'10:15',cat:'c-biz',catName:'Бизнес блок #2',title:'Онлайн суралцах & курс',dur:'90 мин',desc:'YouTube, онлайн курс, бизнесийн ном. Тэмдэглэл хийнэ.',chips:['YouTube бизнес контент','Udemy/Coursera','Тэмдэглэл'],timerMins:90},
+    {time:'11:45',cat:'c-food',catName:'Хоол бэлдэх',title:'Өдрийн хоол',dur:'45 мин',desc:'Хоолоо өөрөө бэлдэж идэнэ. Энгийн, тэжээллэг хоол — өндөг, ногоо, будаа.',timerMins:45},
+    {time:'12:30',cat:'c-rest',catName:'Амралт',title:'Тайван амралт',dur:'30 мин',desc:'Ном унших эсвэл podcast сонсох. Дэлгэцгүй амралт.',timerMins:30},
+    {time:'13:00',cat:'c-deep',catName:'Deep Work',title:'Контент & нийгмийн хэрэгсэл',dur:'2 цаг',desc:'Instagram, Pinterest, TikTok — бизнест зориулсан контент хийх. Бренд бий болгох.',chips:['Нийгмийн хэрэгсэл','Контент бэлдэх','Брендийн загвар'],timerMins:120},
+    {time:'15:00',cat:'c-train',catName:'🏃 Анхны дасгал',title:'Эхлэгчийн дасгал — 25 мин',dur:'25 мин',desc:'Гэртээ хийдэг энгийн дасгал: 10 squat, 10 push-up (өвдөг дээрээс), 20 jumping jack, 30 сек plank. 2 давталт. Хоёр давталтын хооронд 1 мин амарна.',chips:['Squat ×10','Push-up ×10','Jumping jack ×20','Plank 30сек'],why:'Эхлэгчдэд жижиг, тогтмол дасгал хийх нь чухал. Алхамаар өсгөнө.',timerMins:25},
+    {time:'15:30',cat:'c-rest',catName:'Сунгалт & ус',title:'Дасгалын дараах сунгалт',dur:'15 мин',desc:'5 мин сунгалт + шүршүүр + 500мл ус.',timerMins:15},
+    {time:'15:45',cat:'c-deep',catName:'Бизнес блок #3',title:'Бизнесийн төлөвлөгөө & тооцоо',dur:'90 мин',desc:'Бизнесийн санхүүгийн тооцоо, бүтээгдэхүүний судалгаа, нэрлэлт.',chips:['Санхүүгийн тооцоо','Бүтээгдэхүүн судлах','Нэрлэлт'],timerMins:90},
+    {time:'17:15',cat:'c-food',catName:'Оройн хоол',title:'Оройн хоол бэлдэх',dur:'45 мин',desc:'Тэжээллэг оройн хоол. Protein дэмжих: мах, өндөг, буурцаг.',timerMins:45},
+    {time:'18:00',cat:'c-rest',catName:'Чөлөөт цаг',title:'Чөлөөт & нийгмийн цаг',dur:'90 мин',desc:'Найз нөхөдтэй харилцах, кино үзэх, эсвэл хобби.',},
+    {time:'19:30',cat:'c-deep',catName:'Оройн судалгаа',title:'Хэл сурах — Англи / Солонгос',dur:'60 мин',desc:'Дуолинго, YouTube, подкаст — хэл сурах. Олон хэлтэй болох зорилгодоо.',chips:['Duolingo','YouTube хэлний контент','Flashcard'],timerMins:60},
+    {time:'20:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах цаг',dur:'60 мин',desc:'Ном унших, тэмдэглэл хийх, маргаашийн зорилт бичих.',timerMins:60},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Харанхуй, тайван орчин. Утас өөр өрөөнд.'},
+  ],
+  // Мягмар — Бизнес стратеги + дасгал
+  [
+    {time:'07:30',cat:'c-sleep',catName:'Сэрэх',title:'Өглөөний бэлтгэл',dur:'30 мин',desc:'Ус → сунгалт → өдрийн зорилт бичих.',timerMins:30},
+    {time:'08:00',cat:'c-biz',catName:'Бизнес блок #1',title:'Бизнесийн стратеги & зах зээл',dur:'2 цаг',desc:'Өрсөлдөгч шинжилгээ, үнийн бодлого, эхний 10 үйлчлүүлэгчийг яаж татах вэ.',chips:['Өрсөлдөгч судлах','Үнийн бодлого','Маркетинг стратеги'],timerMins:120},
+    {time:'10:00',cat:'c-rest',catName:'Завсарлага',title:'Цай + алхалт',dur:'15 мин',desc:'Гэрт алхаж бие сэргээнэ.',timerMins:15},
+    {time:'10:15',cat:'c-deep',catName:'Суралцах',title:'Бизнесийн ном унших',dur:'90 мин',desc:'Бизнес, маркетинг, сэтгэл зүйн ном. Бүлэг тус бүрт тэмдэглэл хий.',timerMins:90},
+    {time:'11:45',cat:'c-food',catName:'Хоол',title:'Өдрийн хоол бэлдэх',dur:'45 мин',desc:'Хурдан, тэжээллэг хоол. Batch cook хийж хэдэн хоногт хэрэглэнэ.',timerMins:45},
+    {time:'12:30',cat:'c-rest',catName:'Амралт',title:'Power nap / Ном',dur:'30 мин',desc:'20 мин нойр эсвэл ном унших.',timerMins:30},
+    {time:'13:00',cat:'c-biz',catName:'Бизнес блок #2',title:'Бүтээгдэхүүн & үйлчилгээ тодорхойлох',dur:'2 цаг',desc:'Яг юу зарах вэ? Хэнд зарах вэ? Яаж зарах вэ? Эхний бүтээгдэхүүний загвар.',chips:['MVP тодорхойлох','Зорилтот үйлчлүүлэгч','Борлуулалтын арга'],timerMins:120},
+    {time:'15:00',cat:'c-train',catName:'🏃 Дасгал',title:'Эхлэгчийн дасгал — 25 мин',dur:'25 мин',desc:'Өчигдрийнхөөс нэг давталт нэмж хийнэ. Squat ×12, push-up ×10, jumping jack ×25, plank 35сек.',chips:['Squat ×12','Push-up ×10','Jumping jack ×25'],timerMins:25},
+    {time:'15:30',cat:'c-rest',catName:'Сунгалт',title:'Сунгалт & усны цаг',dur:'15 мин',desc:'Сунгалт + 500мл ус.',timerMins:15},
+    {time:'15:45',cat:'c-deep',catName:'Хэл & Ур чадвар',title:'Хэл сурах + ур чадвар',dur:'2 цаг',desc:'Англи эсвэл бусад хэл + бизнест хэрэгтэй ур чадвар (Canva, Excel, ChatGPT).',chips:['Хэл сурах','Canva загвар','Excel үндэс'],timerMins:120},
+    {time:'17:45',cat:'c-food',catName:'Оройн хоол',title:'Оройн хоол',dur:'45 мин',desc:'Оройн хоол бэлдэж идэнэ.',timerMins:45},
+    {time:'18:30',cat:'c-rest',catName:'Чөлөөт цаг',title:'Нийгмийн цаг',dur:'90 мин',desc:'Найз, гэр бүлтэй цаг өнгөрүүлэх.',},
+    {time:'20:00',cat:'c-deep',catName:'Оройн тэмдэглэл',title:'Өдрийн дүгнэлт бичих',dur:'30 мин',desc:'Өнөөдөр юу сурсан? Маргааш юу хийх вэ? 3 зүйл бичнэ.',timerMins:30},
+    {time:'20:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'90 мин',desc:'Ном, подкаст, тайван цаг.',},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Тайван нойр. Биеийн булчин сэргэнэ.'},
+  ],
+  // Лхагва — Контент хийх + Batch cook
+  [
+    {time:'07:30',cat:'c-sleep',catName:'Сэрэх',title:'Өглөөний бэлтгэл',dur:'30 мин',desc:'Ус → сунгалт → 7 хоногийн дундын шалгалт 5 мин.',timerMins:30},
+    {time:'08:00',cat:'c-biz',catName:'Контент хийх',title:'Нийгмийн хэрэгслийн контент',dur:'2 цаг',desc:'Instagram, TikTok, Pinterest постууд хийх. Бизнестэй холбоотой агуулга.',chips:['Нийтлэл','Stories','Видео бичих'],timerMins:120},
+    {time:'10:00',cat:'c-rest',catName:'Завсарлага',title:'Цай + алхалт',dur:'20 мин',desc:'Цай, гэрт алхаж сэргэнэ.',timerMins:20},
+    {time:'10:20',cat:'c-deep',catName:'Суралцах',title:'Онлайн курс / видео',dur:'90 мин',desc:'Бизнес эсвэл хэлний онлайн сургалт. YouTube бизнес видео.',timerMins:90},
+    {time:'11:50',cat:'c-food',catName:'🍳 Batch Cook',title:'3–4 хоногийн хоол бэлдэх',dur:'90 мин',desc:'Нэг удаа хийгээд хэдэн хоног идэнэ: будаа, хайрсан мах, чанасан ногоо, өндөг. Подкаст сонсно.',chips:['Будаа чанах','Мах жарах','Ногоо чанах','4 хоногт хадгалах'],why:'Хоол бэлдэх цагаа хэмнэхийн тулд batch cook хэрэглэнэ — энэ нь бизнест илүү цаг гаргадаг.',timerMins:90},
+    {time:'13:20',cat:'c-food',catName:'Хоол идэх',title:'Үдийн хоол',dur:'30 мин',desc:'Бэлдсэн хоолоо халааж идэнэ. Тайван, утасгүй.',timerMins:30},
+    {time:'13:50',cat:'c-rest',catName:'Амралт',title:'Power nap / Ном',dur:'30 мин',desc:'20 мин нойр эсвэл тайван унших.',timerMins:30},
+    {time:'14:20',cat:'c-biz',catName:'Бизнес блок',title:'Борлуулалт & хамтын ажиллагаа',dur:'2 цаг',desc:'Брэнд-тэй хамтрагч хайх, хамтын ажиллагааны захидал, зах зээл судлах.',chips:['Бренд судлах','Захидал бичих','Ярилцлага'],timerMins:120},
+    {time:'16:20',cat:'c-train',catName:'🏃 Дасгал',title:'Эхлэгчийн дасгал — 25 мин',dur:'25 мин',desc:'Гурав дахь удаа. Нэг давталт нэмж болно. Squat ×15, push-up ×12.',chips:['Squat ×15','Push-up ×12','Plank 40сек'],timerMins:25},
+    {time:'16:50',cat:'c-rest',catName:'Сунгалт',title:'Сунгалт & усны цаг',dur:'15 мин',desc:'Биеийн сунгалт + ус.',timerMins:15},
+    {time:'17:05',cat:'c-deep',catName:'Хэл сурах',title:'Хэлний дасгал',dur:'60 мин',desc:'Дуолинго, хэлний видео, флэшкард. Тогтмол 1 цаг.',timerMins:60},
+    {time:'18:05',cat:'c-food',catName:'Оройн хоол',title:'Оройн хоол',dur:'30 мин',desc:'Бэлдсэн хоолоо идэнэ.',timerMins:30},
+    {time:'18:35',cat:'c-rest',catName:'Чөлөөт цаг',title:'Нийгмийн цаг',dur:'90 мин',desc:'Найз, гэр бүлтэй цаг.',},
+    {time:'20:05',cat:'c-deep',catName:'Оройн бизнес',title:'Бизнесийн оройн ажил',dur:'60 мин',desc:'Тухайн өдрийн бизнесийн тэмдэглэл, судалгааны дүгнэлт.',timerMins:60},
+    {time:'21:05',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'60 мин',desc:'Ном, подкаст, тайван цаг.',},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Тайван нойр.'},
+  ],
+  // Пүрэв — Хэл + Бизнес хэрэгжүүлэх
+  [
+    {time:'07:30',cat:'c-sleep',catName:'Сэрэх',title:'Өглөөний бэлтгэл',dur:'30 мин',desc:'Ус → сунгалт → зорилт бичих.',timerMins:30},
+    {time:'08:00',cat:'c-deep',catName:'Хэл & Мэргэжил',title:'Хэл сурах — гүнзгий дасгал',dur:'2 цаг',desc:'Англи хэлний ярих дасгал, бичих дасгал. Солонгос эсвэл хятад хэл хэрэв сонирхвол.',chips:['Speaking practice','Бичих дасгал','Grammar'],timerMins:120},
+    {time:'10:00',cat:'c-rest',catName:'Завсарлага',title:'Цай + алхалт',dur:'20 мин',desc:'Цай, хөнгөн алхалт.',timerMins:20},
+    {time:'10:20',cat:'c-biz',catName:'Бизнес хэрэгжүүлэх',title:'Эхний алхамуудыг хийх',dur:'2 цаг',desc:'Бизнес бүртгэл, вэбсайт / Instagram хуудас үүсгэх, брэнд дизайн хийх.',chips:['Брэнд нэр','Instagram хуудас','Лого хийх'],timerMins:120},
+    {time:'12:20',cat:'c-food',catName:'Хоол',title:'Өдрийн хоол',dur:'40 мин',desc:'Бэлдсэн хоолоо идэнэ. Тайван, хурдан.',timerMins:40},
+    {time:'13:00',cat:'c-rest',catName:'Амралт',title:'Амралт',dur:'30 мин',desc:'Power nap эсвэл ном.',timerMins:30},
+    {time:'13:30',cat:'c-deep',catName:'Суралцах',title:'Мэргэжил дээшлүүлэх',dur:'2 цаг',desc:'Бизнест хэрэгтэй ур чадвар: ChatGPT, дижитал маркетинг, хэрэглэгчийн сэтгэл зүй.',chips:['ChatGPT хэрэглэх','Дижитал маркетинг','Хэрэглэгчийн судалгаа'],timerMins:120},
+    {time:'15:30',cat:'c-train',catName:'🏃 Дасгал',title:'Эхлэгчийн дасгал — 25 мин',dur:'25 мин',desc:'Долоо хоногийн 4 дэх дасгал. Тогтмол хийж байгаад XP авна!',chips:['Squat ×15','Push-up ×12','Плиометрик'],timerMins:25},
+    {time:'16:00',cat:'c-rest',catName:'Сунгалт',title:'Сунгалт & усны цаг',dur:'20 мин',desc:'Сунгалт + шүршүүр + ус.',timerMins:20},
+    {time:'16:20',cat:'c-biz',catName:'Бизнес блок',title:'Худалдан авагчтай холбогдох',dur:'90 мин',desc:'Зорилтот үйлчлүүлэгч руу холбоо барих, DM илгээх, судалгаа асуух.',chips:['DM илгээх','Санал хүсэлт авах','Харилцаа байгуулах'],timerMins:90},
+    {time:'17:50',cat:'c-food',catName:'Оройн хоол',title:'Оройн хоол',dur:'40 мин',desc:'Тэжээллэг оройн хоол.',timerMins:40},
+    {time:'18:30',cat:'c-rest',catName:'Чөлөөт цаг',title:'Чөлөөт цаг',dur:'90 мин',desc:'Найзтайгаа уулзах, кино үзэх.',},
+    {time:'20:00',cat:'c-deep',catName:'Оройн бичлэг',title:'Тухайн өдрийн тэмдэглэл',dur:'30 мин',desc:'Юу сурсан, юу хийсэн, маргааш юу хийх.',timerMins:30},
+    {time:'20:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'90 мин',desc:'Ном, тайван цаг.',},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Тайван нойр.'},
+  ],
+  // Баасан — Selfcare + тайлан + бизнес
+  [
+    {time:'07:30',cat:'c-sleep',catName:'Сэрэх',title:'Өглөөний бэлтгэл',dur:'30 мин',desc:'Ус → сунгалт → 7 хоногийн тайлан бичих.',timerMins:30},
+    {time:'08:00',cat:'c-biz',catName:'Баасны тайлан',title:'7 хоногийн дүгнэлт',dur:'60 мин',desc:'Энэ долоо хоног юу хийсэн? Бизнест ямар ахиц гарсан? Юу алдсан? 3 амжилт, 3 сургамж бичих.',chips:['3 амжилт','3 сургамж','Ирэх 7 хоногийн зорилт'],timerMins:60},
+    {time:'09:00',cat:'c-biz',catName:'Бизнес блок',title:'Тухайн өдрийн бизнес ажил',dur:'2 цаг',desc:'Захиалга, контент, харилцагчидтай холбоо.',timerMins:120},
+    {time:'11:00',cat:'c-deep',catName:'Хэл сурах',title:'Хэлний тогтмол дасгал',dur:'60 мин',desc:'Дуолинго, хэлний видео, 30 мин ярих дасгал.',timerMins:60},
+    {time:'12:00',cat:'c-food',catName:'Хоол',title:'Өдрийн хоол',dur:'45 мин',desc:'Тайван, утасгүй хоол идэх цаг.',timerMins:45},
+    {time:'12:45',cat:'c-rest',catName:'Амралт',title:'Тайван амралт',dur:'30 мин',desc:'Ном, нойр.',timerMins:30},
+    {time:'13:15',cat:'c-deep',catName:'Ур чадвар',title:'Шинэ ур чадвар',dur:'90 мин',desc:'Энэ долоо хоносон Canva, Excel, дижитал маркетинг эсвэл хэлний нэг ур чадварыг гүнзгийлнэ.',timerMins:90},
+    {time:'14:45',cat:'c-train',catName:'🏃 Баасны дасгал',title:'Эхлэгчийн дасгал + алхалт',dur:'40 мин',desc:'15 мин дасгал + 25 мин гадаа алхалт. Агаар авч, тайвшрах.',chips:['Дасгал 15мин','Гадаа алхалт 25мин'],timerMins:40},
+    {time:'15:25',cat:'c-rest',catName:'✨ Selfcare',title:'Selfcare цаг',dur:'90 мин',desc:'Усанд орох → нүүрний маск → хумсаа будах → өөрийгөө шагнах. Баасан бол өөрийнхөө төлөх өдөр.',chips:['Усанд орох','Гоо сайхан арчлалт','Өөрийгөө шагнах'],why:'Биеэ арчлах нь ядаргааг буулгаж, итгэлийг нэмдэг.',timerMins:90},
+    {time:'17:00',cat:'c-food',catName:'Оройн хоол',title:'Тусгай оройн хоол',dur:'60 мин',desc:'Баасан оройны тусгай дуртай хоолоо бэлд.',timerMins:60},
+    {time:'18:00',cat:'c-rest',catName:'Чөлөөт цаг',title:'Баасны чөлөөт цаг',dur:'3 цаг',desc:'Найз, кино, хобби — чөлөөтэй.',},
+    {time:'21:00',cat:'c-biz',catName:'Ирэх 7 хоног',title:'Ирэх 7 хоногийн бизнес зорилт',dur:'30 мин',desc:'3 гол зорилт бичих. Эхний алхам нь юу болох вэ?',timerMins:30},
+    {time:'21:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'90 мин',desc:'Ном, тайван цаг.',},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Тайван нойр.'},
+  ],
+  // Бямба — Урт бизнес блок + бие дасгал
+  [
+    {time:'08:00',cat:'c-sleep',catName:'Сэрэх',title:'Тайван эхлэл',dur:'30 мин',desc:'Урт сунгалт → ус → цай. Яарахгүй.',timerMins:30},
+    {time:'08:30',cat:'c-biz',catName:'🚀 Урт бизнес блок #1',title:'Бизнесийн гол ажил',dur:'3 цаг',desc:'Бямба бол хамгийн урт, гүнзгий бизнесийн ажил хийдэг өдөр. Утасгүй, тайван.',chips:['Бизнес загвар','Зах зээлийн судалгаа','Контент бэлдэх'],timerMins:180},
+    {time:'11:30',cat:'c-food',catName:'Хоол + Амралт',title:'Хоол + power nap',dur:'60 мин',desc:'Хоол → 20 мин нойр. Тархи дахин цэнэглэнэ.',timerMins:60},
+    {time:'12:30',cat:'c-biz',catName:'Бизнес блок #2',title:'Борлуулалт & маркетинг',dur:'2.5 цаг',desc:'Маркетингийн стратеги, нийгмийн хэрэгсэл, потенциал үйлчлүүлэгчтэй харилцах.',chips:['Нийтлэл хийх','DM илгээх','Санал авах'],timerMins:150},
+    {time:'15:00',cat:'c-train',catName:'💪 Бямбын дасгал',title:'Бие дасгал — 30 мин',dur:'30 мин',desc:'Долоо хоногийн хамгийн урт дасгал. Squat ×20, push-up ×15, jumping jack ×30, mountain climber ×20, plank 45сек. 3 давталт.',chips:['Squat ×20','Push-up ×15','Plank 45сек','Mountain climber'],timerMins:30},
+    {time:'15:30',cat:'c-rest',catName:'Сунгалт & шүршүүр',title:'Дасгалын дараах тайвшрал',dur:'30 мин',desc:'Шүршүүр → сунгалт → 500мл ус → жимс идэх.',timerMins:30},
+    {time:'16:00',cat:'c-rest',catName:'Гадаа алхалт',title:'60 мин алхалт',dur:'60 мин',desc:'Тайван алхалт. Подкаст эсвэл аудио ном сонсно. Тархийг "сэргэлцүүлэх" цаг.',timerMins:60},
+    {time:'17:00',cat:'c-food',catName:'Хоол',title:'Оройн хоол',dur:'45 мин',desc:'Batch cook хоол эсвэл шинэ хоол хийнэ.',timerMins:45},
+    {time:'17:45',cat:'c-biz',catName:'Оройн sprint',title:'Бизнесийн оройн sprint',dur:'2 цаг',desc:'Нийгмийн хэрэгсэл, контент, контент бэлдэх.',timerMins:120},
+    {time:'19:45',cat:'c-rest',catName:'Чөлөөт цаг',title:'Нийгмийн цаг',dur:'90 мин',desc:'Найзтайгаа уулзах, кино, хобби.',},
+    {time:'21:15',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'60 мин',desc:'Ном, тэмдэглэл, маргаашийн бэлтгэл.',timerMins:60},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Бямба оройн нойр.'},
+  ],
+  // Ням — Reload + бэлтгэл
+  [
+    {time:'08:00',cat:'c-sleep',catName:'Сэрэх',title:'Тайван эхлэл',dur:'30 мин',desc:'Ус → сунгалт → цай. Тайван өглөө.',timerMins:30},
+    {time:'08:30',cat:'c-biz',catName:'7 хоногийн тайлан',title:'Weekly Analysis',dur:'60 мин',desc:'7 хоногийн бизнесийн дүгнэлт — юу ажиллаж, юу ажиллаагүй. Ирэх 7 хоногийн стратеги.',chips:['Амжилт тоолох','Сургамж бичих','Ирэх зорилт'],timerMins:60},
+    {time:'09:30',cat:'c-biz',catName:'Бизнес бэлтгэл',title:'Нямын бизнес ажил',dur:'2 цаг',desc:'Шинэ 7 хоногийн контент, стратеги, төлөвлөгөөг бэлдэх.',timerMins:120},
+    {time:'11:30',cat:'c-rest',catName:'Хобби & Тайвшрал',title:'Чөлөөт цаг — хобби',dur:'90 мин',desc:'Дуртай зүйлээ хий: ном, хөгжим, бүтээлч ажил. Утасгүй байвал илүү сайн.',},
+    {time:'13:00',cat:'c-food',catName:'🛒 Дэлгүүр',title:'7 хоногийн хүнс авах',dur:'60 мин',desc:'Бэлдсэн жагсаалтаар. Тэжээллэг хоолны найрлага: protein дэмжих — мах, өндөг, буурцаг.',chips:['Хүнсний жагсаалт','Protein хоол','Ногоо'],timerMins:60},
+    {time:'14:00',cat:'c-food',catName:'🍳 Batch Cook #1',title:'3 хоногийн хоол бэлдэх',dur:'90 мин',desc:'Да-Мя-Лх хоол. Подкаст сонсно.',timerMins:90},
+    {time:'15:30',cat:'c-train',catName:'Нямын дасгал',title:'Хөнгөн дасгал — 25 мин',dur:'25 мин',desc:'7 хоногийн сүүлийн дасгал. Хөнгөн, дасгалаа дуусгана.',timerMins:25},
+    {time:'16:00',cat:'c-rest',catName:'✨ Selfcare',title:'Selfcare',dur:'60 мин',desc:'Усанд орох, гоо сайхан арчлал.',timerMins:60},
+    {time:'17:00',cat:'c-food',catName:'Оройн хоол',title:'Оройн хоол',dur:'45 мин',desc:'Тайван оройн хоол.',timerMins:45},
+    {time:'17:45',cat:'c-rest',catName:'Чөлөөт цаг',title:'Гэр бүл & найзтай цаг',dur:'90 мин',desc:'Найз, гэр бүл. Утасгүй.',},
+    {time:'19:15',cat:'c-biz',catName:'📅 Бэлтгэл',title:'Ирэх 7 хоногийн гол зорилт',dur:'30 мин',desc:'Нэг өдөрт нэг зорилт. Даваагийн эхний алхамаа бичнэ.',timerMins:30},
+    {time:'19:45',cat:'c-deep',catName:'Хэл сурах',title:'Хэлний тогтмол дасгал',dur:'45 мин',desc:'Дуолинго, хэлний видео.',timerMins:45},
+    {time:'20:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'90 мин',desc:'Ном, маргаашийн нэг зорилт бичнэ.',},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7.5 цаг нойр',desc:'Шинэ долоо хоногт бэлэн.'},
+  ],
+];
+
+const CHECKLISTS = [
+  // Даваа
+  [['🌅 07:30 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['📓 Өдрийн зорилт бичсэн',5,'Өглөө'],['🌸 Бизнес блок #1 — 2 цаг',20,'Ажил'],['📚 Бизнес блок #2 — 90 мин',15,'Ажил'],['🍳 Хоолоо өөрөө бэлдсэн',5,'Ажил'],['🧠 Контент & нийгмийн хэрэгсэл',15,'Ажил'],['🏃 Анхны дасгал — 25 мин хийсэн',20,'Орой'],['💧 Дасгалын дараа ус уусан',5,'Орой'],['🌍 Хэл сурах — 60 мин',15,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Мягмар
+  [['🌅 07:30 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['📓 Өдрийн зорилт бичсэн',5,'Өглөө'],['🌸 Бизнес стратеги — 2 цаг',20,'Ажил'],['📚 Бизнес ном уншсан — 90 мин',15,'Ажил'],['🍳 Хоолоо өөрөө бэлдсэн',5,'Ажил'],['🌸 Бүтээгдэхүүн тодорхойлсон',15,'Ажил'],['🏃 Дасгал — 25 мин хийсэн',20,'Орой'],['🌍 Хэл + ур чадвар — 2 цаг',15,'Орой'],['📓 Өдрийн дүгнэлт бичсэн',5,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Лхагва
+  [['🌅 07:30 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['✍️ Контент хийсэн — 2 цаг',20,'Ажил'],['📚 Онлайн курс — 90 мин',15,'Ажил'],['🍳 Batch cook хийсэн',25,'Ажил'],['🌸 Борлуулалт & хамтын ажиллагаа',15,'Ажил'],['🏃 Дасгал — 25 мин хийсэн',20,'Орой'],['🌍 Хэл сурах — 60 мин',10,'Орой'],['🌸 Оройн бизнес ажил',10,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Пүрэв
+  [['🌅 07:30 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['🌍 Хэлний гүнзгий дасгал — 2 цаг',20,'Ажил'],['🌸 Бизнес хэрэгжүүлэх — 2 цаг',20,'Ажил'],['📚 Ур чадвар — 2 цаг',15,'Ажил'],['🍳 Хоолоо өөрөө бэлдсэн',5,'Ажил'],['🏃 Дасгал — 25 мин хийсэн',20,'Орой'],['💬 Үйлчлүүлэгчтэй харилцсан',10,'Орой'],['📓 Өдрийн тэмдэглэл',5,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Баасан
+  [['🌅 07:30 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['📊 7 хоногийн тайлан бичсэн',20,'Ажил'],['🌸 Бизнес ажил — 2 цаг',15,'Ажил'],['🌍 Хэл сурах — 60 мин',10,'Ажил'],['🏃 Дасгал + алхалт — 40 мин',20,'Орой'],['✨ Selfcare хийсэн',15,'Орой'],['📅 Ирэх 7 хоногийн зорилт бичсэн',10,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Бямба
+  [['🌅 08:00 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['🚀 Урт бизнес блок #1 — 3 цаг',30,'Өглөө'],['😴 Power nap — 20 мин',5,'Өдөр'],['🚀 Бизнес блок #2 — 2.5 цаг',25,'Өдөр'],['💪 Бямбын дасгал — 30 мин',25,'Орой'],['🚶 Гадаа алхалт — 60 мин',10,'Орой'],['🌸 Оройн sprint — 2 цаг',20,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+  // Ням
+  [['🌅 08:00 сэрсэн',5,'Өглөө'],['💧 Ус 500мл уусан',5,'Өглөө'],['📊 Weekly Analysis — 60 мин',20,'Өглөө'],['🚀 Нямын бизнес ажил — 2 цаг',20,'Өглөө'],['🛒 Дэлгүүр — 7 хоногийн хүнс',15,'Өдөр'],['🍳 Batch Cook — 3 хоногийн хоол',25,'Өдөр'],['💪 Нямын дасгал — 25 мин',15,'Орой'],['✨ Selfcare хийсэн',10,'Орой'],['📅 Ирэх 7 хоногийн нэг зорилт бичсэн',10,'Орой'],['😴 00:00 унтсан',5,'Орой']],
+];
+
+const BOSS_CHALLENGES = [
+  {icon:'🌸', title:'Бизнесийн нэг асуулт — хэнд зарах вэ? — хариулт нь цаасан дээр байна!', desc:'2 хуудас бичих = boss дарна.', target:2},
+  {icon:'📚', title:'Ном уншиж дор нь 3 тэмдэглэл хий — хэрэглэх боломжтой санааг бичнэ', desc:'3 тэмдэглэл = boss дарна.', target:3},
+  {icon:'✍️', title:'Batch cook хийх зуур аудио подкаст эсвэл хэлний видео сонс', desc:'2 цаг batch + аудио = boss.', target:2},
+  {icon:'🌍', title:'Хэлний дасгалдаа аман ярих дасгал оруул — 10 мин ярих', desc:'2 удаа ярих дасгал = boss.', target:2},
+  {icon:'✨', title:'Selfcare хийхдээ утасгүй байж бүрэн байрандаа байх', desc:'90 мин утасгүй selfcare = boss.', target:3},
+  {icon:'🚀', title:'Бямба Deep Work блок #1 ба #2-г тасалдалгүй дуусга', desc:'2 блок дуусгах = boss.', target:2},
+  {icon:'📅', title:'Weekly Analysis болон ирэх 7 хоногийн стратегийг бичих', desc:'2 хэсгийг дуусгах = boss.', target:2},
+];
+
+const LEVELS = [
+  {lvl:1,min:0,max:700,name:'Анхлагч',emoji:'🌱'},
+  {lvl:2,min:700,max:1400,name:'Тогтсон',emoji:'⚡'},
+  {lvl:3,min:1400,max:2500,name:'Хүчтэй',emoji:'🔥'},
+  {lvl:4,min:2500,max:4000,name:'Мастер',emoji:'💎'},
+  {lvl:5,min:4000,max:9999,name:'Легенд',emoji:'👑'},
+];
+
+const ACHIEVEMENTS = [
+  {id:'first',icon:'🌱',name:'Эхний алхам',desc:'Анхны task биелүүлсэн',xp:10,check:s=>s.totalXp>=5},
+  {id:'streak3',icon:'🔥',name:'3 өдрийн Streak',desc:'3 өдөр дараалан',xp:30,check:s=>(s.streak||0)>=3},
+  {id:'streak7',icon:'🌟',name:'7 өдөр',desc:'Бүтэн долоо хоног',xp:100,check:s=>(s.streak||0)>=7},
+  {id:'streak30',icon:'💫',name:'Сарын баатар',desc:'30 өдөр дараалан',xp:300,check:s=>(s.streak||0)>=30},
+  {id:'xp500',icon:'💎',name:'500 XP',desc:'Нийт 500 XP',xp:50,check:s=>(s.totalXp||0)>=500},
+  {id:'xp1000',icon:'👑',name:'1000 XP',desc:'Нийт 1000 XP',xp:100,check:s=>(s.totalXp||0)>=1000},
+  {id:'xp5000',icon:'🚀',name:'5000 XP',desc:'Нийт 5000 XP',xp:500,check:s=>(s.totalXp||0)>=5000},
+  {id:'biz1',icon:'🌸',name:'Бизнесмен',desc:'Анхны бизнес блок хийсэн',xp:30,check:s=>Object.keys(s.bosses||{}).length>=1},
+  {id:'bizAll',icon:'💼',name:'CEO mode',desc:'7 өдрийн boss бүгд дарсан',xp:150,check:s=>Object.keys(s.bosses||{}).length>=7},
+  {id:'lvl3',icon:'🔥',name:'Хүчтэй',desc:'LVL 3 хүрсэн',xp:50,check:s=>(s.totalXp||0)>=1400},
+  {id:'pomo10',icon:'⏱',name:'Pomodoro Pro',desc:'10 pomodoro хийсэн',xp:40,check:s=>(s.pomoCount||0)>=10},
+  {id:'train7',icon:'🏃',name:'7 дасгал',desc:'7 удаа дасгал хийсэн',xp:70,check:s=>(s.trainCount||0)>=7},
+];
+
+const DAILY_MISSIONS = [
+  {icon:'💧',text:'Ус 2 удаа уусан (2× усны task)',xp:20,check:(s,di)=>{const items=CHECKLISTS[di];return items.filter((it,ii)=>it[0].includes('Ус')&&s.checks[`d${di}_i${ii}`]).length>=1;}},
+  {icon:'🌸',text:'Бизнесийн нэг блок дуусгасан',xp:25,check:(s,di)=>{const items=CHECKLISTS[di];return items.some((it,ii)=>it[0].includes('бизнес')&&s.checks[`d${di}_i${ii}`]);}},
+  {icon:'🏃',text:'Дасгал хийсэн',xp:20,check:(s,di)=>{const items=CHECKLISTS[di];return items.some((it,ii)=>it[0].includes('дасгал')&&s.checks[`d${di}_i${ii}`]);}},
+  {icon:'😴',text:'Унтах task тэмдэглэсэн',xp:10,check:(s,di)=>{const items=CHECKLISTS[di];return items.some((it,ii)=>it[0].includes('унтсан')&&s.checks[`d${di}_i${ii}`]);}},
+];
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+function loadState(){try{const r=localStorage.getItem('routineOS_zultsetseg');if(r)return JSON.parse(r);}catch(e){}return{checks:{},totalXp:0,streak:0,lastDate:null,bosses:{},bossCounters:{},achievements:{},maxCombo:0,pomoCount:0,history:{},customTimelines:{},freezeUsed:false,earlyCheck:false,trainCount:0};}
+function saveState(){try{localStorage.setItem('routineOS_zultsetseg',JSON.stringify(state));}catch(e){}}
+let state=loadState();
+let currentDay=0,currentTab=0,prevLevel=1,comboCount=0,comboTimer=null,editorDay=0;
+let pomoTotal=0,pomoSecs=0,pomoMaxSecs=25*60,pomoRunning=false,pomoInterval=null,pomoSession=0,pomoMode='work';
+
+function getTimeline(di){return state.customTimelines[di]||DEFAULT_TIMELINES[di];}
+
+// CALENDAR
+function buildCalStrip(){
+  const strip=document.getElementById('calStrip');
+  const today=new Date();
+  const dayNames=['Ня','Да','Мя','Лх','Пү','Ба','Бя'];
+  let html='';
+  for(let i=-10;i<=20;i++){
+    const d=new Date(today);d.setDate(today.getDate()+i);
+    const dateStr=d.toDateString();
+    const dow=d.getDay();
+    const mn_dow=dow===0?6:dow-1;
+    const dayXp=state.history?.[dateStr]?.xp||0;
+    const isPast=i<0,isToday=i===0;
+    let cls='cal-day';
+    if(isToday)cls+=' today';
+    if(isPast&&dayXp>50)cls+=' past-done';
+    else if(isPast&&dayXp===0)cls+=' past-miss';
+    html+=`<div class="${cls}" onclick="calJump(${mn_dow},${i})" title="${d.toLocaleDateString('mn-MN')}·${dayXp}XP"><div class="cal-wd">${dayNames[dow]}</div><div class="cal-num">${d.getDate()}</div><div class="cal-dot"></div></div>`;
+  }
+  strip.innerHTML=html;
+  requestAnimationFrame(()=>{const t=strip.querySelector('.cal-day.today');if(t)t.scrollIntoView({block:'nearest',inline:'center',behavior:'instant'});});
+}
+function calJump(mn_dow){if(mn_dow>=0&&mn_dow<=6)showDay(mn_dow);}
+
+// BUILD DAY PANELS
+function buildDayPanel(di){
+  const panel=document.getElementById('dp'+di);if(!panel)return;
+  const tl=getTimeline(di);
+  const day=DAYS[di];
+  const stats=[
+    {label:'Бизнес',val:tl.filter(e=>e.cat==='c-biz').length+'хэсэг'},
+    {label:'Унтах',val:'00:00'},
+    {label:'Дасгал',val:'25мин+'},
+    {label:'Max XP',val:'+'+day.xp+' XP'},
+  ];
+  let statsHtml=`<div class="stats">`+stats.map(s=>`<div class="stat"><div class="stat-label">${s.label}</div><div class="stat-val">${s.val}</div></div>`).join('')+`</div>`;
+  let tlHtml=`<div class="tl" id="tl${di}">`;
+  tl.forEach((ev,ei)=>{
+    const hasDur=ev.dur?`<span class="tl-dur">— ${ev.dur}</span>`:'';
+    const hasChips=ev.chips?`<div class="tl-chips">${ev.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div>`:'';
+    const hasWhy=ev.why?`<div class="why-box"><strong>Яагаад?</strong>${ev.why}</div>`:'';
+    const hasTimer=ev.timerMins?`<div class="tl-timer-btn" onclick="startTimerFor(${ev.timerMins},'${ev.title}')">▶ ${ev.timerMins}мин таймер</div>`:'';
+    tlHtml+=`<div class="tl-row ${ev.cat}"><div class="tl-time">${ev.time||''}</div><div class="tl-axis"><div class="tl-node"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-cat">${ev.catName||''}</div><div class="tl-title">${ev.title||''} ${hasDur}</div><div class="tl-desc">${ev.desc||''}</div>${hasChips}${hasWhy}${hasTimer}</div></div>`;
+  });
+  tlHtml+=`</div>`;
+  const t0=`<div class="tab-panel active" id="tp${di}-0"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span style="font-size:28px">${day.emoji}</span><div><div style="font-size:16px;font-weight:800;color:var(--white);line-height:1">${day.name}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${day.meta}</div></div></div>${statsHtml}${tlHtml}</div>`;
+  const boss=BOSS_CHALLENGES[di];
+  const bossKey=`boss${di}`;
+  const bossCounters=state.bossCounters?.[bossKey]||0;
+  const bossSteps=Array.from({length:boss.target},(_,si)=>`<div class="boss-step${si<bossCounters?' done':''}" onclick="bossStep(${di},${si},event)"></div>`).join('');
+  const bossComplete=bossCounters>=boss.target;
+  const t1=`<div class="tab-panel" id="tp${di}-1" style="display:none">
+    <div class="boss-card" id="bossCard${di}"><div class="boss-done-overlay${bossComplete?' show':''}" id="bossDone${di}"><div class="boss-done-text">⚡ BOSS DEFEATED +50 XP</div></div><div class="boss-glow"></div><div class="boss-header"><span class="boss-icon-wrap">${boss.icon}</span><span class="boss-badge">Өдрийн Boss Challenge</span><span class="boss-xp">+50 XP</span></div><div class="boss-title">${boss.title}</div><div class="boss-desc">${boss.desc}</div><div class="boss-counter"><div class="boss-steps" id="bossSteps${di}">${bossSteps}</div><div class="boss-count-label${bossComplete?' complete':''}" id="bossLabel${di}">${bossCounters}/${boss.target}${bossComplete?' 🔥':''}</div></div></div>
+    <div class="day-complete" id="dc${di}"><div class="dc-icon">🏆</div><div class="dc-text"><div class="dc-title">${day.name} бүрэн дууслаа!</div><div class="dc-sub">Бүх зорилтоо биелүүллээ!</div></div><div class="dc-xp" id="dc${di}xp">+${day.xp} XP</div></div>
+    <div class="missions" id="missions${di}"></div>
+    <div class="cl-wrap" id="cl${di}"><div class="cl-header"><div class="cl-title">✓ Өдрийн checklist</div><div class="cl-prog-text" id="clp${di}">0/${CHECKLISTS[di].length} · 0 XP</div></div><div class="prog-wrap"><div class="prog-bar" id="pb${di}" style="width:0%"></div></div></div>
+  </div>`;
+  panel.innerHTML=t0+t1;
+  buildChecklist(di);
+  buildMissions(di);
+  updateDayProgress(di);
+  updateDayComplete(di);
+}
+
+function buildChecklist(di){
+  const wrap=document.getElementById('cl'+di);if(!wrap)return;
+  const items=CHECKLISTS[di];
+  const groups={};
+  items.forEach((it,ii)=>{const g=it[2]||'Бусад';if(!groups[g])groups[g]=[];groups[g].push({ii,label:it[0],xp:it[1]});});
+  let html='';
+  Object.entries(groups).forEach(([g,gItems])=>{
+    html+=`<div class="cl-section"><div class="cl-sec-label">${g}</div>`;
+    gItems.forEach(({ii,label,xp})=>{
+      const chk=state.checks[`d${di}_i${ii}`]?'checked':'';
+      html+=`<div class="cl-item ${chk}" id="ci_${di}_${ii}" onclick="toggleCheck(${di},${ii},event)"><div class="cl-box"><span class="cl-check-icon">✓</span></div><div class="cl-text"><div class="cl-label">${label}</div><div class="cl-xp">+${xp} XP</div></div></div>`;
+    });
+    html+=`</div>`;
+  });
+  wrap.innerHTML+='<div>'+html+'</div>';
+}
+
+function buildMissions(di){
+  const wrap=document.getElementById('missions'+di);if(!wrap)return;
+  let html=`<div class="missions-title">⚡ Өдрийн миссиуд</div>`;
+  DAILY_MISSIONS.forEach(m=>{
+    const done=m.check(state,di);
+    html+=`<div class="mission-item${done?' done':''}"><span class="m-icon">${m.icon}</span><div style="flex:1"><div class="m-text">${m.text}</div><div class="m-mini-bar"><div class="m-mini-fill" style="width:${done?100:0}%"></div></div></div><span class="m-xp">+${m.xp}</span><span class="m-check">✓</span></div>`;
+  });
+  wrap.innerHTML=html;
+}
+
+function calcDayXp(di){return CHECKLISTS[di].reduce((s,item,ii)=>s+(state.checks[`d${di}_i${ii}`]?item[1]:0),0);}
+function calcDayMaxXp(di){return CHECKLISTS[di].reduce((s,item)=>s+item[1],0);}
+
+function toggleCheck(di,ii,evt){
+  if(evt){const rect=evt.currentTarget.getBoundingClientRect();const r=document.createElement('div');r.className='ripple';const size=60;r.style.cssText=`width:${size}px;height:${size}px;left:${evt.clientX-rect.left-size/2}px;top:${evt.clientY-rect.top-size/2}px`;evt.currentTarget.appendChild(r);setTimeout(()=>r.remove(),500);}
+  const key=`d${di}_i${ii}`;
+  const was=!!state.checks[key];
+  const baseXp=CHECKLISTS[di][ii][1];
+  if(!was){
+    state.checks[key]=true;
+    if(new Date().getHours()<=7)state.earlyCheck=true;
+    addCombo();
+    const bonus=getComboBonus(baseXp);
+    state.totalXp=(state.totalXp||0)+bonus;
+    showXpPopup(bonus);
+    checkLevelUp();checkAchievements();
+    const todayStr=new Date().toDateString();
+    if(!state.history)state.history={};
+    if(!state.history[todayStr])state.history[todayStr]={xp:0,done:0};
+    state.history[todayStr].xp+=bonus;state.history[todayStr].done++;
+    if(CHECKLISTS[di][ii][0].includes('дасгал'))state.trainCount=(state.trainCount||0)+1;
+  }else{delete state.checks[key];state.totalXp=Math.max(0,(state.totalXp||0)-baseXp);}
+  updateStreak();saveState();
+  const el=document.getElementById(`ci_${di}_${ii}`);if(el)el.classList.toggle('checked',!was);
+  updateDayProgress(di);updateXpBar();updateDayComplete(di);updateNavDone(di);updateWeekScore();buildMissions(di);buildCalStrip();
+}
+
+function updateDayProgress(di){
+  const items=CHECKLISTS[di];
+  const done=items.filter((_,ii)=>state.checks[`d${di}_i${ii}`]).length;
+  const total=items.length;
+  const pct=Math.round(done/total*100);
+  const pb=document.getElementById('pb'+di);if(pb)pb.style.width=pct+'%';
+  const cl=document.getElementById('cl'+di);if(cl){const p=cl.querySelector('.cl-prog-text');if(p)p.textContent=`${done}/${total} · ${calcDayXp(di)} XP`;}
+}
+function updateDayComplete(di){
+  const items=CHECKLISTS[di];
+  const done=items.filter((_,ii)=>state.checks[`d${di}_i${ii}`]).length;
+  const dc=document.getElementById('dc'+di);if(!dc)return;
+  dc.classList.toggle('show',done===items.length);
+}
+function updateNavDone(di){
+  if(di>=7)return;
+  const items=CHECKLISTS[di];
+  const done=items.filter((_,ii)=>state.checks[`d${di}_i${ii}`]).length;
+  const isDone=done===items.length;
+  const n=document.getElementById('nav'+di);if(n)n.classList.toggle('done',isDone);
+  const mn=document.getElementById('mn'+di);if(mn)mn.classList.toggle('done',isDone);
+}
+function updateXpBar(){
+  const xp=state.totalXp||0;
+  const lvlData=LEVELS.find(l=>xp>=l.min&&xp<l.max)||LEVELS[LEVELS.length-1];
+  const pct=Math.min(100,(xp-lvlData.min)/(lvlData.max-lvlData.min)*100);
+  const label=`${lvlData.emoji} LVL ${lvlData.lvl} · ${lvlData.name}`;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const setp=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=v+'%';};
+  set('lvlLabel',label);set('xpLabel',`${xp} / ${lvlData.max} XP`);setp('xpBar',pct);
+  set('mLvlLabel',`LVL ${lvlData.lvl}`);setp('mXpBar',pct);
+}
+function updateWeekScore(){
+  const xp=CHECKLISTS.reduce((s,_,di)=>s+calcDayXp(di),0);
+  const max=CHECKLISTS.reduce((s,_,di)=>s+calcDayMaxXp(di),0);
+  const el=document.getElementById('weekScore');if(el)el.textContent=`7н: ${xp}/${max}`;
+}
+function updateStreak(){
+  const today=new Date().toDateString();
+  if(state.lastDate!==today){
+    const yesterday=new Date(Date.now()-86400000).toDateString();
+    if(state.lastDate===yesterday)state.streak=(state.streak||0)+1;
+    else state.streak=1;
+    state.lastDate=today;
+  }
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('streakNum',state.streak||0);set('mStreakNum',state.streak||0);
+}
+
+// BOSS CHALLENGE
+function bossStep(di,si,evt){
+  evt.stopPropagation();
+  if(!state.bossCounters)state.bossCounters={};
+  const key=`boss${di}`;
+  const boss=BOSS_CHALLENGES[di];
+  let count=state.bossCounters[key]||0;
+  if(si<count)count=si;else count=si+1;
+  const wasComplete=(state.bossCounters[key]||0)>=boss.target;
+  state.bossCounters[key]=count;
+  const nowComplete=count>=boss.target;
+  const stepsEl=document.getElementById('bossSteps'+di);
+  if(stepsEl)stepsEl.querySelectorAll('.boss-step').forEach((el,i)=>el.classList.toggle('done',i<count));
+  const labelEl=document.getElementById('bossLabel'+di);
+  if(labelEl){labelEl.textContent=`${count}/${boss.target}${nowComplete?' 🔥':''}`;labelEl.classList.toggle('complete',nowComplete);}
+  if(!state.bosses)state.bosses={};
+  if(nowComplete&&!wasComplete){
+    state.bosses[key]=true;state.totalXp=(state.totalXp||0)+50;showXpPopup(50);addCombo();checkLevelUp();checkAchievements();updateXpBar();
+    const doneEl=document.getElementById('bossDone'+di);if(doneEl)doneEl.classList.add('show');
+  }else if(!nowComplete&&wasComplete){
+    delete state.bosses[key];state.totalXp=Math.max(0,(state.totalXp||0)-50);updateXpBar();
+    const doneEl=document.getElementById('bossDone'+di);if(doneEl)doneEl.classList.remove('show');
+  }
+  saveState();
+}
+
+// XP & COMBO
+function getComboBonus(base){if(comboCount>=10)return Math.round(base*2);if(comboCount>=5)return Math.round(base*1.5);if(comboCount>=3)return Math.round(base*1.2);return base;}
+function addCombo(){
+  comboCount++;
+  if(comboTimer)clearTimeout(comboTimer);
+  comboTimer=setTimeout(()=>{comboCount=0;const cw=document.getElementById('comboWrap');if(cw)cw.classList.remove('show');},8000);
+  if(comboCount>=3){
+    const cw=document.getElementById('comboWrap');
+    const cm=document.getElementById('comboMult');
+    if(cw&&cm){cw.classList.add('show');cm.textContent=comboCount>=10?'×2.0':comboCount>=5?'×1.5':'×1.2';}
+  }
+  if((state.maxCombo||0)<comboCount){state.maxCombo=comboCount;saveState();}
+}
+function showXpPopup(xp){
+  const p=document.getElementById('xpPopup');const pi=document.getElementById('xpPopupInner');
+  if(!p||!pi)return;
+  pi.textContent=`+${xp} XP${comboCount>=3?' 🔥':''}`;
+  p.classList.remove('show');void p.offsetWidth;p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),1200);
+}
+function checkLevelUp(){
+  const xp=state.totalXp||0;
+  const lvlData=LEVELS.find(l=>xp>=l.min&&xp<l.max)||LEVELS[LEVELS.length-1];
+  if(lvlData.lvl>prevLevel){
+    prevLevel=lvlData.lvl;
+    const el=document.getElementById('lvlupOverlay');
+    const nm=document.getElementById('lvlupName');
+    const ds=document.getElementById('lvlupDesc');
+    if(nm)nm.textContent=`${lvlData.emoji} ${lvlData.name}`;
+    if(ds)ds.textContent=`LVL ${lvlData.lvl} хүрлээ! Зулцэцэг, чи гайхалтай!`;
+    spawnParticles();
+    if(el)el.classList.add('show');
+  }
+}
+function closeLvlUp(){const el=document.getElementById('lvlupOverlay');if(el)el.classList.remove('show');}
+function spawnParticles(){
+  const wrap=document.getElementById('lvlupParticles');if(!wrap)return;wrap.innerHTML='';
+  const colors=['var(--gold)','var(--green)','var(--pink)','var(--blue)','var(--purple)'];
+  for(let i=0;i<24;i++){
+    const p=document.createElement('div');p.className='particle';
+    const size=4+Math.random()*8;
+    const tx=(Math.random()-0.5)*500;const ty=(Math.random()-0.5)*500;
+    p.style.cssText=`width:${size}px;height:${size}px;background:${colors[i%colors.length]};left:${40+Math.random()*20}%;top:${40+Math.random()*20}%;--tx:${tx}px;--ty:${ty}px;animation-delay:${Math.random()*0.3}s`;
+    wrap.appendChild(p);
+  }
+}
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.achievements[a.id]&&a.check(state)){
+      state.achievements[a.id]=true;state.totalXp=(state.totalXp||0)+a.xp;
+      const t=document.getElementById('achToast');const ti=document.getElementById('achToastIcon');const tt=document.getElementById('achToastText');
+      if(t&&ti&&tt){ti.textContent=a.icon;tt.textContent=`${a.name} — +${a.xp} XP`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+      renderAchStrip();
+    }
+  });
+}
+function renderAchStrip(){
+  const strip=document.getElementById('achStrip');if(!strip)return;
+  strip.innerHTML=ACHIEVEMENTS.map(a=>`<div class="ach-item${state.achievements[a.id]?' unlocked':' locked'}" title="${a.name}: ${a.desc} (+${a.xp} XP)">${a.icon}</div>`).join('');
+}
+
+// STREAK FREEZE
+function useStreakFreeze(){
+  if(state.freezeUsed){alert('Streak Freeze аль хэдийн ашигласан байна.');return;}
+  if(confirm('Streak Freeze ашиглах уу? Нэг удаа л хэрэглэнэ.')){
+    state.freezeUsed=true;state.streak=(state.streak||0)+1;saveState();updateStreak();
+    const fb=document.getElementById('freezeBtn');if(fb)fb.classList.add('used');
+  }
+}
+function initFreeze(){const fb=document.getElementById('freezeBtn');if(fb&&state.freezeUsed)fb.classList.add('used');}
+
+// POMODORO
+function togglePomo(){
+  const p=document.getElementById('pomoPanel');const f=document.getElementById('timerFab');
+  if(p)p.classList.toggle('open');if(f)f.classList.toggle('active',p&&p.classList.contains('open'));
+}
+function updatePomoDisplay(){
+  const m=Math.floor(pomoSecs/60).toString().padStart(2,'0');const s=(pomoSecs%60).toString().padStart(2,'0');
+  const el=document.getElementById('pomoDisplay');if(el)el.textContent=`${m}:${s}`;
+  const prog=document.getElementById('pomoProg');
+  if(prog){const circ=263.9;const off=circ-(circ*(pomoMaxSecs-pomoSecs)/pomoMaxSecs);prog.style.strokeDashoffset=off;}
+}
+function togglePomoRun(){
+  if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;const btn=document.getElementById('pomoPlayBtn');if(btn)btn.textContent='▶';}
+  else{
+    pomoRunning=true;const btn=document.getElementById('pomoPlayBtn');if(btn)btn.textContent='⏸';
+    pomoInterval=setInterval(()=>{
+      if(pomoSecs>0){pomoSecs--;updatePomoDisplay();}
+      else{
+        clearInterval(pomoInterval);pomoRunning=false;
+        if(pomoMode==='work'){pomoSession++;pomoTotal+=Math.floor(pomoMaxSecs/60);state.pomoCount=(state.pomoCount||0)+1;saveState();checkAchievements();}
+        const btn=document.getElementById('pomoPlayBtn');if(btn)btn.textContent='▶';
+        const ses=document.getElementById('pomoSession');if(ses)ses.textContent=`Сессий #${pomoSession+1} · Нийт ${pomoTotal}мин`;
+        pomoSecs=pomoMaxSecs;updatePomoDisplay();
+      }
+    },1000);
+  }
+}
+function resetPomo(){clearInterval(pomoInterval);pomoRunning=false;pomoSecs=pomoMaxSecs;updatePomoDisplay();const btn=document.getElementById('pomoPlayBtn');if(btn)btn.textContent='▶';}
+function skipPomo(){clearInterval(pomoInterval);pomoRunning=false;pomoSecs=0;updatePomoDisplay();}
+function setPomoDuration(mins,label,modeId){
+  pomoMaxSecs=mins*60;pomoSecs=pomoMaxSecs;pomoMode=modeId==='modeWork'?'work':'break';
+  document.querySelectorAll('.pomo-mode').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById(modeId);if(el)el.classList.add('active');
+  const lbl=document.getElementById('pomoModeLabel');if(lbl)lbl.textContent=label;
+  clearInterval(pomoInterval);pomoRunning=false;updatePomoDisplay();
+  const btn=document.getElementById('pomoPlayBtn');if(btn)btn.textContent='▶';
+}
+function startTimerFor(mins,title){
+  setPomoDuration(mins,title,'modeWork');
+  const p=document.getElementById('pomoPanel');if(p&&!p.classList.contains('open'))p.classList.add('open');
+}
+
+// DAY / TAB NAVIGATION
+function showDay(i){
+  document.querySelectorAll('.day-panel').forEach((p,di)=>{p.style.display=di===i?'block':'none';});
+  document.querySelectorAll('.nav-item').forEach((n,ni)=>n.classList.toggle('active',ni===i));
+  document.querySelectorAll('.mob-nav-btn').forEach((n,ni)=>n.classList.toggle('active',ni===i));
+  currentDay=i;
+  const tabBar=document.getElementById('tabBar');
+  if(i<7){
+    const day=DAYS[i];
+    document.getElementById('topTitle').innerHTML=`${day.name} <span>гараг</span>`;
+    document.getElementById('topMeta').textContent=day.meta;
+    document.getElementById('dayXpBadge').textContent=day.badge;
+    if(tabBar)tabBar.style.display='flex';
+  }else{
+    const titles={7:'📊 Статистик',8:'✏️ Засварлах',9:'📅 7н Тайлан'};
+    document.getElementById('topTitle').innerHTML=`${titles[i]||''} <span></span>`;
+    document.getElementById('topMeta').textContent='';
+    document.getElementById('dayXpBadge').textContent='';
+    if(tabBar)tabBar.style.display='none';
+  }
+  showTab(0);
+  const panel=document.getElementById('dp'+i);
+  if(panel)panel.querySelectorAll('.tl-row').forEach((r,k)=>{r.classList.remove('show');setTimeout(()=>r.classList.add('show'),k*35+50);});
+  document.getElementById('mainScroll').scrollTop=0;
+  if(i===9)renderWeekOverview();
+  if(i===7)renderStats();
+  if(i===8){buildEditorDayBtns();switchEditorDay(editorDay);}
+}
+function showTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach((el,j)=>el.classList.toggle('active',j===t));
+  if(currentDay<7){
+    for(let ti=0;ti<2;ti++){
+      const p=document.getElementById(`tp${currentDay}-${ti}`);
+      if(p){p.classList.toggle('active',ti===t);p.style.display=ti===t?'block':'none';}
+    }
+  }
+}
+
+// MOBILE NAV
+function buildMobileNav(){
+  const scroll=document.getElementById('mnScroll');if(!scroll)return;
+  const items=[...DAYS.map((d,i)=>({id:'mn'+i,icon:d.emoji,label:d.short,di:i})),{id:'mn7',icon:'📊',label:'Стат',di:7},{id:'mn8',icon:'✏️',label:'Засах',di:8},{id:'mn9',icon:'📅',label:'7н',di:9}];
+  scroll.innerHTML=items.map(it=>`<div class="mob-nav-btn" id="${it.id}" onclick="showDay(${it.di})"><div class="mn-icon">${it.icon}</div><div class="mn-label">${it.label}</div></div>`).join('');
+}
+
+// MOBILE ACHIEVEMENTS
+function showMobAch(){
+  const list=document.getElementById('mobAchList');
+  if(list)list.innerHTML=ACHIEVEMENTS.map(a=>{const u=state.achievements?.[a.id];return`<div class="mob-ach-item${u?' unlocked':''}" style="margin-bottom:6px"><span style="font-size:22px;${u?'':'filter:grayscale(1) opacity(.25)'}">${a.icon}</span><div style="flex:1"><div style="font-size:13px;font-weight:700;color:${u?'var(--gold)':'var(--dim)'}">${a.name}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${a.desc}</div></div><div style="font-family:var(--mono);font-size:10px;font-weight:700;color:${u?'var(--gold)':'var(--faint)'};text-align:right">+${a.xp} XP${u?'<br><span style="color:var(--green);font-size:8px">✓</span>':''}</div></div>`;}).join('');
+  document.getElementById('mobAchPanel').style.display='block';
+}
+function hideMobAch(){document.getElementById('mobAchPanel').style.display='none';}
+
+// QUOTE
+function showQuote(){
+  const day=DAYS[currentDay]||DAYS[0];
+  const el=document.getElementById('quoteToast');const txt=document.getElementById('quoteToastText');
+  if(!el||!txt)return;txt.textContent=day.quote;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);
+}
+function closeQuote(){const el=document.getElementById('quoteToast');if(el)el.classList.remove('show');}
+
+// STATS PANEL
+function renderStats(range=7){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('statTotalXp',state.totalXp||0);set('statStreak',state.streak||0);
+  const hist=state.history||{};
+  const days=Object.values(hist).slice(-7);
+  const avg=days.length?Math.round(days.reduce((s,d)=>s+(d.done||0),0)/days.length*100/Math.max(...CHECKLISTS.map((_,di)=>CHECKLISTS[di].length)))+'%':'0%';
+  set('statDone',avg);
+  const weekXp=days.reduce((s,d)=>s+(d.xp||0),0);
+  const xt=document.getElementById('statXpTrend');if(xt){xt.textContent=`↑ ${weekXp} энэ 7хон`;xt.className='sc-trend up';}
+  renderHeatmap();renderCatBars();renderAchFull();
+}
+function setRange(r,btn){document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStats(r);}
+function renderHeatmap(){
+  const grid=document.getElementById('heatmapGrid');if(!grid)return;
+  const hist=state.history||{};const today=new Date();let html='';
+  for(let i=89;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const ds=d.toDateString();const xp=hist[ds]?.xp||0;const lvl=xp===0?'':xp<30?'l1':xp<80?'l2':xp<150?'l3':'l4';html+=`<div class="hm-cell ${lvl}"><div class="hm-tooltip">${d.toLocaleDateString('mn-MN')}: ${xp}XP</div></div>`;}
+  grid.innerHTML=html;
+}
+function renderCatBars(){
+  const bars=document.getElementById('catBars');if(!bars)return;
+  const cats={c_biz:{name:'Бизнес',color:'var(--pink)',count:0},c_deep:{name:'Deep Work',color:'var(--blue)',count:0},c_train:{name:'Дасгал',color:'var(--red)',count:0},c_food:{name:'Хоол',color:'#c9a96e',count:0},c_rest:{name:'Амралт',color:'var(--green)',count:0}};
+  let total=0;
+  CHECKLISTS.forEach((items,di)=>items.forEach((it,ii)=>{if(state.checks[`d${di}_i${ii}`]){total++;if(it[0].includes('бизнес')||it[0].includes('Бизнес'))cats.c_biz.count++;else if(it[0].includes('дасгал')||it[0].includes('Дасгал'))cats.c_train.count++;else if(it[0].includes('хоол')||it[0].includes('Хоол'))cats.c_food.count++;else if(it[0].includes('Амралт'))cats.c_rest.count++;else cats.c_deep.count++;}}));
+  bars.innerHTML=Object.values(cats).map(c=>`<div class="cat-bar-item"><div class="cat-bar-label">${c.name}</div><div class="cat-bar-track"><div class="cat-bar-fill" style="width:${total?Math.round(c.count/total*100):0}%;background:${c.color}"></div></div><div class="cat-bar-val">${c.count}</div></div>`).join('');
+}
+function renderAchFull(){
+  const grid=document.getElementById('achFullGrid');if(!grid)return;
+  grid.innerHTML=ACHIEVEMENTS.map(a=>{const u=state.achievements?.[a.id];return`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--s1);border:1px solid ${u?'rgba(255,215,0,.25)':'var(--b1)'};border-radius:8px"><span style="font-size:20px;${u?'':'filter:grayscale(1) opacity(.3)'}">${a.icon}</span><div style="flex:1"><div style="font-size:13px;font-weight:700;color:${u?'var(--gold)':'var(--dim)'}">${a.name}</div><div style="font-size:11px;color:var(--dim);margin-top:1px">${a.desc}</div></div><div style="font-family:var(--mono);font-size:11px;font-weight:700;color:${u?'var(--gold)':'var(--faint)'};text-align:right">+${a.xp} XP${u?'<br><span style="font-size:9px;color:var(--green)">✓</span>':''}</div></div>`;}).join('');
+}
+
+// WEEK OVERVIEW
+function renderWeekOverview(){
+  const grid=document.getElementById('weekGrid');if(!grid)return;
+  let html='';let totalDone=0;let totalXp=0;let totalPct=0;
+  DAYS.forEach((d,di)=>{
+    const items=CHECKLISTS[di];const done=items.filter((_,ii)=>state.checks[`d${di}_i${ii}`]).length;
+    const total=items.length;const pct=Math.round(done/total*100);const xp=calcDayXp(di);
+    if(pct===100)totalDone++;totalXp+=xp;totalPct+=pct;
+    html+=`<div class="wk-cell${pct===100?' done':''}" onclick="showDay(${di})"><div class="wk-day">${d.short}</div><div class="wk-pct">${pct}%</div><div class="wk-xp">${xp}XP</div></div>`;
+  });
+  grid.innerHTML=html;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('totalXpVal',totalXp);set('totalDoneVal',`${totalDone}/7`);set('totalStreakVal',state.streak||0);set('totalAvgVal',Math.round(totalPct/7)+'%');
+  const tips=document.getElementById('improveTips');
+  if(tips){const tipData=[{icon:'🌸',title:'Бизнес зорилгоо тодорхойлох',body:'7 хоногийн эхэнд нэг тодорхой зорилт тавиарай: "X хийнэ" биш "X-г маш сайн хийнэ".'},{icon:'🏃',title:'Дасгалаа тогтмол хийх',body:'Анхлагчдад хамгийн чухал зүйл бол тогтмол байдал. 25 минут болсон ч болно!'},{icon:'🌍',title:'Хэл сурах тогтмол байдал',body:'Дуолинго-д өдөр бүр 10-15 мин зарцуулбал 1 жилд маш их дэвшил гарна.'}];
+  tips.innerHTML=tipData.map(t=>`<div class="tip-card"><div class="tip-icon">${t.icon}</div><div class="tip-title">${t.title}</div><div class="tip-body">${t.body}</div></div>`).join('');}
+}
+function resetWeek(){if(confirm('7 хоногийн бүх өгөгдлийг устгах уу?')){state.checks={};state.bosses={};state.bossCounters={};saveState();for(let di=0;di<7;di++){updateNavDone(di);buildChecklist(di);updateDayProgress(di);updateDayComplete(di);}updateXpBar();updateWeekScore();renderWeekOverview();}}
+
+// EDITOR
+function buildEditorDayBtns(){
+  const wrap=document.getElementById('editorDayBtns');if(!wrap)return;
+  wrap.innerHTML=DAYS.map((d,i)=>`<div style="padding:4px 9px;font-size:11px;font-family:var(--mono);font-weight:600;border-radius:5px;cursor:pointer;border:1px solid;transition:all .15s;${i===editorDay?'background:rgba(255,107,157,.15);border-color:var(--pink);color:var(--pink)':'border-color:var(--b2);color:var(--dim)'}" onclick="switchEditorDay(${i})">${d.short}</div>`).join('');
+}
+function switchEditorDay(di){
+  editorDay=di;
+  buildEditorDayBtns();
+  const title=document.getElementById('editorDayTitle');if(title)title.textContent=`${DAYS[di].name}ийн хуваарь`;
+  const list=document.getElementById('editorList');if(!list)return;
+  const tl=getTimeline(di);
+  list.innerHTML=tl.map((ev,ei)=>`<div class="editor-item" id="ei_${di}_${ei}" draggable="true"><div class="editor-drag-handle">⠿</div><div class="editor-item-body"><div class="editor-item-top"><input type="time" class="editor-time-input" value="${ev.time||''}" onchange="updateEv(${di},${ei},'time',this.value)"><select class="editor-cat-select" onchange="updateEv(${di},${ei},'cat',this.value)">${['c-deep','c-biz','c-work','c-train','c-rest','c-food','c-sleep'].map(c=>`<option value="${c}"${ev.cat===c?' selected':''}>${c.replace('c-','')}</option>`).join('')}</select></div><input type="text" class="editor-title-input" value="${ev.title||''}" placeholder="Гарчиг..." onchange="updateEv(${di},${ei},'title',this.value)"><textarea class="editor-desc-input" rows="2" placeholder="Тайлбар..." onchange="updateEv(${di},${ei},'desc',this.value)">${ev.desc||''}</textarea></div><div class="editor-item-actions"><div class="editor-del-btn" onclick="deleteEv(${di},${ei})">✕</div></div></div>`).join('');
+}
+function updateEv(di,ei,field,val){
+  if(!state.customTimelines[di])state.customTimelines[di]=[...DEFAULT_TIMELINES[di].map(e=>({...e}))];
+  state.customTimelines[di][ei][field]=val;saveState();buildDayPanel(di);
+  const banner=document.getElementById('editorSaveBanner');if(banner){banner.classList.add('show');setTimeout(()=>banner.classList.remove('show'),2000);}
+}
+function deleteEv(di,ei){
+  if(!state.customTimelines[di])state.customTimelines[di]=[...DEFAULT_TIMELINES[di].map(e=>({...e}))];
+  state.customTimelines[di].splice(ei,1);saveState();switchEditorDay(di);buildDayPanel(di);
+}
+function addEditorItem(){
+  if(!state.customTimelines[editorDay])state.customTimelines[editorDay]=[...DEFAULT_TIMELINES[editorDay].map(e=>({...e}))];
+  state.customTimelines[editorDay].push({time:'12:00',cat:'c-rest',catName:'Шинэ',title:'Шинэ үйл явдал',desc:''});
+  saveState();switchEditorDay(editorDay);buildDayPanel(editorDay);
+}
+function hideSaveBanner(){const b=document.getElementById('editorSaveBanner');if(b)b.classList.remove('show');}
+
+// INIT
+window.addEventListener('DOMContentLoaded',()=>{
+  for(let di=0;di<7;di++)buildDayPanel(di);
+  buildMobileNav();buildCalStrip();
+  for(let di=0;di<7;di++)updateNavDone(di);
+  updateXpBar();updateWeekScore();updateStreak();renderAchStrip();initFreeze();
+  const xp=state.totalXp||0;
+  const lvlData=LEVELS.find(l=>xp>=l.min&&xp<l.max)||LEVELS[LEVELS.length-1];
+  prevLevel=lvlData.lvl;
+  const todayDow=new Date().getDay();
+  const mn_dow=todayDow===0?6:todayDow-1;
+  showDay(Math.min(mn_dow,6));
+  for(let di=0;di<7;di++){const p1=document.getElementById(`tp${di}-1`);if(p1)p1.style.display='none';}
+  updatePomoDisplay();
+  setTimeout(showQuote,2000);
+  let touchStartX=0;
+  const ms=document.getElementById('mainScroll');
+  if(ms){
+    ms.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+    ms.addEventListener('touchend',e=>{const diff=touchStartX-e.changedTouches[0].clientX;if(Math.abs(diff)>60&&currentDay<9){if(diff>0&&currentDay<6)showDay(currentDay+1);else if(diff<0&&currentDay>0)showDay(currentDay-1);}},{passive:true});
+  }
+});
+</script>
+</body>
+</html>
