@@ -21,7 +21,7 @@ body{color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;-w
 @media(max-width:768px){body{font-size:16px}}
 
 .shell{display:grid;grid-template-columns:220px 1fr;height:100vh;overflow:hidden}
-@media(max-width:768px){.shell{grid-template-columns:1fr;grid-template-rows:1fr auto}}
+@media(max-width:768px){.shell{grid-template-columns:1fr;grid-template-rows:1fr}}
 
 .sidebar{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;height:100vh}
 @media(max-width:768px){.sidebar{display:none}}
@@ -59,7 +59,7 @@ body{color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;-w
 .nav-item.done .nav-check{opacity:1}
 
 .main{display:flex;flex-direction:column;overflow:hidden;height:100vh}
-@media(max-width:768px){.main{height:calc(100vh - 68px);overflow:hidden}}
+@media(max-width:768px){.main{height:100vh;overflow:hidden}}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 12px;border-bottom:1px solid var(--b1);background:var(--bg);flex-shrink:0;gap:12px}
 @media(max-width:768px){.topbar{padding:10px 16px 8px;gap:8px}}
@@ -67,7 +67,7 @@ body{color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;-w
 .page-title{font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--white);line-height:1}
 @media(max-width:768px){.page-title{font-size:18px}}
 .page-title span{color:var(--dim);font-weight:400}
-.page-meta{font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;margin-top:2px}
+.page-meta{font-size:9px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 @media(max-width:768px){.page-meta{font-size:11px}}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .topbar-btn{background:var(--s2);border:1px solid var(--b2);color:var(--dim);font-size:10px;font-family:var(--mono);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -89,7 +89,7 @@ body{color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;-w
 
 .tab-panel{display:none;padding:20px 28px 80px;animation:fadeUp .2s ease}
 .tab-panel.active{display:block}
-@media(max-width:768px){.tab-panel{padding:16px 16px 80px}}
+@media(max-width:768px){.tab-panel{padding:16px 16px 100px}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .cal-strip{display:flex;gap:4px;padding:12px 28px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
@@ -369,7 +369,7 @@ body{color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;-w
 .particles-wrap{position:fixed;inset:0;pointer-events:none}
 
 /* Mobile bottom nav */
-.mobile-nav{display:none;background:var(--s1);border-top:1px solid var(--b1);height:68px;overflow:hidden;flex-shrink:0;position:relative}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--b1);z-index:100;height:68px;overflow:hidden}
 @media(max-width:768px){.mobile-nav{display:flex;align-items:center}}
 .mn-scroll{flex:1;display:flex;overflow-x:auto;height:100%;scrollbar-width:none;align-items:center}
 .mn-scroll::-webkit-scrollbar{display:none}
@@ -661,10 +661,10 @@ input,select,textarea{color-scheme:dark}
 const DAYS = [
   { name:'Даваа', short:'Да', meta:'ОӨ #1 — MON · СУРГУУЛЬ + БИЗНЕС', xp:100, badge:'+100 XP', quote:'"Өглөө 07:30-д сэрэх — энэ л өдрийг эзэмших эхлэл."', emoji:'📚' },
   { name:'Мягмар', short:'Мя', meta:'ОӨ #2 — TUE · ДАСГАЛ + БИЗНЕС', xp:110, badge:'+110 XP', quote:'"Хамгийн хүнд дасгал бол эхлүүлэх — үлдсэнийг бие мэднэ."', emoji:'💪' },
-  { name:'Лхагва', short:'Лх', meta:'ОӨ #3 — WED · СУРГУУЛЬ + GLOW UP', xp:100, badge:'+100 XP', quote:'"Өөрийгөө арчлах нь хойрго биш — энэ л хамгийн зөв хөрөнгө оруулалт."', emoji:'✨' },
+  { name:'Лхагва', short:'Лх', meta:'ОӨ #3 — WED · BATCH COOK + GLOW UP', xp:100, badge:'+100 XP', quote:'"Өөрийгөө арчлах нь хойрго биш — энэ л хамгийн зөв хөрөнгө оруулалт."', emoji:'✨' },
   { name:'Пүрэв', short:'Пү', meta:'ОӨ #4 — THU · ДАСГАЛ + БИЗНЕС', xp:110, badge:'+110 XP', quote:'"Тогтвортой байдал нь мотивацаас илүү хүчтэй."', emoji:'🔥' },
   { name:'Баасан', short:'Ба', meta:'ОӨ #5 — FRI · БИЗНЕС SPRINT', xp:100, badge:'+100 XP', quote:'"Баасан — долоо хоногийн ухаалаг дүгнэлт хийх өдөр."', emoji:'💼' },
-  { name:'Бямба', short:'Бя', meta:'АӨ #1 — SAT · БИЗНЕС + ГҮНЗГИЙ АЖИЛ', xp:130, badge:'+130 XP', quote:'"Бямба бол хамгийн их боломж — хэн ч шаардлага тавьдаггүй цаг."', emoji:'🚀' },
+  { name:'Бямба', short:'Бя', meta:'АӨ #1 — SAT · БИЗНЕС + DEEP WORK', xp:130, badge:'+130 XP', quote:'"Бямба бол хамгийн их боломж — хэн ч шаардлага тавьдаггүй цаг."', emoji:'🚀' },
   { name:'Ням', short:'Ня', meta:'АӨ #2 — SUN · RELOAD + БЭЛТГЭЛ', xp:120, badge:'+120 XP', quote:'"Ням бол дахин эхлэх боломж — биеэ тэжээж, долоо хоногоо зохион байгуул."', emoji:'🌸' },
 ];
 
@@ -742,7 +742,7 @@ const DEFAULT_TIMELINES = [
     {time:'17:00',cat:'c-food',catName:'Хоол',title:'Оройн хоол',dur:'45 мин',desc:'Гэрийн хоол.'},
     {time:'21:00',cat:'c-glow',catName:'✨ Бямба Glow Up',title:'Нэмэлт selfcare',dur:'30 мин',desc:'Маск → серум → нойтон тос → биеийн лосьон.',timerMins:30},
     {time:'21:30',cat:'c-rest',catName:'Wind-down',title:'Тайвшрах',dur:'30 мин',desc:'Ном / тэмдэглэл. Ням гарагийн төлөвлөгөө.',timerMins:30},
-    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7-8 цаг нойр',desc:'Бямба оройн нойр.'},
+    {time:'00:00',cat:'c-sleep',catName:'Унтах',title:'7 цаг нойр',desc:'Бямба оройн нойр.'},
   ],
   // Day 6: Ням — reload + бэлтгэл
   [
@@ -806,7 +806,7 @@ const ACHIEVEMENTS = [
   {id:'combo5',icon:'⚡',name:'5× Combo',desc:'5 task дараалан',xp:25,check:s=>(s.maxCombo||0)>=5},
   {id:'boss1',icon:'🗡️',name:'Boss Hunter',desc:'Boss Challenge дарсан',xp:30,check:s=>Object.keys(s.bosses||{}).length>=1},
   {id:'bossAll',icon:'🏰',name:'Boss Slayer',desc:'7 өдрийн Boss бүгд дарсан',xp:150,check:s=>Object.keys(s.bosses||{}).length>=7},
-  {id:'lvl3',icon:'💎',name:'Gялалзсан',desc:'LVL 3 хүрсэн',xp:50,check:s=>(s.totalXp||0)>=1400},
+  {id:'lvl3',icon:'💎',name:'Гялалзсан',desc:'LVL 3 хүрсэн',xp:50,check:s=>(s.totalXp||0)>=1400},
   {id:'glowup',icon:'✨',name:'Glow Queen',desc:'7 өдрийн Glow Up бүрэн хийсэн',xp:80,check:s=>Object.keys(s.bosses||{}).length>=5},
   {id:'pomo10',icon:'⏱',name:'Pomodoro Pro',desc:'10 pomodoro хийсэн',xp:40,check:s=>(s.pomoCount||0)>=10},
   {id:'early',icon:'🌅',name:'Эртний шувуу',desc:'07:30-д checklist эхэлсэн',xp:20,check:s=>s.earlyCheck},
@@ -892,9 +892,11 @@ function buildDayPanel(di) {
   if (!panel) return;
   const tl = getTimeline(di);
   const day = DAYS[di];
+  const sleepEntry = tl.find(e=>e.cat==='c-sleep' && (e.title.includes('цаг')||e.title.includes('нойр')));
+  const sleepVal = sleepEntry ? (sleepEntry.title.match(/[\d.]+\s*цаг/)?.[0] || sleepEntry.time || '23:30') : '23:30';
   const stats = [
     {label:'Дасгал',val: tl.some(e=>e.cat==='c-train') ? '25-30мин' : '—'},
-    {label:'Унтах',val: tl.find(e=>e.cat==='c-sleep'&&e.title.includes('цаг'))?.title.match(/[\d.]+\s*цаг/)?.[0] || '23:30'},
+    {label:'Унтах',val: sleepVal},
     {label:'Glow Up',val: tl.some(e=>e.cat==='c-glow') ? '✓' : '—'},
     {label:'Max XP',val:'+'+day.xp+' XP'},
   ];
