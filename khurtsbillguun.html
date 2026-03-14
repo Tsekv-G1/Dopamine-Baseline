@@ -878,11 +878,11 @@ const DAILY_MISSIONS = [
 // STATE
 // ══════════════════════════════════════════════════════════════
 function loadState() {
-  try { const r = localStorage.getItem('routineOS_v3'); if(r) return JSON.parse(r); } catch(e){}
+  try { const r = localStorage.getItem('routineOS_khurts_v1'); if(r) return JSON.parse(r); } catch(e){}
   return {checks:{},totalXp:0,streak:0,lastDate:null,bosses:{},bossCounters:{},achievements:{},maxCombo:0,pomoCount:0,history:{},customTimelines:{},freezeUsed:false,earlyCheck:false};
 }
 function saveState() {
-  try { localStorage.setItem('routineOS_v3',JSON.stringify(state)); } catch(e){}
+  try { localStorage.setItem('routineOS_khurts_v1',JSON.stringify(state)); } catch(e){}
 }
 let state = loadState();
 let currentDay = 0;
