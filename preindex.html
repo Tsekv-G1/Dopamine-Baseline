@@ -1215,6 +1215,7 @@ function checkPwd() {
 document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPwd(); });
 initData();
 renderTable();
+initInAppBanner();
 </script>
 
 <!-- PRICING CHOICE MODAL -->
@@ -1421,11 +1422,55 @@ renderTable();
 </style>
 <script>
 var TELEGRAM_LINK="https://t.me/+vZwC-3aRHj8wNmM1";
+
+/* ── IN-APP BROWSER DETECTION ── */
+function getInAppBrowser(){
+  var ua=navigator.userAgent||'';
+  if(/Instagram/i.test(ua))return'instagram';
+  if(/FBAN|FBAV|FB4A|FBIOS|FBSV/i.test(ua))return'facebook';
+  if(/musical_ly|BytedanceWebview|TikTok/i.test(ua))return'tiktok';
+  return null;
+}
+var IN_APP=getInAppBrowser();
+
+/* ── SHOW BANNER IF IN-APP ── */
+function initInAppBanner(){
+  if(!IN_APP)return;
+  var names={instagram:'Instagram',facebook:'Facebook',tiktok:'TikTok'};
+  var banner=document.createElement('div');
+  banner.id='iab-banner';
+  banner.innerHTML=
+    '<span style="font-size:16px">⚠️</span>'+
+    '<span style="flex:1"><strong style="color:#fff">'+names[IN_APP]+' дотор линкүүд нээгдэхгүй.</strong><br>'+
+    '<span style="font-size:11px;color:#999">Линк дарахад URL хуулагдана — Safari-д буулгаж нээнэ үү</span></span>'+
+    '<button onclick="copyAndOpenSafari()" style="background:#c8ff00;color:#000;border:none;padding:9px 16px;font-family:\'DM Mono\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0">Safari-д нээх</button>';
+  banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1200;border-bottom:2px solid #c8ff00;padding:12px 16px;display:flex;align-items:center;gap:12px;font-family:\'DM Mono\',monospace;font-size:12px;color:#aaa';
+  document.body.prepend(banner);
+  // Push content down
+  document.body.style.paddingTop='68px';
+}
+
+function copyAndOpenSafari(){
+  var url=window.location.href;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).catch(function(){fallbackCopy(url)});
+  } else { fallbackCopy(url); }
+  showUrlToast(url,'Хуулагдлаа! Safari-д нээж буулгана уу 📋');
+}
+
+/* ── OPEN LINK — works everywhere ── */
 function openLink(e,url){
   if(e)e.preventDefault();
   if(!url)return;
-  // In-app browser (TikTok, Instagram, FB)-д target="_blank" ажилладаггүй тул
-  // window.location.href ашиглан шилжүүлнэ
+  if(IN_APP){
+    // In-app browser: copy URL + show instruction toast
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(url).catch(function(){fallbackCopy(url)});
+    } else { fallbackCopy(url); }
+    showUrlToast(url,'URL хуулагдлаа! Safari-д нээж буулгана уу');
+    return;
+  }
+  // Normal browser — open directly
   try{
     var w=window.open(url,'_blank');
     if(!w||w.closed||typeof w.closed==='undefined'){
@@ -1435,6 +1480,34 @@ function openLink(e,url){
     window.location.href=url;
   }
 }
+
+function fallbackCopy(text){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ── URL TOAST / COPY POPUP ── */
+function showUrlToast(url, msg){
+  var existing=document.getElementById('url-toast');
+  if(existing)existing.remove();
+  var toast=document.createElement('div');
+  toast.id='url-toast';
+  // Shorten url for display
+  var short=url.length>52?url.substring(0,52)+'…':url;
+  toast.innerHTML=
+    '<div style="font-size:13px;color:#c8ff00;margin-bottom:6px">✓ '+msg+'</div>'+
+    '<div style="font-size:10px;color:#666;word-break:break-all;background:#111;padding:8px 10px;border:1px solid #333;border-radius:2px;margin-bottom:10px">'+short+'</div>'+
+    '<button onclick="fallbackCopy(\''+url.replace(/'/g,"\\'")+ '\');this.textContent=\'✓ Хуулагдлаа\'" style="width:100%;padding:10px;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.3);color:#c8ff00;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;margin-bottom:6px">⧉ Дахин хуулах</button>'+
+    '<button onclick="document.getElementById(\'url-toast\').remove()" style="width:100%;padding:8px;background:transparent;border:1px solid #333;color:#666;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">Хаах</button>';
+  toast.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#0f0f0f;border-top:2px solid #c8ff00;padding:16px;font-family:\'DM Mono\',monospace;box-shadow:0 -8px 40px rgba(0,0,0,0.9)';
+  document.body.appendChild(toast);
+  // Auto-remove after 12s
+  setTimeout(function(){var t=document.getElementById('url-toast');if(t)t.remove();},12000);
+}
+
 function openTelegram(){openLink(null,TELEGRAM_LINK)}
 function openPricingModal(){
   var m=document.getElementById('modal-pricing-choice');
