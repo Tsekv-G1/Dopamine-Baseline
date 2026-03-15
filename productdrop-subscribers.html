@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productdrop — Subscribers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #080808;
+    --surface: #111;
+    --border: #1e1e1e;
+    --accent: #c6f135;
+    --red: #ff4444;
+    --yellow: #f5c842;
+    --text: #e8e8e8;
+    --muted: #555;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-display: 'Bebas Neue', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--accent);
+  }
+
+  .brand span { color: #444; }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-val {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filters { display: flex; gap: 8px; }
+
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .add-btn {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    padding: 8px 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+
+  .add-btn:hover { background: #d4ff3d; }
+
+  /* TABLE */
+  .table-wrap {
+    padding: 24px 32px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 500;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #141414;
+    transition: background 0.1s;
+  }
+
+  tbody tr:hover { background: #111; }
+
+  td {
+    padding: 14px 12px;
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  .td-name { font-weight: 600; color: #fff; }
+  .td-phone { color: #888; }
+
+  .cat-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+
+  .cat-home    { color: #60a5fa; border-color: #1d3f6b; background: #0a1f35; }
+  .cat-beauty  { color: #f472b6; border-color: #6b1d4d; background: #350a24; }
+  .cat-kids    { color: #facc15; border-color: #6b5a1d; background: #352a0a; }
+  .cat-health  { color: #4ade80; border-color: #1d6b35; background: #0a3518; }
+  .cat-goods   { color: #fb923c; border-color: #6b3a1d; background: #351a0a; }
+  .cat-other   { color: #a78bfa; border-color: #3d1d6b; background: #1a0a35; }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-active .dot { background: var(--accent); }
+  .status-active { color: var(--accent); }
+
+  .status-expiring .dot { background: var(--yellow); }
+  .status-expiring { color: var(--yellow); }
+
+  .status-expired .dot { background: var(--red); }
+  .status-expired { color: var(--red); }
+
+  .td-date { color: #666; font-size: 11px; }
+
+  .action-btns { display: flex; gap: 8px; }
+
+  .btn-edit, .btn-del {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+
+  .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-del:hover  { border-color: var(--red); color: var(--red); }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 60px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 32px;
+    width: 100%;
+    max-width: 460px;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-select option { background: #111; }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .btn-save {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    color: #000;
+    padding: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  .btn-save:hover { background: #d4ff3d; }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid #2a2a2a;
+    color: var(--muted);
+    padding: 12px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  .btn-cancel:hover { border-color: #444; color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">PRODUCTDROP <span>/</span> SUBSCRIBERS</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label">НИЙТ</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-active" style="color:#c6f135">0</div>
+      <div class="stat-label">ИДЭВХТЭЙ</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-expiring" style="color:#f5c842">0</div>
+      <div class="stat-label">ДУУСАХ ГЭЖ БУЙ</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-expired" style="color:#ff4444">0</div>
+      <div class="stat-label">ДУУССАН</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">БҮГД</button>
+    <button class="filter-btn" onclick="setFilter('active', this)">ИДЭВХТЭЙ</button>
+    <button class="filter-btn" onclick="setFilter('expiring', this)">ДУУСАХ ГЭЖ БУЙ</button>
+    <button class="filter-btn" onclick="setFilter('expired', this)">ДУУССАН</button>
+    <button class="filter-btn" onclick="setFilter('home', this)">HOME</button>
+    <button class="filter-btn" onclick="setFilter('beauty', this)">BEAUTY</button>
+    <button class="filter-btn" onclick="setFilter('kids', this)">KIDS</button>
+    <button class="filter-btn" onclick="setFilter('health', this)">HEALTH</button>
+    <button class="filter-btn" onclick="setFilter('goods', this)">GOODS</button>
+  </div>
+  <button class="add-btn" onclick="openModal()">+ НЭМЭХ</button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>НЭР</th>
+        <th>УТАС</th>
+        <th>КАТЕГОРИ</th>
+        <th>ДУУСАХ ОГНОО</th>
+        <th>ТӨЛӨВ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">Хэрэглэгч байхгүй байна</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">ХЭРЭГЛЭГЧ НЭМЭХ</div>
+    <div class="form-group">
+      <label class="form-label">НЭР</label>
+      <input class="form-input" id="f-name" placeholder="Бат-Эрдэнэ" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">УТАСНЫ ДУГААР</label>
+      <input class="form-input" id="f-phone" placeholder="99001234" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">КАТЕГОРИ</label>
+      <select class="form-select" id="f-cat">
+        <option value="home">Home</option>
+        <option value="beauty">Beauty</option>
+        <option value="kids">Good Kids</option>
+        <option value="health">Health</option>
+        <option value="goods">Goods</option>
+        <option value="other">Бусад</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ДУУСАХ ОГНОО</label>
+      <input class="form-input" id="f-expiry" type="date" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveEntry()">ХАДГАЛАХ</button>
+      <button class="btn-cancel" onclick="closeModal()">ЦУЦЛАХ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SB_URL = 'https://iepvbbcldztvuheaidli.supabase.co';
+  const SB_KEY = 'sb_publishable_bE2nRzsZzpxZ429ea_V_3g_VyZJUHqE';
+  const ROW_ID = 'subscribers';
+
+  let data = [];
+  let editId = null;
+  let currentFilter = 'all';
+
+  async function loadFromSupabase() {
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/productdrop_state?id=eq.${ROW_ID}`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      });
+      const rows = await res.json();
+      data = (rows.length && rows[0].data) ? rows[0].data : [];
+    } catch(e) { data = []; }
+    render();
+  }
+
+  async function save() {
+    const headers = {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    };
+    await fetch(`${SB_URL}/rest/v1/productdrop_state`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ id: ROW_ID, data: data })
+    });
+  }
+
+  function getStatus(expiry) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const exp = new Date(expiry);
+    const diff = Math.ceil((exp - today) / 86400000);
+    if (diff < 0) return 'expired';
+    if (diff <= 7) return 'expiring';
+    return 'active';
+  }
+
+  function statusLabel(s) {
+    if (s === 'active')   return '<span class="status-badge status-active"><span class="dot"></span>ИДЭВХТЭЙ</span>';
+    if (s === 'expiring') return '<span class="status-badge status-expiring"><span class="dot"></span>ДУУСАХ ГЭЖ БУЙ</span>';
+    return '<span class="status-badge status-expired"><span class="dot"></span>ДУУССАН</span>';
+  }
+
+  function catLabel(c) {
+    const map = { home:'HOME', beauty:'BEAUTY', kids:'GOOD KIDS', health:'HEALTH', goods:'GOODS', other:'БУСАД' };
+    return `<span class="cat-badge cat-${c}">${map[c]||c}</span>`;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y,m,day] = d.split('-');
+    return `${day}.${m}.${y}`;
+  }
+
+  function render() {
+    const f = currentFilter;
+    let rows = data.filter(r => {
+      const s = getStatus(r.expiry);
+      if (f === 'all') return true;
+      if (['active','expiring','expired'].includes(f)) return s === f;
+      return r.cat === f;
+    });
+
+    // stats
+    document.getElementById('stat-total').textContent = data.length;
+    document.getElementById('stat-active').textContent = data.filter(r=>getStatus(r.expiry)==='active').length;
+    document.getElementById('stat-expiring').textContent = data.filter(r=>getStatus(r.expiry)==='expiring').length;
+    document.getElementById('stat-expired').textContent = data.filter(r=>getStatus(r.expiry)==='expired').length;
+
+    const tbody = document.getElementById('tbody');
+    const empty = document.getElementById('empty');
+
+    if (!rows.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = rows.map((r, i) => {
+      const s = getStatus(r.expiry);
+      return `<tr>
+        <td style="color:var(--muted);font-size:11px">${i+1}</td>
+        <td class="td-name">${r.name}</td>
+        <td class="td-phone">${r.phone}</td>
+        <td>${catLabel(r.cat)}</td>
+        <td class="td-date">${formatDate(r.expiry)}</td>
+        <td>${statusLabel(s)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-edit" onclick="editEntry('${r.id}')">ЗАСАХ</button>
+            <button class="btn-del" onclick="deleteEntry('${r.id}')">ХАС</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  function openModal(id = null) {
+    editId = id;
+    const m = document.getElementById('modal');
+    if (id) {
+      const r = data.find(x => x.id === id);
+      document.getElementById('modal-title').textContent = 'ЗАСАХ';
+      document.getElementById('f-name').value = r.name;
+      document.getElementById('f-phone').value = r.phone;
+      document.getElementById('f-cat').value = r.cat;
+      document.getElementById('f-expiry').value = r.expiry;
+    } else {
+      document.getElementById('modal-title').textContent = 'ХЭРЭГЛЭГЧ НЭМЭХ';
+      document.getElementById('f-name').value = '';
+      document.getElementById('f-phone').value = '';
+      document.getElementById('f-cat').value = 'home';
+      // default 30 days
+      const d = new Date(); d.setDate(d.getDate()+30);
+      document.getElementById('f-expiry').value = d.toISOString().split('T')[0];
+    }
+    m.classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    editId = null;
+  }
+
+  async function saveEntry() {
+    const name = document.getElementById('f-name').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const cat = document.getElementById('f-cat').value;
+    const expiry = document.getElementById('f-expiry').value;
+    if (!name || !expiry) return alert('Нэр болон дуусах огноог оруулна уу.');
+
+    if (editId) {
+      const idx = data.findIndex(x => x.id === editId);
+      data[idx] = { ...data[idx], name, phone, cat, expiry };
+    } else {
+      data.push({ id: Date.now().toString(), name, phone, cat, expiry });
+    }
+    await save(); closeModal(); render();
+  }
+
+  function editEntry(id) { openModal(id); }
+
+  async function deleteEntry(id) {
+    if (!confirm('Устгах уу?')) return;
+    data = data.filter(x => x.id !== id);
+    await save(); render();
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  loadFromSupabase();
+</script>
+</body>
+</html>
