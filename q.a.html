@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productdrop Q&A</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Mongolian&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --card: #111111;
+    --accent: #c6f135;
+    --accent2: #ffffff;
+    --muted: #444;
+    --text: #f0f0f0;
+    --num: #1a1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    border-bottom: 1px solid #1e1e1e;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--accent);
+  }
+
+  .slide-counter {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .slide-counter span {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    height: 2px;
+    background: #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  /* SLIDES CONTAINER */
+  .slides {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    max-width: 900px;
+    animation: fadeIn 0.35s ease;
+  }
+
+  .slide.active { display: flex; flex-direction: column; gap: 28px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SLIDE NUMBER */
+  .slide-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: #1c1c1c;
+    line-height: 1;
+    position: absolute;
+    top: 80px;
+    right: 40px;
+    user-select: none;
+  }
+
+  .slide-wrapper { position: relative; }
+
+  /* LABEL */
+  .label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* QUESTION */
+  .question-block {
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: 24px 28px;
+    border-radius: 2px;
+  }
+
+  .q-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .question {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(24px, 3.5vw, 38px);
+    line-height: 1.2;
+    color: #ffffff;
+    letter-spacing: 1px;
+  }
+
+  /* ANSWER */
+  .answer-block {
+    background: #0f0f0f;
+    border: 1px solid #1e1e1e;
+    border-radius: 2px;
+    padding: 24px 28px;
+  }
+
+  .a-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .points {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .point {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: clamp(13px, 1.5vw, 15px);
+    line-height: 1.6;
+    color: #cccccc;
+  }
+
+  .point-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  /* KEY INSIGHT */
+  .insight {
+    background: var(--accent);
+    color: #000;
+    padding: 14px 20px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .insight::before {
+    content: '→';
+    font-size: 16px;
+  }
+
+  /* BOTTOM NAV */
+  .bottomnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    border-top: 1px solid #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid #2a2a2a;
+    color: var(--text);
+    padding: 10px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+  }
+
+  .nav-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+
+  .nav-btn.primary:hover {
+    background: #d4ff3d;
+    color: #000;
+  }
+
+  .dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dot.active {
+    background: var(--accent);
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* INTRO SLIDE */
+  .intro-slide {
+    text-align: center;
+    gap: 20px;
+  }
+
+  .intro-slide .big-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 90px);
+    line-height: 1;
+    letter-spacing: 6px;
+  }
+
+  .intro-slide .big-title span { color: var(--accent); }
+
+  .intro-slide .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 3px;
+  }
+
+  .intro-slide .topics {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    margin: 8px auto;
+    max-width: 500px;
+  }
+
+  .intro-slide .topic-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #888;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .topic-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--accent);
+    width: 24px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">PRODUCTDROP</div>
+  <div class="slide-counter">СЛАЙД <span id="cur">1</span> / <span id="total">6</span></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="progress-fill" id="progress"></div>
+</div>
+
+<!-- SLIDES -->
+<div class="slides">
+
+  <!-- INTRO -->
+  <div class="slide active intro-slide" id="slide-0">
+    <div class="label">PRODUCTDROP COMMUNITY</div>
+    <div class="big-title">ТОП <span>5</span><br>АСУУЛТ</div>
+    <div class="subtitle">ЭНЭ 7 ХОНОГТ ХАМГИЙН ИХ ИРСЭН АСУУЛТУУД</div>
+    <div class="topics">
+      <div class="topic-item"><span class="topic-num">01</span> Winning product хэрхэн хайх вэ?</div>
+      <div class="topic-item"><span class="topic-num">02</span> Монголд хамгийн хурдан зарагддаг бараа?</div>
+      <div class="topic-item"><span class="topic-num">03</span> Бараа ирэхээс өмнө зарж болох уу?</div>
+      <div class="topic-item"><span class="topic-num">04</span> Хэдэн төгрөгний ашиг байвал зүгээр вэ?</div>
+      <div class="topic-item"><span class="topic-num">05</span> Reel vs Facebook Ads — аль нь дээр вэ?</div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="slide slide-wrapper" id="slide-1">
+    <div class="slide-num">01</div>
+    <div class="label">АСУУЛТ 01 / 05</div>
+    <div class="question-block">
+      <span class="q-tag">АСУУЛТ</span>
+      <div class="question">Aliexpress дээр winning product хэрхэн хайх вэ?</div>
+    </div>
+    <div class="answer-block">
+      <span class="a-tag">ХАРИУЛТ</span>
+      <div class="points">
+        <div class="point"><div class="point-dot"></div><div>Захиалга 1000-аас дээш байгаа бараануудыг хар — энэ нь зах зээлд батлагдсан гэсэн үг</div></div>
+        <div class="point"><div class="point-dot"></div><div>Сүүлийн 3 сард сэтгэгдэл огцом нэмэгдсэн бараа — эрэлт нэмэгдэж байгааг илтгэнэ</div></div>
+        <div class="point"><div class="point-dot"></div><div>TikTok дээр тухайн бараагаа хайж үз — видео олон байвал хүмүүс аль хэдийнэ сонирхож байна гэсэн үг</div></div>
+      </div>
+    </div>
+    <div class="insight">3 шалгуур бүгд зөв байвал тэр бараа winning product</div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="slide slide-wrapper" id="slide-2">
+    <div class="slide-num">02</div>
+    <div class="label">АСУУЛТ 02 / 05</div>
+    <div class="question-block">
+      <span class="q-tag">АСУУЛТ</span>
+      <div class="question">Монголд хамгийн хурдан зарагддаг бараа юу вэ?</div>
+    </div>
+    <div class="answer-block">
+      <span class="a-tag">ХАРИУЛТ</span>
+      <div class="points">
+        <div class="point"><div class="point-dot"></div><div>Beauty, Home, Kids — энэ 3 категори жилийн турш тогтвортой эрэлттэй байдаг</div></div>
+        <div class="point"><div class="point-dot"></div><div>Улирлын бараа нэг удаа сайн зарагдаж болох ч дараа нь эрэлт унана — тогтвортой орлого гарахгүй</div></div>
+        <div class="point"><div class="point-dot"></div><div>Evergreen бараа сонгох нь урт хугацаанд илүү ашигтай — нэг удаа тогтоосон funnel-аа дахин дахин ашиглана</div></div>
+      </div>
+    </div>
+    <div class="insight">Эхлэгчдэд evergreen категори хамгийн аюулгүй сонголт</div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="slide slide-wrapper" id="slide-3">
+    <div class="slide-num">03</div>
+    <div class="label">АСУУЛТ 03 / 05</div>
+    <div class="question-block">
+      <span class="q-tag">АСУУЛТ</span>
+      <div class="question">Бараа ирэхээс өмнө зарж болох уу?</div>
+    </div>
+    <div class="answer-block">
+      <span class="a-tag">ХАРИУЛТ</span>
+      <div class="points">
+        <div class="point"><div class="point-dot"></div><div>Болно — pre-order загвар гэдэг ойлголт байдаг бөгөөд олон амжилттай бизнес ингэж эхэлдэг</div></div>
+        <div class="point"><div class="point-dot"></div><div>Хүргэлтийн хугацааг үнэнчээр хэлэх нь заавал шаардлагатай — худал хугацаа хэлбэл итгэл алдагдана</div></div>
+        <div class="point"><div class="point-dot"></div><div>Урьдчилгаа төлбөр авч баталгаажуулах нь чухал — мөнгөгүй захиалга цуцлагдах эрсдэлтэй</div></div>
+      </div>
+    </div>
+    <div class="insight">Нэг удаа итгэл алдагдвал буцааж олоход маш хэцүү</div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="slide slide-wrapper" id="slide-4">
+    <div class="slide-num">04</div>
+    <div class="label">АСУУЛТ 04 / 05</div>
+    <div class="question-block">
+      <span class="q-tag">АСУУЛТ</span>
+      <div class="question">Нэг бараанд хэдэн төгрөгний ашиг байвал зүгээр вэ?</div>
+    </div>
+    <div class="answer-block">
+      <span class="a-tag">ХАРИУЛТ</span>
+      <div class="points">
+        <div class="point"><div class="point-dot"></div><div>Дор хаяж x2 markup шаардлагатай — өртөг 10,000₮ бол 20,000₮-өөс доош битгий зар</div></div>
+        <div class="point"><div class="point-dot"></div><div>Хүргэлт болон зар сурталчилгааны зардлыг заавал тооцоол — эдгээрийг орхивол бодит ашиг маш бага гарна</div></div>
+        <div class="point"><div class="point-dot"></div><div>x3 markup хийж чадвал хамгийн тохиромжтой — зардал нэмэгдэхэд ч ашигтай хэвээр байна</div></div>
+      </div>
+    </div>
+    <div class="insight">Зардлаа тооцохгүй бол ашиг биш алдагдал гарна</div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="slide slide-wrapper" id="slide-5">
+    <div class="slide-num">05</div>
+    <div class="label">АСУУЛТ 05 / 05</div>
+    <div class="question-block">
+      <span class="q-tag">АСУУЛТ</span>
+      <div class="question">Instagram Reel vs Facebook Ads — аль нь дээр вэ?</div>
+    </div>
+    <div class="answer-block">
+      <span class="a-tag">ХАРИУЛТ</span>
+      <div class="points">
+        <div class="point"><div class="point-dot"></div><div>Эхэндээ Reel — мөнгөгүйгээр органик хүрэлцээ олж авна, туршлага хуримтлуулна</div></div>
+        <div class="point"><div class="point-dot"></div><div>Борлуулалт батлагдсаны дараа Facebook Ads-д мөнгө хий — ажиллаж байгаа funnel-аа өргөжүүл</div></div>
+        <div class="point"><div class="point-dot"></div><div>Ads-аас өмнө funnel ажиллаж байгааг заавал шалга — ажиллахгүй funnel-д мөнгө хийх нь зүгээр л алдагдал</div></div>
+      </div>
+    </div>
+    <div class="insight">Эхлээд Reel-ээр батал, дараа Ads-аар өргөжүүл</div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← ӨМНӨХ</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="changeSlide(1)">ДАРААХ →</button>
+</div>
+
+<script>
+  let current = 0;
+  const total = 6;
+
+  const dots = document.getElementById('dots');
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dots.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    dots.children[current].classList.remove('active');
+    current = n;
+    document.getElementById('slide-' + current).classList.add('active');
+    dots.children[current].classList.add('active');
+    document.getElementById('cur').textContent = current + 1;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    document.getElementById('nextBtn').textContent = current === total - 1 ? 'ДУУСЛАА ✓' : 'ДАРААХ →';
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < total) goTo(next);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+
+  // Init progress
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+  document.getElementById('total').textContent = total;
+</script>
+
+</body>
+</html>
