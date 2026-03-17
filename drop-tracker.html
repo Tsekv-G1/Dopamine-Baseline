@@ -669,11 +669,11 @@ async function saveCurrentDrop() {
     // Build upsert rows — unique(month, product_name) тул давхар орохгүй
     const rows = parsed.map(name => ({ month, product_name: name }));
 
-    // Batch upsert 500 rows at a time
+    // Batch upsert 500 rows at a time — duplicate бол skip
     for (let i = 0; i < rows.length; i += 500) {
-      await sbFetch('drop_tracker', {
+      await sbFetch('drop_tracker?on_conflict=month,product_name', {
         method: 'POST',
-        headers: { ...HEADERS, 'Prefer': 'resolution=ignore-duplicates' },
+        headers: { ...HEADERS, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
         body: JSON.stringify(rows.slice(i, i + 500))
       });
     }
