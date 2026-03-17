@@ -613,7 +613,9 @@ const HEADERS = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authori
 async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: HEADERS, ...opts });
   if (!res.ok) { const e = await res.text(); throw new Error(e); }
-  return res.status === 204 ? null : res.json();
+  const text = await res.text();
+  if (!text || text.trim() === '') return null;
+  try { return JSON.parse(text); } catch { return null; }
 }
 
 // ─── STATE ─────────────────────────────────────────────────
@@ -655,7 +657,6 @@ async function loadFromSupabase() {
   }
 }
 
-// ─── SAVE TO SUPABASE (UPSERT/MERGE) ──────────────────────
 async function saveCurrentDrop() {
   const month = document.getElementById('month-picker').value;
   if (!month) { showToast('Сар сонгоно уу', true); return; }
@@ -666,19 +667,22 @@ async function saveCurrentDrop() {
   btn.disabled = true;
 
   try {
-    // Build upsert rows — unique(month, product_name) тул давхар орохгүй
     const rows = parsed.map(name => ({ month, product_name: name }));
 
-    // Batch upsert 500 rows at a time — duplicate бол skip
-    for (let i = 0; i < rows.length; i += 500) {
-      await sbFetch('drop_tracker?on_conflict=month,product_name', {
+    for (let i = 0; i < rows.length; i += 200) {
+      const batch = rows.slice(i, i + 200);
+      const res = await fetch(`${SB_URL}/rest/v1/drop_tracker?on_conflict=month,product_name`, {
         method: 'POST',
         headers: { ...HEADERS, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
-        body: JSON.stringify(rows.slice(i, i + 500))
+        body: JSON.stringify(batch)
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('Supabase error:', res.status, errText);
+        throw new Error(`${res.status}: ${errText}`);
+      }
     }
 
-    // Merge into local db
     if (!db[month]) db[month] = new Set();
     parsed.forEach(n => db[month].add(n));
 
@@ -689,9 +693,9 @@ async function saveCurrentDrop() {
     renderStats();
     renderHistory();
   } catch (e) {
-    setSyncStatus('err', 'Хадгалах алдаа');
-    showToast('Хадгалах үед алдаа гарлаа', true);
-    console.error(e);
+    console.error('saveCurrentDrop error:', e);
+    setSyncStatus('err', 'Хадгалах алдаа: ' + e.message.slice(0, 60));
+    showToast('Алдаа: ' + e.message.slice(0, 80), true);
   } finally {
     btn.disabled = false;
   }
