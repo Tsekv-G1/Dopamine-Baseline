@@ -6,74 +6,98 @@
 <title>DROP TRACKER</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#0a0a0a; --bg2:#111; --bg3:#181818; --bg4:#1f1f1f;
-  --border:#222; --border2:#2e2e2e;
-  --text:#f0f0f0; --muted:#666; --muted2:#3a3a3a;
-  --accent:#c6f135; --accent2:#ff6eb4; --accent3:#69c9d0;
-  --danger:#ff4444; --warn:#ffaa44;
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1f1f1f;
+  --border:#222;--border2:#2e2e2e;
+  --text:#f0f0f0;--muted:#666;--muted2:#3a3a3a;
+  --accent:#c6f135;--accent2:#ff6eb4;--accent3:#69c9d0;
+  --danger:#ff4444;--warn:#ffaa44;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;}
 
+/* HEADER */
 .header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
 .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;letter-spacing:.25em;color:#fff;text-transform:uppercase;}
 .logo span{color:var(--accent);}
 .header-right{display:flex;gap:12px;align-items:center;}
 #sync-status{font-size:10px;letter-spacing:.15em;color:var(--muted);}
-.month-badge{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;border:1px solid var(--border2);padding:4px 10px;}
+.month-badge{font-size:10px;letter-spacing:.2em;color:var(--muted);border:1px solid var(--border2);padding:4px 10px;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.tab{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:12px 18px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
 .container{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .section-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
 
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:28px;}
-.stat-box{background:var(--bg2);padding:16px 18px;}
-.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:28px;}
+.stat-box{background:var(--bg2);padding:14px 16px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;line-height:1;margin-bottom:4px;}
 .stat-val.accent{color:var(--accent);}
 .stat-val.warn{color:var(--warn);}
 .stat-val.pink{color:var(--accent2);}
+.stat-val.teal{color:var(--accent3);}
 .stat-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
 
+/* CATEGORY BADGES */
+.cat-select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 12px;outline:none;cursor:pointer;transition:border-color .2s;}
+.cat-select:focus{border-color:var(--accent);}
+.cat-badge{font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border:1px solid;font-family:'DM Mono',monospace;}
+.cat-Beauty{border-color:#ff6eb4;color:#ff6eb4;background:rgba(255,110,180,.08);}
+.cat-Home{border-color:#69c9d0;color:#69c9d0;background:rgba(105,201,208,.08);}
+.cat-Health{border-color:#c6f135;color:#c6f135;background:rgba(198,241,53,.08);}
+.cat-Goods{border-color:#ffaa44;color:#ffaa44;background:rgba(255,170,68,.08);}
+.cat-Kids{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.08);}
+.cat-Uncategorized{border-color:var(--muted2);color:var(--muted);background:transparent;}
+
+/* UPLOAD ZONE */
 .drop-section{margin-bottom:28px;}
 .month-controls{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
 .month-label{font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
-.month-input{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 12px;outline:none;width:160px;transition:border-color .2s;}
+.month-input{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:8px 12px;outline:none;transition:border-color .2s;}
 .month-input:focus{border-color:var(--accent);}
 
-.drop-zone{border:2px dashed var(--border2);background:var(--bg2);padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
-.drop-zone.dragover{border-color:var(--accent);background:rgba(198,241,53,.04);}
-.drop-zone.has-file{border-color:var(--accent);border-style:solid;padding:18px 24px;}
-.drop-icon{font-size:26px;margin-bottom:10px;opacity:.4;}
+/* BATCH UPLOAD */
+.batch-zone{border:2px dashed var(--border2);background:var(--bg2);padding:32px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px;}
+.batch-zone.dragover{border-color:var(--accent);background:rgba(198,241,53,.04);}
+.drop-icon{font-size:24px;margin-bottom:8px;opacity:.4;}
 .drop-text{font-size:12px;color:var(--muted);letter-spacing:.1em;}
 .drop-text strong{color:var(--accent);font-weight:500;}
-.drop-hint{font-size:10px;color:var(--muted2);margin-top:6px;letter-spacing:.1em;}
-.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.file-result{display:none;align-items:center;gap:16px;}
-.file-result.show{display:flex;}
-.file-icon{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.file-name{font-size:12px;color:var(--text);letter-spacing:.05em;}
-.file-count{font-size:10px;color:var(--accent);letter-spacing:.15em;}
+.drop-hint{font-size:10px;color:var(--muted2);margin-top:5px;letter-spacing:.1em;}
+.batch-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 
+/* FILE QUEUE */
+.file-queue{display:none;margin-bottom:12px;}
+.file-queue.show{display:block;}
+.queue-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.queue-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);margin-bottom:4px;}
+.qi-icon{font-size:14px;flex-shrink:0;}
+.qi-name{flex:1;font-size:11px;color:var(--text);}
+.qi-count{font-size:10px;color:var(--accent);letter-spacing:.1em;flex-shrink:0;}
+.qi-cat{flex-shrink:0;}
+.qi-status{font-size:10px;flex-shrink:0;letter-spacing:.1em;}
+.qi-status.new{color:var(--accent);}
+.qi-status.dup{color:var(--accent2);}
+.qi-status.done{color:var(--muted);}
+
+/* BUTTONS */
 .btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--text);padding:9px 16px;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn:hover{border-color:var(--accent);color:var(--accent);}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
 .btn.primary:hover{opacity:.85;color:#000;}
 
-.parse-preview{display:none;background:var(--bg2);border:1px solid var(--border2);padding:16px;margin-top:12px;}
-.parse-preview.show{display:block;}
-.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.preview-count{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent);}
-.preview-count span{font-size:11px;color:var(--muted);margin-left:4px;font-family:'DM Mono',monospace;}
-.preview-tags{display:flex;flex-wrap:wrap;gap:5px;max-height:140px;overflow-y:auto;}
-.preview-tags::-webkit-scrollbar{width:3px;}
-.preview-tags::-webkit-scrollbar-thumb{background:var(--border2);}
-
+/* TAGS */
 .tag{font-size:10px;letter-spacing:.05em;padding:3px 8px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);}
 .tag.new{border-color:var(--accent);color:var(--accent);background:rgba(198,241,53,.06);}
 .tag.dup{border-color:var(--accent2);color:var(--accent2);background:rgba(255,110,180,.06);}
 .tag.saved{border-color:var(--muted2);color:var(--muted);background:transparent;}
-
 .legend{display:flex;gap:16px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
 .legend-dot{width:8px;height:8px;flex-shrink:0;}
@@ -81,6 +105,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 .legend-dot.dup{background:var(--accent2);}
 .legend-dot.saved{background:var(--muted2);}
 
+/* DUP ALERT */
 .dup-alert{display:none;margin-top:12px;border:1px solid var(--accent2);background:rgba(255,110,180,.04);}
 .dup-alert.show{display:block;}
 .dup-alert-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,110,180,.2);}
@@ -90,39 +115,38 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 .dup-item:last-child{border-bottom:none;}
 .dup-name{flex:1;font-size:12px;color:var(--text);}
 .dup-months{display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;}
-.dup-month-tag{font-size:9px;letter-spacing:.08em;padding:2px 7px;border:1px solid rgba(255,110,180,.3);color:var(--accent2);background:rgba(255,110,180,.06);}
-.dup-alert-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid rgba(255,110,180,.2);}
-.copy-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;border:1px solid rgba(255,110,180,.4);background:transparent;color:var(--accent2);padding:7px 14px;cursor:pointer;transition:all .15s;}
-.copy-btn:hover,.copy-btn.copied{background:var(--accent2);color:#000;}
+.dup-month-tag{font-size:9px;letter-spacing:.08em;padding:2px 7px;border:1px solid rgba(255,110,180,.3);color:var(--accent2);}
+.dup-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid rgba(255,110,180,.2);}
 
-.search-section{margin-bottom:28px;}
-.search-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-bottom:2px solid var(--accent);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px 16px;outline:none;letter-spacing:.05em;}
-.search-input::placeholder{color:var(--muted2);}
-.search-results{margin-top:8px;display:none;}
-.search-results.show{display:block;}
-.search-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);}
-.search-item:hover{background:var(--bg2);}
-.si-name{flex:1;font-size:12px;}
-.si-file{font-size:9px;color:var(--muted);flex-shrink:0;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.si-month{font-size:10px;color:var(--accent);background:rgba(198,241,53,.08);border:1px solid rgba(198,241,53,.2);padding:2px 7px;flex-shrink:0;}
+/* REPORT */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px;}
+.report-card{background:var(--bg2);border:1px solid var(--border2);padding:16px;}
+.report-card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.report-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent2);margin-bottom:4px;}
+.report-sub{font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;}
+.report-pairs{margin-top:10px;}
+.report-pair{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.report-pair:last-child{border-bottom:none;}
+.pair-cats{color:var(--muted);font-size:10px;}
+.pair-count{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent2);}
 
-.history-section{margin-bottom:28px;}
+/* HISTORY TABLE */
 .history-table{width:100%;border-collapse:collapse;}
 .history-table th{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg2);font-weight:400;}
-.history-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.history-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .history-table tr.data-row:hover td{background:var(--bg2);}
 .month-col{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent);white-space:nowrap;}
-.file-col{font-size:11px;color:var(--text);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.count-col{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#fff;}
+.file-col{font-size:11px;color:var(--text);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.count-col{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:#fff;}
 .dup-col{font-size:12px;color:var(--accent2);}
 .actions-col{display:flex;gap:5px;flex-wrap:wrap;}
-
 .btn-sm{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--muted);padding:5px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
 .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
 .btn-sm.copy{border-color:rgba(105,201,208,.4);color:var(--accent3);}
 .btn-sm.copy:hover,.btn-sm.copy.copied{background:var(--accent3);color:#000;}
 .btn-sm.del:hover{border-color:var(--danger);color:var(--danger);}
 
+/* EXPANDED */
 .expanded-row{display:none;}
 .expanded-row.show{display:table-row;}
 .expanded-cell{padding:0!important;border-bottom:2px solid var(--border2);}
@@ -130,10 +154,41 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 .exp-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;max-height:180px;overflow-y:auto;}
 .exp-actions{display:flex;gap:8px;}
 
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.filter-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--muted);padding:5px 12px;cursor:pointer;transition:all .15s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);}
+
+/* SEARCH */
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border2);border-bottom:2px solid var(--accent);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px 16px;outline:none;letter-spacing:.05em;margin-bottom:8px;}
+.search-input::placeholder{color:var(--muted2);}
+.search-results{display:none;}
+.search-results.show{display:block;}
+.search-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);}
+.search-item:hover{background:var(--bg2);}
+.si-name{flex:1;font-size:12px;}
+.si-dup-badge{font-size:9px;padding:2px 7px;border:1px solid rgba(255,110,180,.4);color:var(--accent2);background:rgba(255,110,180,.06);flex-shrink:0;}
+.si-file{font-size:9px;color:var(--muted);flex-shrink:0;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.si-month{font-size:10px;color:var(--accent);background:rgba(198,241,53,.08);border:1px solid rgba(198,241,53,.2);padding:2px 7px;flex-shrink:0;}
+
+/* COPY BTN */
+.copy-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;border:1px solid rgba(255,110,180,.4);background:transparent;color:var(--accent2);padding:7px 14px;cursor:pointer;transition:all .15s;}
+.copy-btn:hover,.copy-btn.copied{background:var(--accent2);color:#000;}
+
+/* EXPORT */
+.export-section{background:var(--bg2);border:1px solid var(--border2);padding:20px;margin-bottom:24px;}
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px;}
+.export-btn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border2);background:var(--bg3);color:var(--text);padding:12px 16px;cursor:pointer;transition:all .2s;text-align:left;}
+.export-btn:hover{border-color:var(--accent);color:var(--accent);}
+.export-btn .eb-icon{font-size:18px;margin-bottom:6px;display:block;}
+.export-btn .eb-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:block;margin-top:3px;}
+
+/* EMPTY */
 .empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
 .empty-icon{font-size:32px;margin-bottom:12px;opacity:.3;}
 .empty-text{font-size:11px;letter-spacing:.15em;text-transform:uppercase;}
 
+/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:12px 18px;font-size:11px;letter-spacing:.1em;color:var(--text);z-index:999;transform:translateX(120%);transition:transform .25s;max-width:320px;}
 .toast.show{transform:translateX(0);}
 .toast.error{border-left-color:var(--danger);}
@@ -144,9 +199,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 
 @media(max-width:640px){
   .stats-row{grid-template-columns:repeat(2,1fr);}
-  .month-controls{flex-direction:column;align-items:flex-start;}
-  .month-input{width:100%;}
-  .file-col{max-width:100px;}
+  .tabs{overflow-x:auto;}
+  .tab{white-space:nowrap;}
 }
 </style>
 </head>
@@ -162,78 +216,136 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 
 <div class="container">
 
+  <!-- STATS -->
   <div class="stats-row">
-    <div class="stat-box"><div class="stat-val accent" id="stat-total">0</div><div class="stat-lbl">Нийт уникал бараа</div></div>
-    <div class="stat-box"><div class="stat-val" id="stat-uploads">0</div><div class="stat-lbl">Нийт upload</div></div>
-    <div class="stat-box"><div class="stat-val warn" id="stat-dups">0</div><div class="stat-lbl">Давхцсан бараа</div></div>
-    <div class="stat-box"><div class="stat-val pink" id="stat-last">0</div><div class="stat-lbl">Сүүлийн upload</div></div>
+    <div class="stat-box"><div class="stat-val accent" id="stat-total">0</div><div class="stat-lbl">Нийт уникал</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-uploads">0</div><div class="stat-lbl">Upload</div></div>
+    <div class="stat-box"><div class="stat-val warn" id="stat-dups">0</div><div class="stat-lbl">Давхцсан</div></div>
+    <div class="stat-box"><div class="stat-val teal" id="stat-cats">0</div><div class="stat-lbl">Category</div></div>
+    <div class="stat-box"><div class="stat-val pink" id="stat-last">0</div><div class="stat-lbl">Сүүлийн</div></div>
   </div>
 
-  <div class="drop-section">
-    <div class="section-title">Шинэ drop — HTML файл оруулах</div>
-    <div class="month-controls">
-      <span class="month-label">Сар:</span>
-      <input type="month" class="month-input" id="month-picker">
-      <button class="btn primary" id="btn-save" style="display:none" onclick="saveCurrentDrop()">✓ Хадгалах</button>
-      <button class="btn" id="btn-clear" style="display:none" onclick="clearFile()">Цэвэрлэх</button>
-    </div>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('upload')">⬆ Upload</button>
+    <button class="tab" onclick="switchTab('history')">📋 Түүх</button>
+    <button class="tab" onclick="switchTab('report')">📊 Тайлан</button>
+    <button class="tab" onclick="switchTab('search')">🔍 Хайх</button>
+    <button class="tab" onclick="switchTab('export')">💾 Export</button>
+  </div>
 
-    <div class="drop-zone" id="drop-zone">
-      <div class="file-result" id="file-result">
-        <div class="file-icon">📄</div>
-        <div>
-          <div class="file-name" id="file-name-text">—</div>
-          <div class="file-count" id="file-count-text">—</div>
-        </div>
+  <!-- TAB: UPLOAD -->
+  <div class="tab-panel active" id="tab-upload">
+    <div class="drop-section">
+      <div class="month-controls">
+        <span class="month-label">Сар:</span>
+        <input type="month" class="month-input" id="month-picker">
+        <select class="cat-select" id="cat-picker">
+          <option value="Beauty">Beauty</option>
+          <option value="Home">Home</option>
+          <option value="Health">Health</option>
+          <option value="Goods">Goods</option>
+          <option value="Kids">Kids</option>
+          <option value="Uncategorized">Uncategorized</option>
+        </select>
+        <button class="btn primary" id="btn-save" style="display:none" onclick="saveAll()">✓ Бүгдийг хадгалах</button>
+        <button class="btn" id="btn-clear" style="display:none" onclick="clearQueue()">Цэвэрлэх</button>
       </div>
-      <div id="drop-placeholder">
+
+      <!-- BATCH DROP ZONE -->
+      <div class="batch-zone" id="batch-zone">
         <div class="drop-icon">⬇</div>
-        <div class="drop-text"><strong>Drag & Drop</strong> эсвэл дарж HTML файл сонгох</div>
-        <div class="drop-hint">PRODUCTS array → бүх бараа автоматаар унших</div>
+        <div class="drop-text"><strong>Drag & Drop</strong> — нэг буюу олон HTML файл зэрэг оруулах</div>
+        <div class="drop-hint">PRODUCTS array → автоматаар унших · Beauty, Home, Health...</div>
+        <input type="file" id="file-input" accept=".html,.htm" multiple>
       </div>
-      <input type="file" id="file-input" accept=".html,.htm">
-    </div>
 
-    <div class="parse-preview" id="parse-preview">
-      <div class="preview-header">
-        <div class="preview-count" id="prev-count">0 <span>бараа</span></div>
-        <div style="text-align:right;line-height:1.8">
-          <div style="font-size:10px;color:var(--accent);letter-spacing:.1em" id="prev-new"></div>
-          <div style="font-size:10px;color:var(--accent2);letter-spacing:.1em" id="prev-dup"></div>
-          <div style="font-size:10px;color:var(--muted);letter-spacing:.1em" id="prev-saved"></div>
+      <!-- FILE QUEUE -->
+      <div class="file-queue" id="file-queue">
+        <div class="queue-title">Файлууд — <span id="queue-count">0</span> файл, <span id="queue-total">0</span> бараа</div>
+        <div id="queue-items"></div>
+      </div>
+
+      <!-- DUP ALERT -->
+      <div class="dup-alert" id="dup-alert">
+        <div class="dup-alert-header">
+          <div class="dup-alert-title">⚠ Давхцсан бараа</div>
+          <div id="dup-alert-meta" style="font-size:10px;color:var(--muted);letter-spacing:.1em"></div>
+        </div>
+        <div class="dup-alert-body" id="dup-alert-body"></div>
+        <div class="dup-actions">
+          <button class="copy-btn" id="copy-names-btn" onclick="copyDupNames()">📋 Нэрийг copy</button>
+          <button class="copy-btn" onclick="copyDupDetail()">📋 Дэлгэрэнгүй copy</button>
         </div>
       </div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot new"></div>Шинэ</div>
-        <div class="legend-item"><div class="legend-dot dup"></div>Давхцсан</div>
-        <div class="legend-item"><div class="legend-dot saved"></div>Аль хэдийн байгаа</div>
-      </div>
-      <div class="preview-tags" id="preview-tags"></div>
-    </div>
-
-    <div class="dup-alert" id="dup-alert">
-      <div class="dup-alert-header">
-        <div class="dup-alert-title">⚠ Давхцсан бараа</div>
-        <div id="dup-alert-meta" style="font-size:10px;color:var(--muted);letter-spacing:.1em"></div>
-      </div>
-      <div class="dup-alert-body" id="dup-alert-body"></div>
-      <div class="dup-alert-actions">
-        <button class="copy-btn" id="copy-names-btn" onclick="copyDupNames()">📋 Нэрийг copy</button>
-        <button class="copy-btn" onclick="copyDupDetail()">📋 Дэлгэрэнгүй copy</button>
-      </div>
     </div>
   </div>
 
-  <div class="search-section">
-    <div class="section-title">Бараа хайх</div>
-    <input type="text" class="search-input" id="search-input"
-      placeholder="Бараандын нэр хайх... (бүх upload-аас)" oninput="doSearch(this.value)">
-    <div class="search-results" id="search-results"></div>
-  </div>
-
-  <div class="history-section">
-    <div class="section-title">Upload түүх</div>
+  <!-- TAB: HISTORY -->
+  <div class="tab-panel" id="tab-history">
+    <div class="filter-bar" id="history-filters">
+      <span style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;">Category:</span>
+      <button class="filter-btn active" onclick="filterHistory('ALL',this)">Бүгд</button>
+      <button class="filter-btn" onclick="filterHistory('Beauty',this)">Beauty</button>
+      <button class="filter-btn" onclick="filterHistory('Home',this)">Home</button>
+      <button class="filter-btn" onclick="filterHistory('Health',this)">Health</button>
+      <button class="filter-btn" onclick="filterHistory('Goods',this)">Goods</button>
+      <button class="filter-btn" onclick="filterHistory('Kids',this)">Kids</button>
+    </div>
     <div id="history-container"></div>
+  </div>
+
+  <!-- TAB: REPORT -->
+  <div class="tab-panel" id="tab-report">
+    <div id="report-container"></div>
+  </div>
+
+  <!-- TAB: SEARCH -->
+  <div class="tab-panel" id="tab-search">
+    <input type="text" class="search-input" id="search-input"
+      placeholder="Бараандын нэр хайх... давхцсан бол тэмдэглэнэ" oninput="doSearch(this.value)">
+    <div class="filter-bar">
+      <span style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;">Шүүх:</span>
+      <button class="filter-btn active" id="sf-all" onclick="setSearchFilter('all')">Бүгд</button>
+      <button class="filter-btn" id="sf-dup" onclick="setSearchFilter('dup')">Зөвхөн давхцсан</button>
+    </div>
+    <div class="search-results show" id="search-results">
+      <div style="padding:20px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.1em">Бараа хайх...</div>
+    </div>
+  </div>
+
+  <!-- TAB: EXPORT -->
+  <div class="tab-panel" id="tab-export">
+    <div class="export-section">
+      <div class="section-title">Өгөгдөл татах</div>
+      <div class="export-grid">
+        <button class="export-btn" onclick="exportCSV('all')">
+          <span class="eb-icon">📄</span>Бүх бараа CSV
+          <span class="eb-label">Нийт бараа · сар · category</span>
+        </button>
+        <button class="export-btn" onclick="exportCSV('dups')">
+          <span class="eb-icon">⚠️</span>Давхцсан бараа CSV
+          <span class="eb-label">Зөвхөн давхцсан бараанууд</span>
+        </button>
+        <button class="export-btn" onclick="exportByCategory()">
+          <span class="eb-icon">🗂️</span>Category-оор CSV
+          <span class="eb-label">Тус тусдаа файлуудаар</span>
+        </button>
+        <button class="export-btn" onclick="exportTXT('names')">
+          <span class="eb-icon">📝</span>Нэрсийн жагсаалт TXT
+          <span class="eb-label">Зөвхөн бараандын нэр</span>
+        </button>
+        <button class="export-btn" onclick="exportJSON()">
+          <span class="eb-icon">💾</span>JSON backup
+          <span class="eb-label">Бүх өгөгдөл JSON</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="export-section">
+      <div class="section-title">Category-оор татах</div>
+      <div class="export-grid" id="cat-export-grid"></div>
+    </div>
   </div>
 
 </div>
@@ -241,51 +353,64 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font
 <div class="toast" id="toast"></div>
 
 <script>
-const SB_URL  = 'https://iepvbbcldztvuheaidli.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllcHZiYmNsZHp0dnVoZWFpZGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMDc2MzQsImV4cCI6MjA4ODg4MzYzNH0.tkqBxerDxTgtH7CgnOotuvhRhD6qfciYakcBxdZgLn0';
-const H = { 'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}` };
+const SB_URL = 'https://iepvbbcldztvuheaidli.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllcHZiYmNsZHp0dnVoZWFpZGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMDc2MzQsImV4cCI6MjA4ODg4MzYzNH0.tkqBxerDxTgtH7CgnOotuvhRhD6qfciYakcBxdZgLn0';
+const H = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`};
 
 async function sb(path, opts={}) {
-  const res = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: H, ...opts });
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {headers:H,...opts});
   if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
   const t = await res.text();
-  if (!t || !t.trim()) return null;
+  if (!t||!t.trim()) return null;
   try { return JSON.parse(t); } catch { return null; }
 }
 
 // STATE
-// uploads: [ { month, source_file, products: Set<string> } ]
+// uploads: [{month, source_file, category, products:Set}]
 let uploads = [];
-let parsed = [];
-let parsedFile = '';
-let currentDups = [];
-let currentDupMap = {};
+// queue: [{file:File, name:str, parsed:[], category:str, status:'pending'|'done'}]
+let queue = [];
+let currentDups = [], currentDupMap = {};
+let historyFilter = 'ALL';
+let searchFilter = 'all';
 
 function setSS(state, msg) {
   const el = document.getElementById('sync-status');
   el.style.color = {loading:'var(--warn)',ok:'var(--accent)',err:'var(--danger)'}[state]||'var(--muted)';
-  el.textContent = (state==='loading'?'↻':'●') + ' ' + msg;
+  el.textContent = (state==='loading'?'↻':'●')+' '+msg;
 }
 
 // LOAD
 async function loadFromSB() {
   setSS('loading','Уншиж байна...');
   try {
-    const rows = await sb('drop_tracker?select=month,source_file,product_name&order=added_at.asc');
+    const rows = await sb('drop_tracker?select=month,source_file,category,product_name&order=added_at.asc');
     const map = {};
     for (const r of rows) {
       const k = `${r.month}||${r.source_file}`;
-      if (!map[k]) map[k] = { month:r.month, source_file:r.source_file, products:new Set() };
+      if (!map[k]) map[k] = {month:r.month, source_file:r.source_file, category:r.category||'Uncategorized', products:new Set()};
       map[k].products.add(r.product_name);
     }
     uploads = Object.values(map);
-    setSS('ok', `${rows.length} бараа`);
-    renderStats(); renderHistory();
+    setSS('ok',`${rows.length} бараа`);
+    renderStats(); renderHistory(); renderReport(); renderCatExport();
   } catch(e) {
     setSS('err','Холболт алдаатай');
     showToast('Холболт амжилтгүй: '+e.message, true);
     console.error(e);
   }
+}
+
+// TABS
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const panels = ['upload','history','report','search','export'];
+    t.classList.toggle('active', panels[i]===name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id===`tab-${name}`);
+  });
+  if (name==='report') renderReport();
 }
 
 // INIT
@@ -298,122 +423,197 @@ function init() {
 }
 function updateBadge() {
   document.getElementById('cur-month-badge').textContent =
-    document.getElementById('month-picker').value || '—';
+    document.getElementById('month-picker').value||'—';
 }
-document.getElementById('month-picker').addEventListener('change', () => {
+document.getElementById('month-picker').addEventListener('change', ()=>{
   updateBadge();
-  if (parsed.length) analyze();
+  if (queue.length) analyzeQueue();
 });
 
-// FILE
-const dz = document.getElementById('drop-zone');
+// FILE HANDLING — BATCH
+const bz = document.getElementById('batch-zone');
 const fi = document.getElementById('file-input');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
-fi.addEventListener('change', e => { const f=e.target.files[0]; if(f) handleFile(f); });
+bz.addEventListener('dragover', e=>{e.preventDefault();bz.classList.add('dragover');});
+bz.addEventListener('dragleave', ()=>bz.classList.remove('dragover'));
+bz.addEventListener('drop', e=>{
+  e.preventDefault(); bz.classList.remove('dragover');
+  handleFiles([...e.dataTransfer.files]);
+});
+fi.addEventListener('change', e=>{ handleFiles([...e.target.files]); fi.value=''; });
 
-function handleFile(file) {
-  if (!file.name.match(/\.html?$/i)) { showToast('HTML файл оруулна уу', true); return; }
-  const r = new FileReader();
-  r.onload = e => {
-    parsedFile = file.name;
-    parsed = extract(e.target.result);
-    if (!parsed.length) { showToast('PRODUCTS array олдсонгүй', true); return; }
-    document.getElementById('drop-placeholder').style.display = 'none';
-    document.getElementById('file-result').classList.add('show');
-    document.getElementById('file-name-text').textContent = file.name;
-    document.getElementById('file-count-text').textContent = `${parsed.length} бараа олдлоо`;
-    dz.classList.add('has-file');
-    document.getElementById('btn-save').style.display = '';
-    document.getElementById('btn-clear').style.display = '';
-    analyze();
-  };
-  r.readAsText(file);
+function handleFiles(files) {
+  const htmlFiles = files.filter(f=>f.name.match(/\.html?$/i));
+  if (!htmlFiles.length) { showToast('HTML файл оруулна уу', true); return; }
+  let loaded = 0;
+  for (const file of htmlFiles) {
+    const r = new FileReader();
+    r.onload = e => {
+      const products = extract(e.target.result);
+      if (products.length) {
+        // Auto-detect category from filename
+        const cat = detectCategory(file.name);
+        queue.push({ name: file.name, parsed: products, category: cat, status: 'pending' });
+      }
+      loaded++;
+      if (loaded === htmlFiles.length) { renderQueue(); analyzeQueue(); }
+    };
+    r.readAsText(file);
+  }
+}
+
+function detectCategory(filename) {
+  const f = filename.toLowerCase();
+  if (f.includes('beauty')) return 'Beauty';
+  if (f.includes('home'))   return 'Home';
+  if (f.includes('health')) return 'Health';
+  if (f.includes('goods'))  return 'Goods';
+  if (f.includes('kids'))   return 'Kids';
+  return document.getElementById('cat-picker').value || 'Uncategorized';
 }
 
 function extract(html) {
   const m = html.match(/const\s+PRODUCTS\s*=\s*\[([\s\S]*?)\];/);
   if (!m) return [];
-  const out = []; const re = /"([^"]+)"|'([^']+)'/g; let x;
-  while ((x = re.exec(m[1])) !== null) { const n=(x[1]||x[2]).trim(); if(n) out.push(n); }
+  const out=[]; const re=/"([^"]+)"|'([^']+)'/g; let x;
+  while((x=re.exec(m[1]))!==null){const n=(x[1]||x[2]).trim();if(n)out.push(n);}
   return out;
 }
 
-function clearFile() {
-  parsed = []; parsedFile = '';
-  document.getElementById('drop-placeholder').style.display = '';
-  document.getElementById('file-result').classList.remove('show');
-  dz.classList.remove('has-file');
-  document.getElementById('parse-preview').classList.remove('show');
+function renderQueue() {
+  if (!queue.length) return;
+  const month = document.getElementById('month-picker').value;
+  document.getElementById('file-queue').classList.add('show');
+  document.getElementById('queue-count').textContent = queue.length;
+  document.getElementById('queue-total').textContent = queue.reduce((s,q)=>s+q.parsed.length,0);
+  document.getElementById('btn-save').style.display = '';
+  document.getElementById('btn-clear').style.display = '';
+
+  document.getElementById('queue-items').innerHTML = queue.map((q,i) => {
+    const saved = getSaved(month, q.name);
+    const toIns = q.parsed.filter(p=>!saved.has(p));
+    const statusTxt = q.status==='done' ? '✓ Хадгалагдлаа' : `+${toIns.length} шинэ`;
+    const statusCls = q.status==='done' ? 'done' : 'new';
+    return `<div class="queue-item">
+      <span class="qi-icon">📄</span>
+      <span class="qi-name">${q.name}</span>
+      <span class="qi-count">${q.parsed.length} бараа</span>
+      <span class="qi-cat">
+        <select class="cat-select" style="font-size:10px;padding:4px 8px"
+          onchange="queue[${i}].category=this.value;analyzeQueue()">
+          ${['Beauty','Home','Health','Goods','Kids','Uncategorized'].map(c=>
+            `<option value="${c}" ${c===q.category?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </span>
+      <span class="qi-status ${statusCls}">${statusTxt}</span>
+    </div>`;
+  }).join('');
+}
+
+function clearQueue() {
+  queue = [];
+  document.getElementById('file-queue').classList.remove('show');
   document.getElementById('dup-alert').classList.remove('show');
   document.getElementById('btn-save').style.display = 'none';
   document.getElementById('btn-clear').style.display = 'none';
-  fi.value = '';
+  document.getElementById('queue-items').innerHTML = '';
 }
 
-// ANALYZE
+// ANALYZE — cross-check all uploads + queue
 function buildDupMap(excludeKey) {
   const map = {};
   for (const u of uploads) {
-    if (`${u.month}||${u.source_file}` === excludeKey) continue;
-    u.products.forEach(n => {
-      if (!map[n]) map[n] = [];
-      map[n].push(`${u.month} · ${u.source_file}`);
-    });
+    if (`${u.month}||${u.source_file}`===excludeKey) continue;
+    u.products.forEach(n=>{if(!map[n])map[n]=[];map[n].push(`${u.month} · ${u.source_file} [${u.category}]`);});
   }
   return map;
 }
 
 function getSaved(month, file) {
   const s = new Set();
-  for (const u of uploads)
-    if (u.month===month && u.source_file===file) u.products.forEach(n => s.add(n));
+  for (const u of uploads) if (u.month===month&&u.source_file===file) u.products.forEach(n=>s.add(n));
   return s;
 }
 
-function analyze() {
+function analyzeQueue() {
   const month = document.getElementById('month-picker').value;
-  if (!month) return;
-  const key   = `${month}||${parsedFile}`;
-  const saved = getSaved(month, parsedFile);
-  const dupMap = buildDupMap(key);
+  if (!month||!queue.length) return;
+  renderQueue();
 
-  const newArr   = parsed.filter(p => !saved.has(p) && !dupMap[p]);
-  const dupArr   = parsed.filter(p => !saved.has(p) &&  dupMap[p]);
-  const savedArr = parsed.filter(p =>  saved.has(p));
+  // Collect all dups across queue files
+  let allDups = [], allDupMap = {};
+  for (const q of queue) {
+    const saved = getSaved(month, q.name);
+    const dupMap = buildDupMap(`${month}||${q.name}`);
+    const dups = q.parsed.filter(p=>!saved.has(p)&&dupMap[p]);
+    dups.forEach(p=>{
+      if (!allDupMap[p]) allDupMap[p]=[];
+      allDupMap[p].push(...(dupMap[p]||[]));
+      if (!allDups.includes(p)) allDups.push(p);
+    });
+  }
+  currentDups = allDups; currentDupMap = allDupMap;
 
-  document.getElementById('prev-count').innerHTML = `${parsed.length} <span>бараа</span>`;
-  document.getElementById('prev-new').textContent   = `✦ ${newArr.length} шинэ`;
-  document.getElementById('prev-dup').textContent   = dupArr.length   ? `⚠ ${dupArr.length} давхцсан` : '';
-  document.getElementById('prev-saved').textContent = savedArr.length ? `✓ ${savedArr.length} аль хэдийн байгаа` : '';
-
-  document.getElementById('preview-tags').innerHTML = parsed.map(p => {
-    if (saved.has(p))  return `<span class="tag saved" title="Аль хэдийн хадгалагдсан">${p}</span>`;
-    if (dupMap[p])     return `<span class="tag dup" title="${dupMap[p].join(' | ')}">${p}</span>`;
-    return `<span class="tag new">${p}</span>`;
-  }).join('');
-  document.getElementById('parse-preview').classList.add('show');
-
-  currentDups = dupArr; currentDupMap = dupMap;
   const panel = document.getElementById('dup-alert');
-  if (!dupArr.length) { panel.classList.remove('show'); return; }
-  document.getElementById('dup-alert-meta').textContent = `${dupArr.length} бараа`;
-  document.getElementById('dup-alert-body').innerHTML = dupArr.map(n =>
+  if (!allDups.length) { panel.classList.remove('show'); return; }
+  document.getElementById('dup-alert-meta').textContent = `${allDups.length} бараа`;
+  document.getElementById('dup-alert-body').innerHTML = allDups.map(n=>
     `<div class="dup-item">
       <span class="dup-name">${n}</span>
-      <div class="dup-months">${(dupMap[n]||[]).map(m=>`<span class="dup-month-tag">${m}</span>`).join('')}</div>
+      <div class="dup-months">${(allDupMap[n]||[]).map(m=>`<span class="dup-month-tag">${m}</span>`).join('')}</div>
     </div>`).join('');
   panel.classList.add('show');
 }
 
-// COPY UTIL
+// SAVE ALL
+async function saveAll() {
+  const month = document.getElementById('month-picker').value;
+  if (!month) { showToast('Сар сонгоно уу', true); return; }
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  setSS('loading','Хадгалж байна...');
+  let totalSaved = 0;
+
+  for (let qi=0; qi<queue.length; qi++) {
+    const q = queue[qi];
+    if (q.status==='done') continue;
+    const saved = getSaved(month, q.name);
+    const toIns = q.parsed.filter(p=>!saved.has(p));
+    if (!toIns.length) { queue[qi].status='done'; continue; }
+
+    try {
+      const rows = toIns.map(n=>({month, source_file:q.name, category:q.category, product_name:n}));
+      for (let i=0;i<rows.length;i+=200) {
+        const res = await fetch(`${SB_URL}/rest/v1/drop_tracker`,{
+          method:'POST', headers:{...H,'Prefer':'return=minimal'},
+          body:JSON.stringify(rows.slice(i,i+200))
+        });
+        if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+      }
+      let u = uploads.find(u=>u.month===month&&u.source_file===q.name);
+      if (!u) { u={month,source_file:q.name,category:q.category,products:new Set()}; uploads.push(u); }
+      toIns.forEach(n=>u.products.add(n));
+      queue[qi].status = 'done';
+      totalSaved += toIns.length;
+    } catch(e) {
+      showToast(`${q.name} алдаа: `+e.message.slice(0,80), true);
+      console.error(e);
+    }
+  }
+
+  setSS('ok', `${totalSaved} бараа хадгалагдлаа`);
+  showToast(`✓ ${queue.filter(q=>q.status==='done').length} файл · ${totalSaved} бараа`);
+  renderQueue();
+  renderStats(); renderHistory(); renderReport(); renderCatExport();
+  btn.disabled = false;
+}
+
+// COPY
 function cp(text, msg) {
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(() => showToast(msg));
+  if (navigator.clipboard&&window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(()=>showToast(msg));
   } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.cssText='position:fixed;left:-9999px;opacity:0';
     document.body.appendChild(ta); ta.focus(); ta.select();
     document.execCommand('copy'); document.body.removeChild(ta);
     showToast(msg);
@@ -421,116 +621,86 @@ function cp(text, msg) {
 }
 function copyDupNames() {
   if (!currentDups.length) return;
-  cp(currentDups.join('\n'), `${currentDups.length} бараа copied`);
-  const b = document.getElementById('copy-names-btn');
+  cp(currentDups.join('\n'),`${currentDups.length} бараа copied`);
+  const b=document.getElementById('copy-names-btn');
   b.textContent='✓ Copied!'; b.classList.add('copied');
-  setTimeout(()=>{ b.textContent='📋 Нэрийг copy'; b.classList.remove('copied'); },1800);
+  setTimeout(()=>{b.textContent='📋 Нэрийг copy';b.classList.remove('copied');},1800);
 }
 function copyDupDetail() {
   if (!currentDups.length) return;
-  cp(currentDups.map(n=>`${n} → ${(currentDupMap[n]||[]).join(' | ')}`).join('\n'), `${currentDups.length} мөр copied`);
-}
-
-// SAVE
-async function saveCurrentDrop() {
-  const month = document.getElementById('month-picker').value;
-  if (!month || !parsed.length) return;
-  const saved = getSaved(month, parsedFile);
-  const toIns = parsed.filter(p => !saved.has(p));
-  if (!toIns.length) { showToast('Бүх бараа аль хэдийн байна'); return; }
-
-  setSS('loading','Хадгалж байна...');
-  document.getElementById('btn-save').disabled = true;
-  try {
-    const rows = toIns.map(n => ({ month, source_file: parsedFile, product_name: n }));
-    for (let i=0; i<rows.length; i+=200) {
-      const res = await fetch(`${SB_URL}/rest/v1/drop_tracker`, {
-        method:'POST',
-        headers:{...H,'Prefer':'return=minimal'},
-        body: JSON.stringify(rows.slice(i,i+200))
-      });
-      if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
-    }
-    let u = uploads.find(u=>u.month===month&&u.source_file===parsedFile);
-    if (!u) { u={month,source_file:parsedFile,products:new Set()}; uploads.push(u); }
-    toIns.forEach(n=>u.products.add(n));
-    setSS('ok',`${u.products.size} бараа`);
-    showToast(`✓ ${parsedFile} · ${toIns.length} бараа хадгалагдлаа`);
-    clearFile(); renderStats(); renderHistory();
-  } catch(e) {
-    setSS('err','Алдаа');
-    showToast('Алдаа: '+e.message.slice(0,120), true);
-    console.error(e);
-  } finally { document.getElementById('btn-save').disabled=false; }
-}
-
-async function deleteUpload(month, file) {
-  if (!confirm(`"${file}" (${month}) устгах уу?`)) return;
-  setSS('loading','Устгаж байна...');
-  try {
-    await sb(`drop_tracker?month=eq.${month}&source_file=eq.${encodeURIComponent(file)}`,{method:'DELETE'});
-    uploads = uploads.filter(u=>!(u.month===month&&u.source_file===file));
-    setSS('ok','Устгагдлаа'); showToast(`${file} устгагдлаа`);
-    renderStats(); renderHistory();
-  } catch(e) { setSS('err','Устгах алдаа'); showToast('Устгах алдаа: '+e.message,true); }
+  cp(currentDups.map(n=>`${n} → ${(currentDupMap[n]||[]).join(' | ')}`).join('\n'),`${currentDups.length} мөр copied`);
 }
 
 // STATS
 function renderStats() {
-  const all = new Set();
-  const cnt = {};
-  for (const u of uploads) u.products.forEach(n=>{all.add(n);cnt[n]=(cnt[n]||0)+1;});
-  const dups = Object.values(cnt).filter(c=>c>1).length;
-  const last = uploads.at(-1);
+  const all=new Set(), cnt={}, cats=new Set();
+  for (const u of uploads) {
+    cats.add(u.category);
+    u.products.forEach(n=>{all.add(n);cnt[n]=(cnt[n]||0)+1;});
+  }
+  const dups=Object.values(cnt).filter(c=>c>1).length;
+  const last=uploads.at(-1);
   document.getElementById('stat-total').textContent   = all.size;
   document.getElementById('stat-uploads').textContent = uploads.length;
   document.getElementById('stat-dups').textContent    = dups;
-  document.getElementById('stat-last').textContent    = last ? last.products.size : '—';
+  document.getElementById('stat-cats').textContent    = cats.size;
+  document.getElementById('stat-last').textContent    = last?last.products.size:'—';
 }
 
 // HISTORY
+function filterHistory(cat, btn) {
+  historyFilter = cat;
+  document.querySelectorAll('#history-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
 function renderHistory() {
   const con = document.getElementById('history-container');
-  if (!uploads.length) {
-    con.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Одоохондоо хоосон — эхний drop-оо оруул</div></div>`;
+  const filtered = historyFilter==='ALL' ? uploads :
+    uploads.filter(u=>u.category===historyFilter);
+
+  if (!filtered.length) {
+    con.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Хоосон байна</div></div>`;
     return;
   }
-  // product → list of "month|file" keys
-  const pkm = {};
+
+  const pkm={};
   for (const u of uploads) u.products.forEach(n=>{
-    if(!pkm[n]) pkm[n]=[];
+    if(!pkm[n])pkm[n]=[];
     pkm[n].push(`${u.month}|${u.source_file}`);
   });
 
-  const sorted = [...uploads].sort((a,b)=>
-    b.month!==a.month ? b.month.localeCompare(a.month) : b.source_file.localeCompare(a.source_file));
+  const sorted=[...filtered].sort((a,b)=>
+    b.month!==a.month?b.month.localeCompare(a.month):b.source_file.localeCompare(a.source_file));
 
-  let html = `<table class="history-table"><thead><tr>
-    <th>Сар</th><th>Файл</th><th>Бараа</th><th>Шинэ</th><th>Давхцсан</th><th>Үйлдэл</th>
+  let html=`<table class="history-table"><thead><tr>
+    <th>Сар</th><th>Файл</th><th>Category</th><th>Бараа</th><th>Шинэ</th><th>Давхцсан</th><th>Үйлдэл</th>
   </tr></thead><tbody>`;
 
   sorted.forEach((u,i)=>{
-    const names = [...u.products].sort();
-    const myKey = `${u.month}|${u.source_file}`;
-    const dups  = names.filter(n=>pkm[n].length>1);
-    const news  = names.filter(n=>pkm[n].length===1);
-    const eid   = `exp${i}`;
-    const sf    = u.source_file.replace(/'/g,"\\'");
+    const names=[...u.products].sort();
+    const myKey=`${u.month}|${u.source_file}`;
+    const dups=names.filter(n=>pkm[n].length>1);
+    const news=names.filter(n=>pkm[n].length===1);
+    const eid=`exp${i}`;
+    const sf=u.source_file.replace(/'/g,"\\'");
 
-    html += `<tr class="data-row">
+    html+=`<tr class="data-row">
       <td class="month-col">${u.month}</td>
       <td class="file-col" title="${u.source_file}">${u.source_file}</td>
+      <td><span class="cat-badge cat-${u.category}">${u.category}</span></td>
       <td class="count-col">${names.length}</td>
       <td><span style="color:var(--accent);font-size:12px">${news.length}</span></td>
       <td class="dup-col">${dups.length?dups.length+' ↗':'—'}</td>
       <td class="actions-col">
         <button class="btn-sm" onclick="toggleExp('${eid}')">Харах</button>
-        <button class="btn-sm copy" id="cb${i}" onclick="copyNames(${i})">📋 Copy</button>
+        <button class="btn-sm copy" id="cb${i}" onclick="copyUpload(${i})">📋 Copy</button>
         <button class="btn-sm del" onclick="deleteUpload('${u.month}','${sf}')">Устгах</button>
       </td>
     </tr>
     <tr class="expanded-row" id="${eid}">
-      <td colspan="6" class="expanded-cell">
+      <td colspan="7" class="expanded-cell">
         <div class="expanded-inner">
           <div class="exp-tags">${names.map(n=>{
             const d=pkm[n].length>1;
@@ -538,58 +708,291 @@ function renderHistory() {
             return `<span class="tag ${d?'dup':'new'}" title="${d?'Давхцсан: '+o.join(' | '):'Шинэ'}">${n}</span>`;
           }).join('')}</div>
           <div class="exp-actions">
-            <button class="btn-sm copy" id="cb2${i}" onclick="copyNames(${i})">📋 Бүгдийг copy</button>
-            <button class="btn-sm copy" onclick="copyDups(${i})">📋 Давхцсаныг copy</button>
+            <button class="btn-sm copy" id="cb2${i}" onclick="copyUpload(${i})">📋 Бүгдийг copy</button>
+            <button class="btn-sm copy" onclick="copyUploadDups(${i})">📋 Давхцсаныг copy</button>
           </div>
         </div>
       </td>
     </tr>`;
   });
 
-  html += '</tbody></table>';
-  con.innerHTML = html;
-  window._su = sorted;
-  window._pkm = pkm;
+  html+='</tbody></table>';
+  con.innerHTML=html;
+  window._su=sorted; window._pkm=pkm;
 }
 
-function toggleExp(id) { const e=document.getElementById(id); if(e) e.classList.toggle('show'); }
+function toggleExp(id){const e=document.getElementById(id);if(e)e.classList.toggle('show');}
 
-function copyNames(i) {
+function copyUpload(i) {
   const u=window._su[i]; if(!u) return;
-  cp([...u.products].sort().join('\n'), `${u.products.size} бараа copied`);
+  cp([...u.products].sort().join('\n'),`${u.products.size} бараа copied`);
   [`cb${i}`,`cb2${i}`].forEach(id=>{
-    const b=document.getElementById(id);
-    if(!b) return;
-    const orig=b.textContent;
-    b.textContent='✓ Copied!'; b.classList.add('copied');
+    const b=document.getElementById(id); if(!b) return;
+    const orig=b.textContent; b.textContent='✓ Copied!'; b.classList.add('copied');
     setTimeout(()=>{b.textContent=orig;b.classList.remove('copied');},1800);
   });
 }
 
-function copyDups(i) {
-  const u=window._su[i]; const pkm=window._pkm; if(!u||!pkm) return;
+function copyUploadDups(i) {
+  const u=window._su[i],pkm=window._pkm; if(!u||!pkm) return;
   const d=[...u.products].filter(n=>pkm[n].length>1).sort();
   if(!d.length){showToast('Давхцсан бараа байхгүй');return;}
-  cp(d.join('\n'), `${d.length} давхцсан бараа copied`);
+  cp(d.join('\n'),`${d.length} давхцсан бараа copied`);
 }
 
-// SEARCH
+async function deleteUpload(month,file) {
+  if(!confirm(`"${file}" (${month}) устгах уу?`)) return;
+  setSS('loading','Устгаж байна...');
+  try {
+    await sb(`drop_tracker?month=eq.${month}&source_file=eq.${encodeURIComponent(file)}`,{method:'DELETE'});
+    uploads=uploads.filter(u=>!(u.month===month&&u.source_file===file));
+    setSS('ok','Устгагдлаа'); showToast(`${file} устгагдлаа`);
+    renderStats(); renderHistory(); renderReport(); renderCatExport();
+  } catch(e){setSS('err','Алдаа');showToast('Устгах алдаа: '+e.message,true);}
+}
+
+// REPORT (2) — cross-category dup analysis
+function renderReport() {
+  const con = document.getElementById('report-container');
+  if (!uploads.length) {
+    con.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Өгөгдөл байхгүй</div></div>`;
+    return;
+  }
+
+  // Build product→[{category,month,file}] map
+  const prodMap={};
+  for (const u of uploads) u.products.forEach(n=>{
+    if(!prodMap[n])prodMap[n]=[];
+    prodMap[n].push({category:u.category,month:u.month,file:u.source_file});
+  });
+
+  // All dups
+  const allDups=Object.entries(prodMap).filter(([,v])=>v.length>1);
+  // Cross-category dups
+  const crossDups=allDups.filter(([,v])=>{
+    const cats=new Set(v.map(x=>x.category));
+    return cats.size>1;
+  });
+  // Same-category dups
+  const sameDups=allDups.filter(([,v])=>{
+    const cats=new Set(v.map(x=>x.category));
+    return cats.size===1;
+  });
+
+  // Category pair counts
+  const pairCounts={};
+  for (const [,v] of crossDups) {
+    const cats=[...new Set(v.map(x=>x.category))].sort();
+    for (let a=0;a<cats.length;a++) for (let b=a+1;b<cats.length;b++) {
+      const key=`${cats[a]} × ${cats[b]}`;
+      pairCounts[key]=(pairCounts[key]||0)+1;
+    }
+  }
+  const pairsSorted=Object.entries(pairCounts).sort((a,b)=>b[1]-a[1]);
+
+  // Category stats
+  const catStats={};
+  for (const u of uploads) {
+    if(!catStats[u.category])catStats[u.category]={total:0,dups:0};
+    catStats[u.category].total+=u.products.size;
+  }
+  for (const [n,v] of Object.entries(prodMap)) {
+    if(v.length>1) v.forEach(x=>{if(catStats[x.category])catStats[x.category].dups++;});
+  }
+
+  let html=`<div class="report-grid">`;
+
+  // Summary cards
+  html+=`<div class="report-card">
+    <div class="report-card-title">📊 Нийт дүн</div>
+    <div class="report-num">${allDups.length}</div>
+    <div class="report-sub">Нийт давхцсан бараа</div>
+    <div class="report-pairs" style="margin-top:12px">
+      <div class="report-pair"><span>Cross-category давхцал</span><span class="pair-count">${crossDups.length}</span></div>
+      <div class="report-pair"><span>Same-category давхцал</span><span class="pair-count">${sameDups.length}</span></div>
+    </div>
+  </div>`;
+
+  // Cross-category pairs
+  if (pairsSorted.length) {
+    html+=`<div class="report-card">
+      <div class="report-card-title">🔀 Category хоорондын давхцал</div>
+      <div class="report-pairs">
+        ${pairsSorted.map(([k,v])=>`<div class="report-pair">
+          <span class="pair-cats">${k}</span>
+          <span class="pair-count">${v}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Per category
+  html+=`<div class="report-card">
+    <div class="report-card-title">🗂️ Category дүн</div>
+    <div class="report-pairs">
+      ${Object.entries(catStats).map(([cat,s])=>`
+      <div class="report-pair">
+        <span><span class="cat-badge cat-${cat}" style="margin-right:6px">${cat}</span></span>
+        <span style="font-size:11px;color:var(--muted)">${s.total} бараа · <span style="color:var(--accent2)">${s.dups} давхцал</span></span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  html+='</div>';
+
+  // Cross-category dup list
+  if (crossDups.length) {
+    html+=`<div style="margin-top:8px">
+      <div class="section-title" style="margin-bottom:12px">Cross-category давхцсан бараанууд
+        <button class="btn-sm copy" style="margin-left:12px" onclick="copyCrossDups()">📋 Бүгдийг copy</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${crossDups.map(([n,v])=>{
+          const cats=[...new Set(v.map(x=>x.category))].join(' × ');
+          return `<span class="tag dup" title="${cats}">${n}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  con.innerHTML=html;
+  window._crossDups=crossDups;
+}
+
+function copyCrossDups() {
+  if(!window._crossDups||!window._crossDups.length) return;
+  const lines=window._crossDups.map(([n,v])=>{
+    const cats=[...new Set(v.map(x=>x.category))].join(' × ');
+    return `${n} → ${cats}`;
+  });
+  cp(lines.join('\n'),`${lines.length} cross-category давхцал copied`);
+}
+
+// SEARCH (5) — with dup highlighting
+function setSearchFilter(f) {
+  searchFilter=f;
+  document.getElementById('sf-all').classList.toggle('active',f==='all');
+  document.getElementById('sf-dup').classList.toggle('active',f==='dup');
+  doSearch(document.getElementById('search-input').value);
+}
+
 function doSearch(q) {
   const con=document.getElementById('search-results');
-  if(!q.trim()){con.classList.remove('show');return;}
-  const lo=q.toLowerCase(), res=[];
-  for(const u of uploads) u.products.forEach(n=>{if(n.toLowerCase().includes(lo)) res.push({name:n,month:u.month,file:u.source_file});});
-  if(!res.length){
-    con.innerHTML=`<div style="padding:12px;font-size:11px;color:var(--muted);letter-spacing:.1em">Олдсонгүй</div>`;
-    con.classList.add('show');return;
+  // Build global dup map
+  const pkm={};
+  for (const u of uploads) u.products.forEach(n=>{
+    if(!pkm[n])pkm[n]=[];
+    pkm[n].push({month:u.month,file:u.source_file,category:u.category});
+  });
+
+  if (!q.trim()) {
+    // Show all dups if filter=dup, else hint
+    if (searchFilter==='dup') {
+      const dups=Object.entries(pkm).filter(([,v])=>v.length>1);
+      if (!dups.length){con.innerHTML=`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center">Давхцсан бараа байхгүй</div>`;return;}
+      con.innerHTML=dups.sort((a,b)=>a[0].localeCompare(b[0])).map(([n,v])=>renderSearchItem(n,v)).join('');
+    } else {
+      con.innerHTML=`<div style="padding:20px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.1em">Бараа хайх...</div>`;
+    }
+    con.classList.add('show'); return;
   }
-  res.sort((a,b)=>b.month.localeCompare(a.month));
-  con.innerHTML=res.map(r=>`<div class="search-item">
-    <span class="si-name">${r.name}</span>
-    <span class="si-file">${r.file}</span>
-    <span class="si-month">${r.month}</span>
-  </div>`).join('');
+
+  const lo=q.toLowerCase();
+  let results=[];
+  for (const [name,locs] of Object.entries(pkm)) {
+    if (!name.toLowerCase().includes(lo)) continue;
+    if (searchFilter==='dup'&&locs.length<2) continue;
+    results.push([name,locs]);
+  }
+
+  if (!results.length) {
+    con.innerHTML=`<div style="padding:12px;font-size:11px;color:var(--muted);letter-spacing:.1em">Олдсонгүй</div>`;
+    con.classList.add('show'); return;
+  }
+
+  results.sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]));
+  con.innerHTML=results.map(([n,v])=>renderSearchItem(n,v)).join('');
   con.classList.add('show');
+}
+
+function renderSearchItem(name,locs) {
+  const isDup=locs.length>1;
+  return locs.map(l=>`<div class="search-item">
+    <span class="si-name">${name}</span>
+    ${isDup?`<span class="si-dup-badge">⚠ ${locs.length}x давхцал</span>`:''}
+    <span class="cat-badge cat-${l.category}" style="font-size:9px">${l.category}</span>
+    <span class="si-file">${l.file}</span>
+    <span class="si-month">${l.month}</span>
+  </div>`).join('');
+}
+
+// EXPORT (4)
+function downloadFile(content, filename, type='text/csv') {
+  const blob=new Blob(['\ufeff'+content],{type});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+}
+
+function exportCSV(mode) {
+  const pkm={};
+  for (const u of uploads) u.products.forEach(n=>{
+    if(!pkm[n])pkm[n]=[];
+    pkm[n].push({month:u.month,file:u.source_file,category:u.category});
+  });
+
+  let rows=[['Product Name','Category','Month','Source File','Dup Count']];
+  for (const [name,locs] of Object.entries(pkm)) {
+    if (mode==='dups'&&locs.length<2) continue;
+    locs.forEach(l=>rows.push([name,l.category,l.month,l.file,locs.length]));
+  }
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const suffix=mode==='dups'?'duplicates':'all';
+  downloadFile(csv,`droptrack_${suffix}_${new Date().toISOString().slice(0,10)}.csv`);
+  showToast(`CSV татагдлаа — ${rows.length-1} мөр`);
+}
+
+function exportByCategory() {
+  const byCat={};
+  for (const u of uploads) u.products.forEach(n=>{
+    if(!byCat[u.category])byCat[u.category]=[];
+    byCat[u.category].push({name:n,month:u.month,file:u.source_file});
+  });
+  for (const [cat,items] of Object.entries(byCat)) {
+    const rows=[['Product Name','Month','Source File'],...items.map(i=>[i.name,i.month,i.file])];
+    const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+    downloadFile(csv,`droptrack_${cat}_${new Date().toISOString().slice(0,10)}.csv`);
+  }
+  showToast(`${Object.keys(byCat).length} category CSV татагдлаа`);
+}
+
+function exportTXT(mode) {
+  const all=new Set();
+  for (const u of uploads) u.products.forEach(n=>all.add(n));
+  downloadFile([...all].sort().join('\n'),`droptrack_names_${new Date().toISOString().slice(0,10)}.txt`,'text/plain');
+  showToast(`${all.size} бараа TXT татагдлаа`);
+}
+
+function exportJSON() {
+  const data=uploads.map(u=>({month:u.month,source_file:u.source_file,category:u.category,products:[...u.products]}));
+  downloadFile(JSON.stringify(data,null,2),`droptrack_backup_${new Date().toISOString().slice(0,10)}.json`,'application/json');
+  showToast('JSON backup татагдлаа');
+}
+
+function renderCatExport() {
+  const cats=[...new Set(uploads.map(u=>u.category))].sort();
+  document.getElementById('cat-export-grid').innerHTML=cats.map(cat=>`
+    <button class="export-btn" onclick="exportCatNames('${cat}')">
+      <span class="eb-icon"><span class="cat-badge cat-${cat}">${cat}</span></span>
+      Нэрсийн жагсаалт
+      <span class="eb-label">${uploads.filter(u=>u.category===cat).reduce((s,u)=>s+u.products.size,0)} бараа</span>
+    </button>`).join('');
+}
+
+function exportCatNames(cat) {
+  const names=new Set();
+  for (const u of uploads) if (u.category===cat) u.products.forEach(n=>names.add(n));
+  downloadFile([...names].sort().join('\n'),`${cat}_products_${new Date().toISOString().slice(0,10)}.txt`,'text/plain');
+  showToast(`${cat}: ${names.size} бараа TXT татагдлаа`);
 }
 
 // TOAST
