@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productdrop.mn — Shift Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --card: #151517;
+  --border: #1e1e22;
+  --border-h: #2a2a30;
+  --text: #e4e2dc;
+  --muted: #6b6978;
+  --dim: #3d3b45;
+  --accent: #c8ff00;
+  --accent-dim: rgba(200,255,0,.08);
+  --accent-mid: rgba(200,255,0,.15);
+  --red: #ff4d4f;
+  --red-dim: rgba(255,77,79,.1);
+  --orange: #ff9f43;
+  --orange-dim: rgba(255,159,67,.1);
+  --blue: #5b9aff;
+  --blue-dim: rgba(91,154,255,.1);
+  --green: #4cd9a0;
+  --green-dim: rgba(76,217,160,.1);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,.1);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', -apple-system, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* LAYOUT */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px 100px;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 60px 0 50px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 50px;
+}
+.header-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.header h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.header h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.header-sub {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 500px;
+  margin: 0 auto;
+}
+.header-meta {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+}
+.header-meta span { display: flex; align-items: center; gap: 6px; }
+.header-meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* NAV */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,11,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  overflow-x: auto;
+  display: flex;
+  gap: 4px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav a {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.nav a:hover, .nav a.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* SECTIONS */
+.section {
+  margin-top: 60px;
+}
+.section-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.section h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.section-desc {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border-h); }
+.card-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.card-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.card-body strong { color: var(--text); font-weight: 600; }
+
+/* SHIFT COMPARISON */
+.shift-grid {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.shift-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.shift-box.old { opacity: .5; }
+.shift-box .sb-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.shift-box .sb-tag.old-tag { color: var(--red); }
+.shift-box .sb-tag.new-tag { color: var(--accent); }
+.shift-box ul {
+  list-style: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+.shift-box ul li {
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+}
+.shift-box.old ul li::before { content: '✕'; position: absolute; left: 0; color: var(--red); font-size: 11px; }
+.shift-box.new ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 11px; }
+.shift-arrow {
+  text-align: center;
+  font-size: 20px;
+  color: var(--dim);
+}
+
+/* FUNNEL STAGES */
+.funnel-stage {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.funnel-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.funnel-header:hover { background: rgba(255,255,255,.02); }
+.funnel-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.funnel-header-text { flex: 1; }
+.funnel-header-text h3 { font-size: 15px; font-weight: 700; }
+.funnel-header-text p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.funnel-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+}
+.funnel-chevron {
+  color: var(--dim);
+  transition: transform .3s;
+  font-size: 14px;
+}
+.funnel-stage.open .funnel-chevron { transform: rotate(180deg); }
+.funnel-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.funnel-stage.open .funnel-body { display: block; }
+
+/* CONTENT ITEMS */
+.content-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.content-item:last-child { border-bottom: none; }
+.ci-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  margin-bottom: 4px;
+}
+.ci-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.ci-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.ci-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.ci-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+/* TAG COLORS */
+.tag-tofu { background: var(--orange-dim); color: var(--orange); }
+.tag-mofu { background: var(--blue-dim); color: var(--blue); }
+.tag-bofu { background: var(--green-dim); color: var(--green); }
+.tag-reach { background: var(--purple-dim); color: var(--purple); }
+.tag-trust { background: var(--blue-dim); color: var(--blue); }
+.tag-convert { background: var(--green-dim); color: var(--green); }
+.tag-retain { background: var(--accent-dim); color: var(--accent); }
+
+/* TELEGRAM SECTION */
+.tg-week {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 0;
+  margin-bottom: 4px;
+}
+.tg-day {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  padding-top: 14px;
+}
+.tg-content {
+  padding: 12px 16px;
+  border-left: 2px solid var(--border);
+  font-size: 13px;
+}
+.tg-content .tg-type {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tg-content .tg-text {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* RETENTION */
+.ret-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) { .ret-grid { grid-template-columns: 1fr; } }
+.ret-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.ret-card .rc-icon {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+.ret-card .rc-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ret-card .rc-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* PRICING TABLE */
+.pricing-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) { .pricing-row { grid-template-columns: 1fr; } }
+.price-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 20px;
+  text-align: center;
+}
+.price-card.featured { border-color: var(--accent); }
+.price-card .pc-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.price-card .pc-price {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.price-card .pc-period {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.price-card ul {
+  list-style: none;
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+}
+.price-card ul li {
+  padding: 5px 0;
+  padding-left: 18px;
+  position: relative;
+}
+.price-card ul li.yes::before { content: '✓'; position: absolute; left: 0; color: var(--accent); }
+.price-card ul li.no::before { content: '—'; position: absolute; left: 0; color: var(--dim); }
+
+/* CALENDAR */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-header {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  padding: 8px 0;
+  letter-spacing: 1px;
+}
+.cal-cell {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 6px;
+  min-height: 70px;
+  font-size: 10px;
+}
+.cal-cell .cd {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+.cal-dot {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  margin-bottom: 3px;
+}
+
+/* WARNING BOX */
+.warning {
+  background: var(--red-dim);
+  border: 1px solid rgba(255,77,79,.2);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.warning .w-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.warning .w-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* INSIGHT BOX */
+.insight {
+  background: var(--accent-dim);
+  border: 1px solid rgba(200,255,0,.15);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.insight .i-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.insight .i-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+.tl-item {
+  position: relative;
+  padding-bottom: 28px;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+}
+.tl-item.done::before { background: var(--accent); }
+.tl-week {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.tl-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.tl-body {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* METRIC ROW */
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) { .metric-row { grid-template-columns: repeat(2, 1fr); } }
+.metric {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.metric .m-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.metric .m-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 40px 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .shift-grid { grid-template-columns: 1fr; }
+  .shift-arrow { transform: rotate(90deg); padding: 10px 0; }
+  .metric-row { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 20px 16px 80px; }
+  .header { padding: 40px 0 30px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-tag">Productdrop.mn — Strategy v3</div>
+  <h1>Positioning <em>Shift</em> Стратеги</h1>
+  <p class="header-sub">"Dropshipping бараа судалгаа" → "Онлайн зарах бүх зүйл нэг дор" — бүтэн шилжилтийн төлөвлөгөө</p>
+  <div class="header-meta">
+    <span><div class="dot"></div>2026.03.16</span>
+    <span>3 client · ₮150K</span>
+    <span>Drop #02 → 03.20</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#shift" class="active">Shift</a>
+  <a href="#positioning">Positioning</a>
+  <a href="#funnel">TOFU/MOFU/BOFU</a>
+  <a href="#telegram">Telegram</a>
+  <a href="#retention">Retention</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#calendar">Calendar</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#kpi">KPI</a>
+</nav>
+
+<!-- ============================================ -->
+<!-- SECTION 1: SHIFT -->
+<!-- ============================================ -->
+<div class="section" id="shift">
+  <div class="section-tag">01 · Шилжилт</div>
+  <h2>Яагаад Shift хийх вэ?</h2>
+  <p class="section-desc">Одоогийн байдал дүгнэлт ба юу өөрчлөгдөх вэ</p>
+
+  <div class="warning">
+    <div class="w-title">⚠ Бодит байдал</div>
+    <div class="w-body">
+      3 client-ийн feedback: <strong>"дажгүй"</strong> — энэ нь "сайн" биш, "renewal хийхгүй байж магадгүй" гэсэн үг. Хэн нэг нь бараа зарж эхэлсэн эсэх нь мэдэгдэхгүй. Энэ бол retention-ы хувьд шууд аюул — subscription сунгах шалтгаан одоогоор байхгүй. Shift хийхгүй бол 3 client-ийн 0 нь renewal хийнэ.
+    </div>
+  </div>
+
+  <div class="shift-grid">
+    <div class="shift-box old">
+      <div class="sb-tag old-tag">ХУУЧИН</div>
+      <ul>
+        <li>"Dropshipping бараа судалгаа"</li>
+        <li>Saturated зах зээл — 50+ хүн заадаг</li>
+        <li>Зөвхөн dropshipper-т зориулсан</li>
+        <li>"Бизнес санаа" hook → мөрөөдөгч хүн ирнэ</li>
+        <li>Database-г авчихаад дуусна</li>
+      </ul>
+    </div>
+    <div class="shift-arrow">→</div>
+    <div class="shift-box new">
+      <div class="sb-tag new-tag">ШИНЭ</div>
+      <ul>
+        <li>"Онлайн зарах бүх зүйл нэг дор"</li>
+        <li>Бараа + Ad + AI + Trend + Зөвлөгөө = бүтэн систем</li>
+        <li>Бүх seller: IG shop, TikTok, жижиг бизнес, шинэ эхлэгч</li>
+        <li>Demand өндөр — бүгд онлайн зарахыг хүсдэг</li>
+        <li>Тасралтгүй шинэчлэгддэг → retention</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="i-title">Гол зарчим</div>
+    <div class="i-body">
+      "Dropshipping" гэдэг үгийг хас. "Бараа судалгаа" гэдгийг хас. Оронд нь: <strong>"онлайн зарах"</strong>, <strong>"онлайн бизнес"</strong>, <strong>"e-commerce"</strong> гэж хэл. Чи нарийн niche биш — <strong>онлайн зарах бүх зүйлийн hub</strong>. Demand = Монголд онлайн зарахыг хүсдэг хүн бүр (маш олон).
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 2: POSITIONING -->
+<!-- ============================================ -->
+<div class="section" id="positioning">
+  <div class="section-tag">02 · Positioning</div>
+  <h2>Шинэ Байр Суурь</h2>
+  <p class="section-desc">Нарийн niche биш — онлайн зарах бүх зүйлийн нэг hub</p>
+
+  <div class="card">
+    <div class="card-label" style="color:var(--red)">ХУУЧИН POSITIONING</div>
+    <div class="card-title">"Dropshipping бараа судалгааны платформ"</div>
+    <div class="card-body">
+      <strong>Асуудал #1:</strong> "Dropshipping" = saturated, 50+ хүн заадаг, үнийн өрсөлдөөн.<br>
+      <strong>Асуудал #2:</strong> "Бараа судалгаа" = хэт нарийн. Зөвхөн бараа хайж байгаа хүнд л хамааралтай.<br>
+      <strong>Асуудал #3:</strong> Demand бага — "бараа судалгааны платформ" хайдаг хүн цөөн. "Онлайн зарах арга" хайдаг хүн олон.
+    </div>
+  </div>
+
+  <div class="card" style="border-color: var(--accent);">
+    <div class="card-label" style="color:var(--accent)">ШИНЭ POSITIONING</div>
+    <div class="card-title">"Онлайн зарах бүх зүйл — нэг дор"</div>
+    <div class="card-body">
+      <strong>Нэг өгүүлбэрт:</strong> Бараа олох + Ad явуулах + AI ашиглах + Trend мэдэх + Борлуулалт нэмэгдүүлэх — онлайн зардаг хүнд хэрэгтэй бүх зүйл нэг channel-д.<br><br>
+      <strong>Зорилтот хүн:</strong> Онлайн юм зарж байгаа эсвэл зарахыг хүсэж байгаа бүх хүн. Dropshipper, IG shop, TikTok seller, Shopee, жижиг бизнес, гэр бүлийн бизнес, шинэ эхлэгч — бүгд.<br><br>
+      <strong>Demand яагаад өндөр:</strong> Монголд олон мянган хүн онлайн зарж байна эсвэл зарахыг хүсэж байна. Тэд бүгд нэг л зүйл хайдаг: "Яаж илүү их зарах вэ?" Чи тэр асуултыг бүхэлд нь шийднэ.<br><br>
+      <strong>5 тулгуур:</strong><br>
+      🔸 <strong>Бараа</strong> — Юу зарах вэ? 10 хоног бүр 200 шинэ winning бараа<br>
+      🔸 <strong>Борлуулалт</strong> — Яаж зарах вэ? Ad, funnel, pricing, хөрвүүлэлт<br>
+      🔸 <strong>AI & Tool</strong> — Хурдан хийх арга: AI prompt, template, automation<br>
+      🔸 <strong>Trend</strong> — Юу trending байна? Долоо хоног бүрийн шинэ мэдээлэл<br>
+      🔸 <strong>Зөвлөгөө</strong> — Хаана гацсан бэ? DM support, video зааварчилгаа
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label" style="color:var(--muted)">КОНТЕНТЫН ХАМРАХ ХҮРЭЭ</div>
+    <div class="card-body">
+      <strong>Хуучин (нарийн):</strong> "Winning product олох" / "Supplier хайх" / "Бараа судалгаа"<br><br>
+      <strong>Шинэ (өргөн):</strong><br>
+      → "Энэ барааг Монголд зарвал?" — бараа<br>
+      → "Facebook ad ₮50K-р яаж эхлэх" — борлуулалт<br>
+      → "ChatGPT-р product description бичүүлэх арга" — AI<br>
+      → "Энэ долоо хоногт TikTok-д trending 3 бараа" — trend<br>
+      → "Instagram shop-оо яаж тохируулах" — зааварчилгаа<br>
+      → "Хүн ₮0-оос эхлээд сард $3,000 олж байна" — motivation<br>
+      → "Онлайн зарахад хамгийн том 5 алдаа" — мэдлэг<br><br>
+      <strong>Зарчим:</strong> Онлайн зарахтай холбоотой БҮХ зүйл чиний контент. Бараа л биш — ad, AI, trend, алдаа, зөвлөгөө, tool бүгд.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 3: FUNNEL -->
+<!-- ============================================ -->
+<div class="section" id="funnel">
+  <div class="section-tag">03 · Content Funnel</div>
+  <h2>TOFU → MOFU → BOFU</h2>
+  <p class="section-desc">Шинэ positioning: онлайн зарах бүх зүйл. TOFU = бараа + ad + AI + trend бүгд.</p>
+
+  <!-- TOFU -->
+  <div class="funnel-stage open" onclick="toggleFunnel(this)">
+    <div class="funnel-header">
+      <div class="funnel-icon" style="background:var(--orange-dim)">🎯</div>
+      <div class="funnel-header-text">
+        <h3 style="color:var(--orange)">TOFU — Reach & Awareness</h3>
+        <p>Бараа + Ad + AI + Trend — бүгд. Share, Save, Watch time-д тулгуурлана.</p>
+      </div>
+      <div class="funnel-count">8 формат</div>
+      <div class="funnel-chevron">▼</div>
+    </div>
+    <div class="funnel-body">
+
+      <div class="insight" style="margin-bottom:20px">
+        <div class="i-title">Reach механизм — Монголд</div>
+        <div class="i-body">
+          Монголд comment бичих дургүй. Тиймээс: <strong>Share</strong> (найздаа илгээх), <strong>Save</strong> (хадгалах), <strong>Watch time</strong> (дуустал үзэх) — энэ 3-т тулгуурлана. Контент зөвхөн бараа биш — ad, AI, trend, алдаа, motivation бүгд TOFU болно.
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">01</div>
+        <div class="ci-title">"Энэ барааг Монголд зарвал?" — Split screen задаргаа</div>
+        <div class="ci-desc">Дээр: бараа видео, доор: чи ярина. Бодит тоо: supplier үнэ → зарах үнэ → ашиг. Хүмүүс хадгална, найздаа илгээнэ.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">БАРАА</span>
+          <span class="ci-tag tag-reach">Share + Save</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">02</div>
+        <div class="ci-title">"₮X-д авч ₮Y-д зардаг" — Margin reveal</div>
+        <div class="ci-desc">Бараа → supplier үнэ → зарах үнэ → ашиг. 15-20 сек, визуал хүчтэй. Тоо = share.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">БАРАА</span>
+          <span class="ci-tag tag-reach">Share + Watch time</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">03</div>
+        <div class="ci-title">"Хүн __ зараад сард $X олж байна"</div>
+        <div class="ci-desc">Гадаадын бодит түүх. Motivation = хамгийн өргөн reach. Бүгд үзнэ, бүгд хадгална.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">MOTIVATION</span>
+          <span class="ci-tag tag-reach">Reach маш өндөр</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">04</div>
+        <div class="ci-title">"ChatGPT / AI-р онлайн бизнесээ хурдасгах арга"</div>
+        <div class="ci-desc">AI-р product description бичүүлэх, ad copy хийлгэх, бараа шинжилгээ хийлгэх. AI = trending сэдэв → reach маш өндөр. Монголд AI контент цөөн = gap.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">AI</span>
+          <span class="ci-tag tag-reach">Trending сэдэв</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">05</div>
+        <div class="ci-title">"Энэ долоо хоногийн trending бараа"</div>
+        <div class="ci-desc">3-5 бараа хурдан харуулна. Weekly series → хүмүүс дахин дахин ирнэ. Watch time retention өндөр.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">TREND</span>
+          <span class="ci-tag tag-reach">Watch time + Save</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">06</div>
+        <div class="ci-title">"Facebook ad ₮50K бюджетээр яаж эхлэх"</div>
+        <div class="ci-desc">Ad эхлэхэд хэдэн ₮ хэрэгтэй, юу тохируулах, юу болихгүй байх. Бодит тоо = save маш өндөр. Seller бүрт хамааралтай.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">AD / SALES</span>
+          <span class="ci-tag tag-reach">Save өндөр</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">07</div>
+        <div class="ci-title">"₮50K / ₮100K / ₮500K хөрөнгөтэй бол яг юу зарах вэ"</div>
+        <div class="ci-desc">Хүн бүр өөрийгөө нэг level-д олно → хадгална. Тоо + бодит бараа жишээтэй.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">БАРАА</span>
+          <span class="ci-tag tag-reach">Save маш өндөр</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">08</div>
+        <div class="ci-title">"Онлайн зарахад хийдэг хамгийн том 5 алдаа"</div>
+        <div class="ci-desc">Алдаа задаргаа = бүгд сонирхоно. "Би ч гэсэн ингэж хийдэг байсан" → share. Бараа, ad, pricing, хүргэлт — бүх талын алдаа.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-tofu">МЭДЛЭГ</span>
+          <span class="ci-tag tag-reach">Share + Watch time</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MOFU -->
+  <div class="funnel-stage" onclick="toggleFunnel(this)">
+    <div class="funnel-header">
+      <div class="funnel-icon" style="background:var(--blue-dim)">🔥</div>
+      <div class="funnel-header-text">
+        <h3 style="color:var(--blue)">MOFU — Trust & Follow</h3>
+        <p>"Энэ хүн мэддэг юм байна, дагая." Expertise харуулна.</p>
+      </div>
+      <div class="funnel-count">6 формат</div>
+      <div class="funnel-chevron">▼</div>
+    </div>
+    <div class="funnel-body">
+
+      <div class="content-item">
+        <div class="ci-num">01</div>
+        <div class="ci-title">"Winning product олох 3 шалгуур"</div>
+        <div class="ci-desc">Framework заана: Wow Factor + Saturation + Margin. Арга зааж байна, бараа өгөхгүй. "Яагаад" гэдгийг ойлгуулна — "юу" гэдгийг авахын тулд drop хэрэгтэй.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Framework</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">02</div>
+        <div class="ci-title">"Миний хамгийн том алдаа"</div>
+        <div class="ci-desc">Бодит түүх — "Эхний бараагаа сонгохдоо ингэж алдсан." Шударга байх → итгэл бүтээнэ. Vulnerable content = хамгийн өндөр trust.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Storytelling</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">03</div>
+        <div class="ci-title">"Энэ барааг би зарах уу? — Live шинжилгээ"</div>
+        <div class="ci-desc">Нэг бараа авч бодит цагаар 3 шалгуураар шинжилнэ. Behind the scenes → process харуулна. Хүмүүс бодит ажлыг харах дуртай.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Behind the scenes</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">04</div>
+        <div class="ci-title">"Supplier-аас хямд үнэ авах арга"</div>
+        <div class="ci-desc">1688 negotiate хийх арга, MOQ бууруулах тактик. Бодит хэрэгтэй мэдлэг → хадгалж авна → follow дарна.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Practical value</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">05</div>
+        <div class="ci-title">"Онлайн бараа зарж эхлэхэд яг хэдэн ₮ хэрэгтэй"</div>
+        <div class="ci-desc">Бодит тооцоо: бараа + хүргэлт + ad + platform шимтгэл. Хүмүүс хадгална, share хийнэ. "Энэ хүн бодитоор хийж байна" гэсэн итгэл. Positioning: "dropshipping" гэдэг үгийг хэрэглэхгүй — "онлайн бараа зарах" гэж хэл.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Save өндөр</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">06</div>
+        <div class="ci-title">"Facebook ad эхний 3 секунд яагаад бүх зүйлийг шийддэг"</div>
+        <div class="ci-desc">Ad creative задаргаа — viral болсон нэг ad-ыг задалж: hook, бүтэц, яагаад ажилласан. Seller-үүдэд шууд хэрэгтэй.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-mofu">MOFU</span>
+          <span class="ci-tag tag-trust">Ad education</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOFU -->
+  <div class="funnel-stage" onclick="toggleFunnel(this)">
+    <div class="funnel-header">
+      <div class="funnel-icon" style="background:var(--green-dim)">💰</div>
+      <div class="funnel-header-text">
+        <h3 style="color:var(--green)">BOFU — Convert & Sell</h3>
+        <p>Шууд худалдан авуулна. Urgency + Social proof.</p>
+      </div>
+      <div class="funnel-count">5 формат</div>
+      <div class="funnel-chevron">▼</div>
+    </div>
+    <div class="funnel-body">
+
+      <div class="content-item">
+        <div class="ci-num">01</div>
+        <div class="ci-title">Client үр дүн / Testimonial</div>
+        <div class="ci-desc">"Энэ хүн Drop #01-ээс бараа сонгоод зарж эхэлсэн." Social proof = хамгийн хүчтэй BOFU. <strong>⚠ Одоо бэлэн биш:</strong> 3 client-ийн хэн нь бараа зарсан нь мэдэгдэхгүй. Энэ формат ажиллахын тулд эхлээд client-тэй DM ярилц → тэдэнд бараа зарж эхлэхэд нь тусал → ТЭГЭХЭЭР Л энэ контент хий. Хуурамч testimonial = итгэл устгана.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-bofu">BOFU</span>
+          <span class="ci-tag tag-convert">Social proof</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">02</div>
+        <div class="ci-title">"₮49,900-д яг юу авах вэ" — Walkthrough</div>
+        <div class="ci-desc">Notion database screen record → бараа scroll хийж харуулна. Яг юу авахаа мэдэхээр шийдвэр гаргахад амар. Blur + reveal техник.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-bofu">BOFU</span>
+          <span class="ci-tag tag-convert">Demo</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">03</div>
+        <div class="ci-title">"80 цаг vs ₮49,900" — ROI тооцоо</div>
+        <div class="ci-desc">Бараа хайхад зарцуулах цаг vs бэлнээр авах үнэ. Логикоор buyer-ын сүүлчийн эргэлзээг арилгана. "Чиний 1 цаг ₮625 үнэтэй юу?"</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-bofu">BOFU</span>
+          <span class="ci-tag tag-convert">Logic close</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">04</div>
+        <div class="ci-title">"Drop #02 маргааш хаагдана"</div>
+        <div class="ci-desc">Urgency + deadline. "Энэ 200 бараа Drop #03-д давтагдахгүй." Хугацаа бодит байх ёстой — хуурамч FOMO ажиллахгүй.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-bofu">BOFU</span>
+          <span class="ci-tag tag-convert">Urgency</span>
+        </div>
+      </div>
+
+      <div class="content-item">
+        <div class="ci-num">05</div>
+        <div class="ci-title">"Drop #01-д байсан 3 бараа — одоо sold out"</div>
+        <div class="ci-desc">FOMO: Дараагийн drop-д хоцрохгүй байх сэдэл үүсгэнэ. <strong>⚠ Чухал:</strong> "Авсан хүмүүс зарж эхэлсэн" гэж БҮТЭЭВЭР зүйл хэлэхгүй. Зөвхөн баталгаатай зүйлийг хэл: "Drop #01 дууссан, энэ бараанууд дахин орохгүй." Хуурамч claim = итгэл устгана.</div>
+        <div class="ci-tags">
+          <span class="ci-tag tag-bofu">BOFU</span>
+          <span class="ci-tag tag-convert">FOMO</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-label" style="color:var(--accent)">КОНТЕНТ ХАРЬЦАА</div>
+    <div class="card-body">
+      <strong>Өдөр бүр 2 контент:</strong> Үүнээс 70% TOFU (reach), 20% MOFU (trust), 10% BOFU (sell)<br><br>
+      <strong>Долоо хоног (14 контент):</strong> 10 TOFU + 2–3 MOFU + 1–2 BOFU<br><br>
+      <strong>TOFU-ын хамрах хүрээ:</strong> Бараа (3-4) + AI/Tool (2) + Ad/Sales (2) + Trend/Motivation (2-3). Зөвхөн бараа биш — бүх зүйл.<br><br>
+      <strong>Зарчим:</strong> TOFU-гүй бол хэн ч ирэхгүй. MOFU-гүй бол итгэхгүй. BOFU-гүй бол авахгүй. Гурав тэнцвэртэй байна.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 4: TELEGRAM -->
+<!-- ============================================ -->
+<div class="section" id="telegram">
+  <div class="section-tag">04 · Telegram</div>
+  <h2>Subscription = Онлайн Зарах Бүтэн Систем</h2>
+  <p class="section-desc">Бараа + Борлуулалт + AI & Tool + Trend + Зөвлөгөө = Гарахын аргагүй value</p>
+
+  <div class="warning">
+    <div class="w-title">⚠ Хуучин асуудал</div>
+    <div class="w-body">
+      Client-үүд "дажгүй" гэсэн = database авчихаад юу хийхээ мэдэхгүй. <strong>Database бол түүхий мэдээлэл.</strong> Хүн бараа жагсаалт авснаар бараа зарж чаддаг болохгүй. Тэдэнд бүтэн систем хэрэгтэй: бараа сонгох → захиалах → ad явуулах → хүргэх → ашиг.
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="i-title">Шинэ positioning: "Бараа зарах бүтэн систем"</div>
+    <div class="i-body">
+      Хуучин: "200 бараа өгнө" → Шинэ: "200 бараа + тэдгээрийг зарах бүх зүйлийг өгнө." Database бол 20% нь. Үлдсэн 80% нь заах + tool + support. Энэ ялгаа = retention.
+    </div>
+  </div>
+
+  <!-- 4 PILLARS -->
+  <div class="card" style="border-color:var(--accent)">
+    <div class="card-label" style="color:var(--accent)">TELEGRAM-ЫН 5 ТУЛГУУР</div>
+    <div class="card-body" style="font-size:14px;">
+      <strong style="color:var(--orange)">① БАРАА</strong> — 10 хоног бүр 200 шинэ winning бараа (database)<br>
+      <strong style="color:var(--blue)">② БОРЛУУЛАЛТ</strong> — Ad явуулах, funnel бүтээх, хөрвүүлэлт нэмэгдүүлэх<br>
+      <strong style="color:var(--green)">③ AI & TOOL</strong> — Template, AI prompt, automation — хурдан ажиллах арга<br>
+      <strong style="color:var(--purple)">④ TREND & МЭДЭЭЛЭЛ</strong> — Trending бараа, шинэ боломж, зах зээлийн мэдээ<br>
+      <strong style="color:var(--accent)">⑤ ЗААХ & SUPPORT</strong> — Видео зааварчилгаа + DM зөвлөгөө
+    </div>
+  </div>
+
+  <!-- WEEKLY STRUCTURE -->
+  <div class="card">
+    <div class="card-label" style="color:var(--accent)">7 ХОНОГИЙН CHANNEL БҮТЭЦ</div>
+    <div class="card-body" style="padding:0">
+
+      <div class="tg-week">
+        <div class="tg-day">Дав</div>
+        <div class="tg-content">
+          <div class="tg-type" style="color:var(--orange)">📦 Бараа задаргаа + "Яаж зарах вэ" guide</div>
+          <div class="tg-text">1 winning бараа сонгоод бүтнээр задална: яагаад winning → хэнд зарах → ямар үнэтэй → ямар ad хийх → яг аль supplier-аас авах. <strong>Зүгээр тоо биш — зарах бүтэн plan.</strong></div>
+        </div>
+      </div>
+
+      <div class="tg-week">
+        <div class="tg-day">Мяг</div>
+        <div class="tg-content">
+          <div class="tg-type" style="color:var(--blue)">🎥 Видео зааварчилгаа (алхам алхмаар)</div>
+          <div class="tg-text">Screen record + voice — 3-7 минутын видео. Сэдвүүд 4 долоо хоногоор эргэлддэг:<br>
+          <strong>Week 1:</strong> Бараа сонгох — database-аас яаж шүүх, Wow Factor яаж үнэлэх<br>
+          <strong>Week 2:</strong> Supplier — 1688-д яаж хайх, мессеж яаж бичих, MOQ яаж тохирох<br>
+          <strong>Week 3:</strong> Ad — FB/IG ad хийх, creative бэлдэх, бюджет тооцоолох<br>
+          <strong>Week 4:</strong> Хүргэлт — logistics, Монгол руу яаж авчрах, зардал тооцоо</div>
+        </div>
+      </div>
+
+      <div class="tg-week">
+        <div class="tg-day">Лхг</div>
+        <div class="tg-content">
+          <div class="tg-type" style="color:var(--green)">🛠 Tool / Template Drop</div>
+          <div class="tg-text">Долоо хоног бүр 1 бэлэн tool/template өгнө. Эргэлдэх жагсаалт:<br>
+          → Ad creative template (Canva/CapCut — бэлэн загвар, зүгээр бараагаа сольж тавина)<br>
+          → Бараа шинжилгээний checklist (Wow Factor + Saturation + Margin нэг хуудсанд)<br>
+          → Supplier-д бичих template мессеж (1688, Alibaba — copy paste хийхэд бэлэн)<br>
+          → AI prompt workflow (ChatGPT/Claude-р product description, ad copy бичүүлэх prompt)</div>
+        </div>
+      </div>
+
+      <div class="tg-week">
+        <div class="tg-day">Пүр</div>
+        <div class="tg-content">
+          <div class="tg-type" style="color:var(--purple)">🔥 Trend alert + Voice зөвлөгөө</div>
+          <div class="tg-text">"Энэ долоо хоногт TikTok-д энэ бараа trending" — текст + voice message-ээр тайлбар. Voice нь илүү хувийн мэдрэмж өгнө — "найз чинь зөвлөж байна" шиг. Цаг хугацааны давуу тал = subscription-ы хамгийн том value.</div>
+        </div>
+      </div>
+
+      <div class="tg-week">
+        <div class="tg-day">Баа</div>
+        <div class="tg-content">
+          <div class="tg-type" style="color:var(--accent)">💬 Client follow-up + DM зөвлөгөө</div>
+          <div class="tg-text">Client бүртэй DM: "Энэ долоо хоногт юу хийсэн? Бараа сонгосон уу? Хаана гацсан?" Тэдний гацааг шийднэ. <strong>Voice message-ээр хариулбал хувийн зөвлөгч мэдрэмж бүтнэ.</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOOL LIBRARY -->
+  <div class="card">
+    <div class="card-label" style="color:var(--green)">🛠 TOOL & TEMPLATE САНГИЙН БҮТЭЦ</div>
+    <div class="card-body">
+      Subscriber болмогц эдгээрийг шууд авна (pinned message-д):<br><br>
+      <strong>① Ad Creative Template</strong> — Canva: 3 бэлэн загвар (carousel, single image, video thumbnail). CapCut: 2 бэлэн video template. Зүгээр бараа зургаа сольж тавина.<br><br>
+      <strong>② Бараа Шинжилгээний Checklist</strong> — Notion/Google Sheet: Wow Factor (1-5), Saturation (0-10 seller), Margin (%), Supplier бэлэн байдал — нэг хуудсанд бөглөнө.<br><br>
+      <strong>③ Supplier Мессеж Template</strong> — 1688 болон Alibaba-д бичих бэлэн мессежүүд: Үнэ асуух, MOQ тохирох, Sample захиалах, Хүргэлтийн нөхцөл — copy paste.<br><br>
+      <strong>④ AI Prompt Pack</strong> — Product description бичүүлэх, Ad copy бичүүлэх, Бараа шинжилгээ хийлгэх, Caption бичүүлэх — 8-10 бэлэн prompt.<br><br>
+      <strong>Долоо хоног бүр 1 шинэ tool нэмэгдэнэ</strong> → subscription урт байх тусам tool library өснө → гарвал алдана.
+    </div>
+  </div>
+
+  <!-- VIDEO CURRICULUM -->
+  <div class="card">
+    <div class="card-label" style="color:var(--blue)">🎥 ВИДЕО ЗААВАРЧИЛГАА — 4 ДОЛОО ХОНОГИЙН CURRICULUM</div>
+    <div class="card-body">
+      Сар бүр давтагдана — шинэ subscriber хэзээ орсон ч бүтэн cycle-ийг үзнэ:<br><br>
+      <strong style="color:var(--orange)">Week 1: Бараа сонгох</strong><br>
+      → Screen record: Database-аас яаж шүүх, Wow Factor яаж үнэлэх (5 мин)<br>
+      → Voice: "Энэ долоо хоногт миний сонгосон TOP 3 бараа ба яагаад" (2 мин)<br><br>
+      <strong style="color:var(--blue)">Week 2: Supplier & Захиалга</strong><br>
+      → Screen record: 1688-д яаж бараа хайх, supplier-д мессеж бичих (5 мин)<br>
+      → Voice: "Supplier-тай харилцахад миний хамгийн том алдаа" (2 мин)<br><br>
+      <strong style="color:var(--green)">Week 3: Ad & Marketing</strong><br>
+      → Screen record: FB Ads Manager-д campaign үүсгэх алхам алхмаар (7 мин)<br>
+      → Voice: "₮50K бюджетээр ad явуулахад анхаарах 3 зүйл" (2 мин)<br><br>
+      <strong style="color:var(--purple)">Week 4: Хүргэлт & Логистик</strong><br>
+      → Screen record: Хүргэлтийн компани сонгох, зардал тооцоолох (5 мин)<br>
+      → Voice: "Монгол руу бараа авчрах хамгийн хямд арга" (2 мин)<br><br>
+      <strong>Формат:</strong> Screen record (Loom эсвэл утасны дэлгэц бичлэг) + voice message. Засварлах шаардлагагүй — raw, бодит. Client-үүд professional видео биш <strong>бодит туршлага</strong> хайж байна.
+    </div>
+  </div>
+
+  <!-- DROP DAY BONUS -->
+  <div class="card">
+    <div class="card-label" style="color:var(--accent)">DROP ӨДРИЙН НЭМЭЛТ VALUE</div>
+    <div class="card-body">
+      <strong>① "Шилдэг 3" зөвлөмж + voice тайлбар:</strong> Drop бүрийн 200 бараанаас "Хэрэв нэг л бараа сонговол ЭНИйг сонго" — 3 бараа + яагаад гэдгийг voice message-ээр тайлбарлана.<br><br>
+      <strong>② Subscriber preview:</strong> Шинэ Drop гарахаас 24 цагийн өмнө subscriber-үүдэд preview + эхэлж авах давуу эрх.<br><br>
+      <strong>③ Client үр дүн:</strong> Бараа зарж эхэлсэн client-ийн үр дүнг channel-д нийтлэнэ (бодит болсон үед л).<br><br>
+      <strong>④ Exclusive trend:</strong> "Энэ барааг 2 долоо хоногийн дотор Монголд хэн нэг зарна — бид түрүүлж олсон."
+    </div>
+  </div>
+
+  <!-- WHY THIS WORKS -->
+  <div class="insight">
+    <div class="i-title">Яагаад энэ бүтэц retention-г өсгөх вэ?</div>
+    <div class="i-body">
+      <strong>Хуучин:</strong> Database авсан → "Дажгүй" → Дараа сар renewal хийхгүй<br><br>
+      <strong>Шинэ:</strong> Database + видео зааварчилгаа + tool + DM support → Client бодитоор бараа зарж эхэлнэ → Ашиг олно → "₮49,900 бол хямд байна" → Renewal 90%<br><br>
+      Мөн: Долоо хоног бүр шинэ tool нэмэгддэг + видео зааварчилгаа 4 долоо хоногоор эргэлддэг → Subscription урт байх тусам илүү их value хуримтлагдана → Гарвал алдана.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 5: RETENTION -->
+<!-- ============================================ -->
+<div class="section" id="retention">
+  <div class="section-tag">05 · Retention</div>
+  <h2>Яагаад Дахин Төлөх Вэ?</h2>
+  <p class="section-desc">Client subscription-аа сунгахын 5 шалтгаан</p>
+
+  <div class="ret-grid">
+    <div class="ret-card">
+      <div class="rc-icon">🔄</div>
+      <div class="rc-title">Шинэ бараа = Шинэ боломж</div>
+      <div class="rc-desc">10 хоног бүр 200 шинэ бараа. Өмнөх drop-ын бараа давтагдахгүй. Subscription зогсоовол шинэ бараа алдана. <strong>Энэ бол #1 retention хөдөлгүүр.</strong></div>
+    </div>
+    <div class="ret-card">
+      <div class="rc-icon">⏰</div>
+      <div class="rc-title">Цагийн давуу тал</div>
+      <div class="rc-desc">Trend alert + subscriber preview. Бусдаас 24-48 цагийн өмнө мэддэг → түрүүлж зарна. Subscription зогсоовол хоцорно.</div>
+    </div>
+    <div class="ret-card">
+      <div class="rc-icon">🧠</div>
+      <div class="rc-title">Зөвлөгч, жагсаалт биш</div>
+      <div class="rc-desc">Долоо хоног бүр бараа задаргаа + margin тооцоо + ad задаргаа. Database-г авчихаад "юу хийх вэ" гэж асуухгүй — бид хэлнэ.</div>
+    </div>
+    <div class="ret-card">
+      <div class="rc-icon">👥</div>
+      <div class="rc-title">Community</div>
+      <div class="rc-desc">Q&A, feedback, бусад seller-үүдийн үр дүн харах. Ганцаараа хийхгүй — хамт хийнэ гэсэн мэдрэмж. Гарвал алдана.</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="i-title">Retention-ы тооцоо</div>
+    <div class="i-body">
+      Client 1 бараа олж зарвал ₮49,900 subscription-аа яаж нөхөх вэ?<br>
+      Жишээ: ₮8,000-д авч ₮35,000-д зарна = ₮27,000 ашиг/бараа. 2 бараа зарвал subscription нөхөгдсөн.<br><br>
+      Гэхдээ одоо subscription = зөвхөн бараа биш. Ad заах, AI tool өгөх, trend мэдээлэх — <strong>бүтэн систем</strong>. Тэд нэг зүйлд л value олж байсан ч subscription-аа сунгана.<br><br>
+      <strong>Чиний ажил:</strong> Client бүрт "subscription-аа нөхөх эхний бараа"-г олж өгөх. Тэд ₮50K-г буцааж олсон гэдэгт итгэвэл дахин сунгана. <strong>Одоогийн 3 client дээр яг үүнийг хий.</strong>
+    </div>
+  </div>
+
+  <div class="warning">
+    <div class="w-title">⚠ "Дажгүй" → "Маш хэрэгтэй" болгох 3 алхам</div>
+    <div class="w-body">
+      <strong>1. Маргааш:</strong> 3 client-тэйгээ DM-ээр ярилц — "Та ямар бараа сонирхож байна? Аль барааг авч тест хийх вэ?" гэж асуу. Тэдний асуудлыг мэдэх хэрэгтэй.<br><br>
+      <strong>2. 3 хоногийн дотор:</strong> Client бүрт тусгайлан 1 бараа зөвлө — "Чиний хувьд яг ЭНЭ барааг зарвал зохистой, учир нь..." гэж бичээрэй.<br><br>
+      <strong>3. 7 хоногийн дотор:</strong> Тэд зарж эхэлсэн үү? Юу болж байна? Follow-up хий. <strong>Тэд бараа зарж ашиг олсон мөчид renewal 90% баталгаатай.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 6: PRICING -->
+<!-- ============================================ -->
+<div class="section" id="pricing">
+  <div class="section-tag">06 · Pricing</div>
+  <h2>3 Tier Бүтэц</h2>
+  <p class="section-desc">Tier бүрт яг юу багтах вэ — шинэ positioning-д зориулсан</p>
+
+  <div class="pricing-row">
+    <div class="price-card">
+      <div class="pc-name" style="color:var(--orange)">Нэг удаагийн</div>
+      <div class="pc-price" style="color:var(--orange)">₮29,900</div>
+      <div class="pc-period">Нэг Drop · нэг удаа</div>
+      <ul>
+        <li class="yes">200 бараа Notion database</li>
+        <li class="yes">Wow Factor шалгуур</li>
+        <li class="yes">Amazon Competitors</li>
+        <li class="no">Supplier холбоос</li>
+        <li class="no">Viral ad жишээ</li>
+        <li class="no">Telegram channel</li>
+        <li class="no">Trend alert</li>
+        <li class="no">"Шилдэг 3" зөвлөмж</li>
+      </ul>
+    </div>
+
+    <div class="price-card featured">
+      <div class="pc-name" style="color:var(--accent)">Сарын Sub</div>
+      <div class="pc-price" style="color:var(--accent)">₮49,900</div>
+      <div class="pc-period">Сар бүр · 3 Drop · Telegram</div>
+      <ul>
+        <li class="yes">10 хоног бүр 200 шинэ бараа</li>
+        <li class="yes">Supplier холбоос (1688 + Alibaba)</li>
+        <li class="yes">Viral ad жишээ бараа бүрт</li>
+        <li class="yes">Margin тооцоо</li>
+        <li class="yes">Telegram premium channel</li>
+        <li class="yes">Trend alert + "Шилдэг 3"</li>
+        <li class="no">1:1 зөвлөгөө</li>
+        <li class="no">Reels template + AI workflow</li>
+      </ul>
+    </div>
+
+    <div class="price-card">
+      <div class="pc-name" style="color:var(--purple)">Premium</div>
+      <div class="pc-price" style="color:var(--purple)">₮99,000</div>
+      <div class="pc-period">Сар бүр · Бүгд + 1:1</div>
+      <ul>
+        <li class="yes">₮49,900 tier-ийн бүгд</li>
+        <li class="yes">1:1 бараа зөвлөгөө (сард 2 удаа)</li>
+        <li class="yes">Reels template + AI workflow</li>
+        <li class="yes">Subscriber preview (24ц өмнө)</li>
+        <li class="yes">Тусгай бараа хүсэлт</li>
+        <li class="yes">Ad шүүмж — чиний ad-г задлаж өгнө</li>
+        <li class="yes">Нэг бараа "зарах уу үгүй юу" шинжилгээ</li>
+        <li class="yes">Priority DM хариу</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="i-title">Tier стратеги</div>
+    <div class="i-body">
+      <strong>₮29,900</strong> = "Оролт" → Хүн database-г үзээд "энэ бүтэн системтэй байвал илүү сайн" гэж бодоод ₮49,900 руу upgrade хийнэ.<br>
+      <strong>₮49,900</strong> = "Гол" → 80% client энд байна. Telegram + шинэ drop + trend alert → retention-ы хөдөлгүүр.<br>
+      <strong>₮99,000</strong> = "Premium" → Ноцтой seller-үүд. 1:1 зөвлөгөө = хамгийн өндөр retention. Цөөн хүн, гэхдээ маш тогтвортой.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 7: CONTENT CALENDAR -->
+<!-- ============================================ -->
+<div class="section" id="calendar">
+  <div class="section-tag">07 · Calendar</div>
+  <h2>7 Хоногийн Контент</h2>
+  <p class="section-desc">Өдөр бүр 2 контент. 70% TOFU / 20% MOFU / 10% BOFU</p>
+
+  <div class="card">
+    <div class="card-body" style="font-size:13px; padding:0;">
+
+      <div style="display:grid; grid-template-columns:60px 1fr 1fr; gap:1px; background:var(--border); border-radius:6px; overflow:hidden; font-size:12px;">
+
+        <!-- Header -->
+        <div style="background:var(--surface); padding:10px; font-family:var(--mono); font-size:10px; color:var(--dim);">ӨДӨР</div>
+        <div style="background:var(--surface); padding:10px; font-family:var(--mono); font-size:10px; color:var(--dim);">КОНТЕНТ #1</div>
+        <div style="background:var(--surface); padding:10px; font-family:var(--mono); font-size:10px; color:var(--dim);">КОНТЕНТ #2</div>
+
+        <!-- Даваа -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Дав</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "Монголд зарвал?" split screen</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "AI-р ad copy бичүүлэх арга"</div>
+
+        <!-- Мягмар -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Мяг</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "Хүн __ зараад $X олсон"</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--blue)">MOFU</span> Winning product 3 шалгуур</div>
+
+        <!-- Лхагва -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Лхг</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "₮X-д авч ₮Y-д зардаг" margin</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "FB ad ₮50K-р яаж эхлэх"</div>
+
+        <!-- Пүрэв -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Пүр</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "Энэ 7 хоногийн trending бараа"</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--blue)">MOFU</span> Live бараа шинжилгээ</div>
+
+        <!-- Баасан -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Баа</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "Онлайн зарахын 5 том алдаа"</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--green)">BOFU</span> "₮49,900-д юу авах вэ"</div>
+
+        <!-- Бямба -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Бям</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "₮50K/₮100K/₮500K бол юу зарах"</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--blue)">MOFU</span> "Яг хэдэн ₮ хэрэгтэй"</div>
+
+        <!-- Ням -->
+        <div style="background:var(--card); padding:10px; font-weight:600;">Ням</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--orange)">TOFU</span> "Хүн __ зараад $X олсон" #2</div>
+        <div style="background:var(--card); padding:10px;"><span style="color:var(--green)">BOFU</span> "Drop хаагдахад X цаг"</div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label" style="color:var(--muted)">ТООН ДҮГНЭЛТ</div>
+    <div class="card-body">
+      <span style="color:var(--orange)">● TOFU: 10</span> &nbsp;&nbsp;
+      <span style="color:var(--blue)">● MOFU: 3</span> &nbsp;&nbsp;
+      <span style="color:var(--green)">● BOFU: 2</span> &nbsp;&nbsp;
+      <span style="color:var(--muted)">Нийт: 14 / 7 хоног = 2/өдөр</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 8: ROADMAP -->
+<!-- ============================================ -->
+<div class="section" id="roadmap">
+  <div class="section-tag">08 · Roadmap</div>
+  <h2>Shift Хуваарь</h2>
+  <p class="section-desc">Аажмаар шилжих — algorithm болон follower-д шок өгөхгүй</p>
+
+  <div class="timeline">
+
+    <div class="tl-item done">
+      <div class="tl-week">ДОЛОО ХОНОГ 1 · 3/17–3/23</div>
+      <div class="tl-title">Холимог эхлэл</div>
+      <div class="tl-body">
+        Контентын 50% шинэ формат (split screen бараа задаргаа, margin reveal, trending бараа), 50% хуучин (бизнес санаа).<br>
+        3 client-тэй DM ярилцлага — feedback авах, бараа зөвлөх.<br>
+        Drop #02 launch (3/20).<br>
+        Telegram channel-д эхний бүтэцтэй пост оруулж эхлэх.
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">ДОЛОО ХОНОГ 2 · 3/24–3/30</div>
+      <div class="tl-title">70/30 шилжилт</div>
+      <div class="tl-body">
+        70% шинэ формат, 30% хуучин.<br>
+        "Dropshipping" гэдэг үгийг caption-аас хасч эхлэх → "онлайн бараа зарах" гэж солих.<br>
+        Telegram-д 5 пост/долоо хоног бүтэц тогтоох.<br>
+        Client-ээс эхний testimonial авах оролдлого.
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">ДОЛОО ХОНОГ 3 · 3/31–4/6</div>
+      <div class="tl-title">Бүтэн shift</div>
+      <div class="tl-body">
+        100% шинэ positioning.<br>
+        Bio шинэчлэх: "Онлайн зарах бүх зүйл нэг дор" эсвэл "Бараа + Ad + AI + Trend = Борлуулалт."<br>
+        Landing page-ын hero text шинэчлэх.<br>
+        Drop #03 launch → шинэ positioning-тэй анхны бүтэн drop.
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">ДОЛОО ХОНОГ 4+ · 4/7–</div>
+      <div class="tl-title">Систем + Scale</div>
+      <div class="tl-body">
+        Content систем тогтворжсон — batch record → 7 хоногт бэлэн.<br>
+        Retention хэмжих: хэдэн % нь subscription сунгасан?<br>
+        Сайн ажиллаж байгаа TOFU формат → paid ad руу оруулах.<br>
+        ₮99,000 tier-ийн 1:1 зөвлөгөө эхлүүлэх (хэрэв client тоо 10+ болвол).
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 9: KPI -->
+<!-- ============================================ -->
+<div class="section" id="kpi">
+  <div class="section-tag">09 · KPI</div>
+  <h2>Хянах Тоонууд</h2>
+  <p class="section-desc">Сар бүрийн зорилт</p>
+
+  <div class="metric-row">
+    <div class="metric">
+      <div class="m-val">30</div>
+      <div class="m-label">Subscriber</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">₮1.5M</div>
+      <div class="m-label">Орлого / сар</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">>50%</div>
+      <div class="m-label">Retention rate</div>
+    </div>
+    <div class="metric">
+      <div class="m-val">14</div>
+      <div class="m-label">Контент / 7 хоног</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label" style="color:var(--accent)">RETENTION ТООЦОО</div>
+    <div class="card-body">
+      <strong>Яагаад retention хамгийн чухал KPI вэ?</strong><br><br>
+      Шинэ client олох зардал (CAC) өндөр. Байгаа client-г барих зардал бараг 0.<br><br>
+      30 subscriber × ₮49,900 × 50% retention = 15 хүн × ₮49,900 = <strong>₮748,500 / сар recurring</strong><br>
+      + Шинэ subscriber нэмэгдэж байвал → сар бүр өсөх<br><br>
+      <strong>Retention 50% → 70% болговол:</strong> 21 × ₮49,900 = ₮1,047,900 / сар<br><br>
+      Retention-ы 20% нэмэлт = ₮300K нэмэлт / сар. Шинэ 6 хүн олохтой ижил.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label" style="color:var(--muted)">ХЯНАХ DASHBOARD</div>
+    <div class="card-body">
+      <strong>Долоо хоног бүр:</strong> Контент тоо (14 зорилт), TOFU reach, MOFU follow/save, BOFU DM/борлуулалт<br><br>
+      <strong>Drop бүрт:</strong> Шинэ subscriber, Retention %, Client feedback<br><br>
+      <strong>Сар бүр:</strong> Нийт subscriber, MRR (Monthly Recurring Revenue), Churn rate, CAC<br><br>
+      <strong>Хамгийн чухал нэг тоо:</strong> Client-ийн хэдэн % нь бараа зарж эхэлсэн? Энэ тоо = retention-ы урьдчилсан мэдээ. Бараа зарж байгаа хүн subscription зогсоохгүй.
+    </div>
+  </div>
+
+  <div class="warning">
+    <div class="w-title">⚠ 3 → 30 subscriber: Acquisition план дутуу</div>
+    <div class="w-body">
+      Одоо 3 client байна. Зорилт 30. 10 дахин өсгөх ёстой — энэ нь зөвхөн контент хийгээд л болохгүй.<br><br>
+      <strong>Acquisition channel-ууд (дарааллаар):</strong><br><br>
+      <strong>1. Organic Reels (3/17-аас):</strong> 14 контент/7 хоног → profile visit → bio link → landing page. Хамгийн бага зардалтай, гэхдээ удаан. Бодит хүлээлт: 1 сарын дотор 5-10 шинэ client.<br><br>
+      <strong>2. Paid Ads (Week 3+):</strong> Хамгийн сайн TOFU reel-ийг boost хийх → ₮50K/өдөр test. Бодит хүлээлт: CTR >2% бол 10-15 шинэ client/сар.<br><br>
+      <strong>3. Word of mouth:</strong> Одоогийн 3 client бараа зарж ашиг олвол → тэд найзуудадаа хэлнэ. Энэ бол хамгийн хүчтэй channel, гэхдээ эхлээд тэд амжилт олох ёстой.<br><br>
+      <strong>Бодит байдал:</strong> Зөвхөн organic-р 30-д хүрэхгүй. Paid ads + client амжилт хоёулаа хэрэгтэй.
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div style="text-align:center; padding:20px 0; font-family:var(--mono); font-size:10px; color:var(--dim); letter-spacing:2px;">
+  PRODUCTDROP.MN · SHIFT STRATEGY V3 · 2026.03.17
+</div>
+
+</div>
+
+<script>
+function toggleFunnel(el) {
+  el.classList.toggle('open');
+}
+
+// Nav active state on scroll
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav a');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 100;
+    if (pageYOffset >= top) current = s.getAttribute('id');
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
