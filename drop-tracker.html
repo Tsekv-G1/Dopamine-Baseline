@@ -858,20 +858,34 @@ function renderDupAlert(dups, dupMap, month) {
   panel.classList.add('show');
 }
 
+function copyText(text, successMsg) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => showToast(successMsg));
+  } else {
+    // Fallback: textarea trick
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(successMsg);
+  }
+}
+
 function copyDupNames() {
   if (!currentDups.length) return;
-  navigator.clipboard.writeText(currentDups.join('\n')).then(() => {
-    const btn = document.getElementById('copy-names-btn');
-    btn.textContent = '✓ Copied!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Нэрийг copy'; btn.classList.remove('copied'); }, 1800);
-    showToast(`${currentDups.length} бараа copied`);
-  });
+  const btn = document.getElementById('copy-names-btn');
+  copyText(currentDups.join('\n'), `${currentDups.length} бараа copied`);
+  btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = '📋 Нэрийг copy'; btn.classList.remove('copied'); }, 1800);
 }
 
 function copyDupList() {
   if (!currentDups.length) return;
   const text = currentDups.map(n => `${n} → ${(currentDupMap[n]||[]).join(', ')}`).join('\n');
-  navigator.clipboard.writeText(text).then(() => showToast(`Дэлгэрэнгүй ${currentDups.length} мөр copied`));
+  copyText(text, `Дэлгэрэнгүй ${currentDups.length} мөр copied`);
 }
 
 // ─── STATS ─────────────────────────────────────────────────
