@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOME — Product Research v1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0a; --bg2:#121212; --bg3:#1a1a1a;
+    --border:#222; --border2:#333;
+    --text:#f0f0f0; --muted:#777; --muted2:#3a3a3a;
+    --accent:#4fc3f7; --accent2:#ff6b35; --white:#fff;
+    --tik:#69c9d0; --ig:#e1306c; --fb:#5890ff; --amz:#ffaa44; --ali:#ff6b35;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;font-size:14px;}
+
+  /* LOGIN */
+  #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+  .login-box{width:min(400px,92vw);padding:40px 28px;border:1px solid var(--border2);background:var(--bg2);position:relative;}
+  .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);}
+  .login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;letter-spacing:.15em;color:var(--white);margin-bottom:8px;}
+  .login-logo span{color:var(--accent);}
+  .login-sub{font-size:11px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:36px;}
+  .login-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:block;}
+  .login-input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;padding:14px 16px;outline:none;transition:border-color .2s;letter-spacing:.1em;}
+  .login-input:focus{border-color:var(--accent);}
+  .login-btn{width:100%;margin-top:16px;padding:15px;background:var(--accent);color:#000;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;}
+  .login-btn:hover{opacity:.85;}
+  .login-error{margin-top:12px;font-size:12px;color:var(--accent2);letter-spacing:.1em;display:none;text-align:center;}
+
+  /* APP */
+  #app{display:none;}
+  .header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+  .header-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;letter-spacing:.2em;color:var(--white);}
+  .header-logo span{color:var(--accent);}
+  .header-meta{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+
+  .stats-bar{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:0;background:var(--bg2);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .stats-bar::-webkit-scrollbar{display:none;}
+  .stat{display:flex;flex-direction:column;gap:4px;min-width:80px;padding-right:20px;border-right:1px solid var(--border);margin-right:20px;flex-shrink:0;}
+  .stat:last-child{border-right:none;}
+  .stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--white);}
+  .stat-val.accent{color:var(--accent);}
+  .stat-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+
+  .toolbar{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:8px 14px;outline:none;width:220px;letter-spacing:.05em;}
+  .search-input:focus{border-color:var(--accent);}
+  .filter-btn{padding:7px 14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+  .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(79,195,247,.07);}
+
+  /* TABLE */
+  .table-wrap{padding:0 20px 280px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-bottom:2px solid var(--border2);position:sticky;top:56px;background:var(--bg);z-index:50;}
+  th{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:14px 10px;text-align:left;font-weight:400;white-space:nowrap;}
+  th:first-child{padding-left:0;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+  tbody tr:hover{background:var(--bg2);}
+  td{padding:14px 10px;font-size:12px;color:var(--text);vertical-align:top;}
+  td:first-child{padding-left:0;}
+  .td-num{color:var(--muted);font-size:11px;width:36px;padding-top:16px;}
+  .td-name{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;color:var(--white);min-width:160px;padding-top:14px;line-height:1.4;}
+  .td-cat{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(79,195,247,.08);padding:4px 10px;display:inline-block;border:1px solid rgba(79,195,247,.15);}
+
+  .links-col{display:flex;flex-direction:column;gap:5px;min-width:120px;}
+  .link-row{display:flex;gap:5px;flex-wrap:wrap;}
+  .link-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border2);color:#888;background:transparent;white-space:nowrap;transition:all .15s;font-family:'DM Mono',monospace;}
+  .link-btn.ali{color:var(--ali);border-color:rgba(255,107,53,.3);}
+  .link-btn.tik{color:var(--tik);border-color:rgba(105,201,208,.3);}
+  .link-btn.ig{color:var(--ig);border-color:rgba(225,48,108,.3);}
+  .link-btn.fb{color:var(--fb);border-color:rgba(88,144,255,.3);}
+  .link-btn.amz{color:var(--amz);border-color:rgba(255,170,68,.3);}
+  .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+  .ratings-col{display:flex;flex-direction:column;gap:5px;min-width:180px;}
+  .rating-row{display:flex;align-items:center;gap:8px;}
+  .rating-key{font-size:10px;color:#666;letter-spacing:.05em;width:80px;flex-shrink:0;}
+  .rating-badge{font-size:11px;letter-spacing:.06em;padding:3px 8px;border:1px solid #2a2a2a;color:#555;}
+  .rating-badge.val-good,.rating-badge.val-wow,.rating-badge.val-yes,.rating-badge.val-vgood,.rating-badge.val-5x{color:var(--accent);border-color:rgba(79,195,247,.3);}
+  .rating-badge.val-notbad,.rating-badge.val-notyet,.rating-badge.val-3x{color:#ffaa00;border-color:rgba(255,170,0,.3);}
+  .rating-badge.val-bad,.rating-badge.val-no{color:#ff5555;border-color:rgba(255,85,85,.3);}
+
+  /* RATING PANEL */
+  #rating-panel{position:fixed;right:0;top:0;bottom:0;width:min(420px,100vw);background:var(--bg2);border-left:1px solid var(--border2);z-index:200;transform:translateX(100%);transition:transform .25s;overflow-y:auto;}
+  #rating-panel.open{transform:translateX(0);}
+  .panel-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--bg2);z-index:10;}
+  .panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white);line-height:1.4;}
+  .panel-cat{font-size:9px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-top:4px;}
+  .panel-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px;line-height:1;}
+  .panel-close:hover{color:var(--white);}
+  .panel-body{padding:20px 24px;}
+  .panel-section{margin-bottom:20px;}
+  .panel-section-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+  .panel-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+
+  .rating-field{margin-bottom:16px;}
+  .rating-field-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block;}
+  .rating-options{display:flex;gap:6px;flex-wrap:wrap;}
+  .rating-opt{padding:7px 14px;font-size:11px;letter-spacing:.08em;border:1px solid var(--border2);background:transparent;color:#666;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+  .rating-opt:hover{border-color:var(--accent);color:var(--accent);}
+  .rating-opt.selected-good,.rating-opt.selected-wow,.rating-opt.selected-yes,.rating-opt.selected-vgood,.rating-opt.selected-5x{background:rgba(79,195,247,.12);border-color:var(--accent);color:var(--accent);}
+  .rating-opt.selected-notbad,.rating-opt.selected-notyet,.rating-opt.selected-3x{background:rgba(255,170,0,.1);border-color:#ffaa00;color:#ffaa00;}
+  .rating-opt.selected-bad,.rating-opt.selected-no{background:rgba(255,85,85,.1);border-color:#ff5555;color:#ff5555;}
+
+  .notes-field{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:12px;resize:vertical;min-height:80px;outline:none;margin-top:8px;}
+  .notes-field:focus{border-color:var(--accent);}
+  .save-btn{width:100%;padding:14px;background:var(--accent);color:#000;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+  .save-btn:hover{opacity:.85;}
+  .notes-preview{font-size:11px;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.5;}
+
+  /* MOBILE CARDS */
+  #card-list{display:none;}
+  @media (max-width:768px){
+    .table-wrap table{display:none;}
+    #card-list{display:flex;flex-direction:column;gap:1px;}
+    .table-wrap{padding:0 0 280px;overflow-x:visible;}
+    .product-card{background:#111;border-bottom:1px solid #1e1e1e;padding:16px 14px;}
+    .product-card:active{background:#161616;}
+    .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;}
+    .card-left{display:flex;gap:10px;align-items:flex-start;}
+    .card-num{font-size:11px;color:#444;min-width:26px;padding-top:2px;flex-shrink:0;}
+    .card-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;line-height:1.3;}
+    .card-cat{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(79,195,247,.07);border:1px solid rgba(79,195,247,.15);padding:3px 7px;white-space:nowrap;flex-shrink:0;}
+    .card-section{margin-bottom:8px;}
+    .card-section-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#444;margin-bottom:4px;}
+    .card-links{display:flex;flex-wrap:wrap;gap:5px;}
+    .card-link{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;border:1px solid #2a2a2a;color:#888;font-family:'DM Mono',monospace;}
+    .card-link.ali{color:#ff6b35;border-color:rgba(255,107,53,.25);}
+    .card-link.tik{color:#69c9d0;border-color:rgba(105,201,208,.25);}
+    .card-link.ig{color:#e1306c;border-color:rgba(225,48,108,.25);}
+    .card-link.fb{color:#5890ff;border-color:rgba(88,144,255,.25);}
+    .card-link.amz{color:#ffaa44;border-color:rgba(255,170,68,.25);}
+    .card-ratings-mini{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+    .card-rating-chip{font-size:10px;padding:3px 8px;border:1px solid #2a2a2a;color:#555;}
+    .chip-good,.chip-wow,.chip-yes,.chip-vgood,.chip-5x{color:var(--accent);border-color:rgba(79,195,247,.3);}
+    .chip-notbad,.chip-notyet,.chip-3x{color:#ffaa00;border-color:rgba(255,170,0,.3);}
+    .chip-bad,.chip-no{color:#ff5555;border-color:rgba(255,85,85,.3);}
+    .panel-header{padding:16px 16px;}
+    #rating-panel{width:100vw;}
+    .toolbar{padding:12px 14px;}
+    .search-input{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">HOME<span>.</span></div>
+    <div class="login-sub">Product Research DB · v1</div>
+    <label class="login-label">Access Password</label>
+    <input type="password" class="login-input" id="pwd-input" placeholder="••••••••" autocomplete="off">
+    <button class="login-btn" onclick="checkPwd()">Enter</button>
+    <div class="login-error" id="pwd-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">HOME<span>.</span></div>
+    <div class="header-meta">Product Research · v1</div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val accent">200</div><div class="stat-label">Total Products</div></div>
+    <div class="stat"><div class="stat-val">Home</div><div class="stat-label">Category</div></div>
+    <div class="stat"><div class="stat-val" id="stat-rated">0</div><div class="stat-label">Rated</div></div>
+    <div class="stat"><div class="stat-val" id="stat-wow">0</div><div class="stat-label">Wow Items</div></div>
+    <div class="stat"><div class="stat-val" id="stat-5x">0</div><div class="stat-label">5x Margin</div></div>
+  </div>
+  <div class="toolbar">
+    <input type="text" class="search-input" id="search-input" placeholder="Search products..." oninput="applyFilters()">
+    <button class="filter-btn active" data-cat="all" onclick="setFilter(this,'all')">All</button>
+    <button class="filter-btn" data-cat="Kitchen" onclick="setFilter(this,'Kitchen')">Kitchen</button>
+    <button class="filter-btn" data-cat="Organization" onclick="setFilter(this,'Organization')">Organization</button>
+    <button class="filter-btn" data-cat="Cleaning" onclick="setFilter(this,'Cleaning')">Cleaning</button>
+    <button class="filter-btn" data-cat="Bedroom" onclick="setFilter(this,'Bedroom')">Bedroom</button>
+    <button class="filter-btn" data-cat="Bathroom" onclick="setFilter(this,'Bathroom')">Bathroom</button>
+    <button class="filter-btn" data-cat="Living Room" onclick="setFilter(this,'Living Room')">Living Room</button>
+    <button class="filter-btn" data-cat="Smart Home" onclick="setFilter(this,'Smart Home')">Smart Home</button>
+    <button class="filter-btn" data-cat="Office" onclick="setFilter(this,'Office')">Office</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Product Name</th><th>Category</th><th>Links</th><th>Ratings</th></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div id="card-list"></div>
+  </div>
+</div>
+
+<!-- RATING PANEL -->
+<div id="rating-panel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title" id="panel-title">—</div>
+      <div class="panel-cat" id="panel-cat">—</div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="panel-links" id="panel-links"></div>
+    <div id="rating-fields"></div>
+    <div class="notes-preview" id="notes-preview"></div>
+    <button class="save-btn" onclick="saveRatings()">Save Ratings</button>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "Homeproducts2";
+
+const RATINGS_DATA = {
+  // Kitchen (25)
+  "Ramen Noodle Maker Machine": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Make restaurant ramen at home. Trending food content on TikTok globally."},
+  "Tortilla Press Cast Iron": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Homemade tortillas in seconds. Food culture trend driving strong demand."},
+  "Dumpling Maker Mold Press": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Perfect dumplings every time. Asian food content booming on social media."},
+  "Waffle Cone Maker": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Homemade ice cream cones. Dessert content creator essential, very visual."},
+  "Breakfast Sandwich Maker": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hot sandwich in 5 minutes. Morning routine efficiency product."},
+  "Silicone Ice Tray Nugget": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Sonic-style pebble ice at home. TikTok ice obsession community huge."},
+  "Cocktail Smoking Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Smoked cocktails at home. Very dramatic visual for content creation."},
+  "Pasta Roller Attachment": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Fresh pasta at home. KitchenAid accessory segment very strong demand."},
+  "Sushi Bazooka Roller": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Professional sushi rolls easily. Very funny and satisfying demo content."},
+  "Butter Churner Mini": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Make fresh butter in minutes. Cottagecore + homestead trend product."},
+  "Rotisserie Oven Countertop": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Restaurant-style rotisserie chicken. High AOV kitchen appliance."},
+  "Fermentation Crock Jar": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Kimchi, sauerkraut, pickles at home. Gut health + fermentation trend growing."},
+  "Whipped Coffee Frother Stand": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Dalgona + whipped drinks at home. Café-style beverage content viral."},
+  "Mochi Maker Electric": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Japanese mochi at home. Asian dessert trend extremely popular on TikTok."},
+  "Crepe Maker Pan Electric": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Perfect thin crepes every time. Breakfast content creator product."},
+  "Vacuum Wine Preserver": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Keep wine fresh for weeks. Wine lover gift, easy impulse buy."},
+  "Sprouting Jar Lid Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Grow sprouts on countertop. Health food + seed sprouting niche."},
+  "Oil Mister Spray Bottle": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Control oil portions when cooking. Healthy cooking + air fryer community."},
+  "Adjustable Rolling Pin Rings": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Even dough thickness every roll. Baking content creator essential."},
+  "Soda Maker Machine": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"5x",unique:"yes",problem:"yes",notes:"Homemade sparkling water and soda. Eco + health angle, steady demand."},
+  "Mortar Pestle Granite": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Fresh spice grinding, guacamole. Aesthetic kitchen tool, content-rich."},
+  "Food Dehydrator Machine": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Homemade jerky, dried fruit. Homestead + survival prep community."},
+  "Corn Dog Maker": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Carnival snacks at home. Novelty + fun food content, kids love it."},
+  "Takoyaki Pan Cast Iron": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Japanese octopus balls at home. J-food trend, very satisfying to watch."},
+  "Silicone Bread Loaf Mold": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Non-stick bread baking. Sourdough baking community product essential."},
+
+  // Organization (20)
+  "Pegboard Wall Organizer": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Customizable wall storage. Room makeover content, very aesthetic."},
+  "Stackable Acrylic Organizer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Clear modular desk storage. Organization content creator staple."},
+  "Honeycomb Drawer Divider": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Satisfying sock and underwear fold. Marie Kondo tidying community."},
+  "Rotating Makeup Organizer Tower": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"360 spin makeup storage. Vanity organization content very popular."},
+  "Binder Clip Cable Organizer": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Cheap hack to tidy cables. Life hack content widely shared."},
+  "Closet Shelf Dividers": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Keep sweater stacks neat. Closet organization essential tool."},
+  "Hat Organizer Wall Rack": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display and store caps on wall. Hat collector community product."},
+  "Bag Organizer Purse Holder": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Handbag storage system. Luxury bag community essential accessory."},
+  "Corner Shelf Adhesive": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"No-drill corner storage. Rental apartment hack, very viral."},
+  "Tension Rod Organizer Under Sink": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Double space under sink cabinet. Budget organization hack content."},
+  "Vinyl Record Storage Crate": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Aesthetic record display. Vinyl revival collector community strong."},
+  "Over Cabinet Door Organizer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hidden storage on cabinet doors. Kitchen organization hack content."},
+  "Lego Storage Brick Box": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Lego-shaped storage box. Lego community gift item, very giftable."},
+  "Folding Clothes Board": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Perfect shirt fold every time. Satisfying organization video content."},
+  "Bedside Pocket Organizer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Night essentials on bed frame. Remote, phone, book, snacks all accessible."},
+  "Spice Drawer Insert": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Angled spice jars in drawer. Kitchen makeover content, very aesthetic."},
+  "Foldable Shopping Bag Holder": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Contain the bag chaos. Every home has bag hoarding problem."},
+  "Fishing Line Floating Shelf": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Invisible floating shelf illusion. Aesthetic room decor hack content."},
+  "Rollout Cabinet Organizer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Slide-out pantry shelf. Deep cabinet access solution."},
+  "Magnetic Fridge Organizer Bins": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Side of fridge storage. Fridge makeover content trend on TikTok."},
+
+  // Cleaning (20)
+  "Scrubbing Bubbles Gel Wand": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Automated toilet cleaning system. Set-and-forget cleaning appeal."},
+  "UV Sanitizer Wand": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Kills bacteria on surfaces with light. Germ-conscious post-pandemic buyer."},
+  "Steam Mop Floor Cleaner": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Chemical-free floor cleaning. Steady demand, eco cleaning segment."},
+  "Cordless Handheld Vacuum": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Quick cleanups without cords. Car + sofa crumbs daily use."},
+  "Pressure Washer Portable": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Satisfying outdoor cleaning results. Before/after power wash = viral content."},
+  "Washing Machine Drum Wipes": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Remove washer residue and odor. Laundry hack, subscription model potential."},
+  "Dish Scrubber Silicone Brush": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hygienic vs sponge. Long-lasting + dishwasher-safe eco angle."},
+  "Window Vacuum Cleaner Electric": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Streak-free windows in seconds. Very satisfying demo content, strong WOW."},
+  "Grout Pen White Tile": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Restore grout to white instantly. Before/after tile renovation viral."},
+  "Enzyme Drain Cleaner": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Natural drain unclogging. Eco alternative to harsh chemicals."},
+  "Flat Mop Squeeze Bucket": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"No-touch wringing system. Cleaner + easier floor mopping solution."},
+  "Ceiling Fan Duster Brush": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Capture dust without spreading. Satisfying satisfying dusty fan cleaning."},
+  "Stainless Steel Cleaner Spray": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Fingerprint-free appliances instantly. Every stainless steel owner needs."},
+  "Keyboard Cleaning Gel": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Satisfying gunk removal from keys. ASMR gross-out viral content."},
+  "Refrigerator Odor Absorber": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Neutralize food smells in fridge. Recurring purchase, set-and-forget."},
+  "Mattress Stain Remover Spray": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Lift old mattress stains. Before/after cleaning content = viral."},
+  "Shower Tile Mold Remover": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Remove black mold from grout. High-anxiety cleaning problem solved."},
+  "Reusable Lint Remover Brush": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Eco-friendly no-waste lint roll. Sustainable laundry accessory."},
+  "Air Duct Cleaning Brush Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Clean dryer vents and air ducts. Safety + efficiency, gross reveal."},
+  "Car Interior Detailing Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Deep clean car interior at home. Car detailing community very active."},
+
+  // Bedroom (20)
+  "Sunrise Simulation Lamp": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Wake naturally without harsh alarm. Sleep wellness trend growing."},
+  "Heated Mattress Pad": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Warm bed before you get in. Winter comfort, high AOV product."},
+  "Cooling Mattress Topper Gel": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Stop night sweats. Hot sleeper community, strong pain point."},
+  "Linen Duvet Cover Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Luxury linen feel at affordable price. Bedroom aesthetic upgrade."},
+  "Bedside Lamp Touch Dimmable": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Three brightness levels, touch control. Bedroom aesthetic essential."},
+  "Electric Hot Water Bottle": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Safe rechargeable warming pad. Period pain + cold nights market."},
+  "Silk Sleep Mask 3D": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Total blackout + no eye pressure. Sleep quality improvement gift."},
+  "White Noise Ear Plugs": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Cancel snoring and noise. Light sleeper pain point strong."},
+  "Adjustable Bed Frame Riser": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Raise bed for under-storage. Small space solution, dorm and studio."},
+  "Clothes Folding Rack Freestanding": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Air dry delicates indoors. Apartment living essential."},
+  "Memory Foam Knee Pillow": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Side sleeper hip alignment. Back pain community product."},
+  "Cervical Neck Pillow": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Neck pain relief while sleeping. Growing neck pain awareness."},
+  "Electric Blanket Foot Warmer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Keep feet warm in bed. Cold extremities problem very common."},
+  "Mattress Vacuum Cleaner": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Remove dust mites from mattress. Allergy + hygiene anxiety buyer."},
+  "Hanging Wardrobe Organizer Fabric": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Vertical closet compartments. Maximize small closet space."},
+  "Over Door Hook Rail": {value:"notbad",wow:"notyet",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Basic but consistent demand. Better bundled with other organizers."},
+  "Charging Nightstand Organizer": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Phone + watch + earbuds all charging together. Bedside solution."},
+  "Duvet Clips Holder Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Stop duvet shifting inside cover. Annoying problem, easy solution."},
+  "Sleep Tracking Ring": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Track sleep data on finger. Oura-inspired wearable trend rising."},
+  "Bed Canopy Mosquito Net": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Aesthetic bedroom canopy look. Instagram bedroom aesthetic trend."},
+
+  // Bathroom (20)
+  "Bidet Attachment Cold Warm": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Upgrade toilet hygiene instantly. TikTok bidet converts everyone."},
+  "Toilet Plunger Beehive": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"More effective than standard plunger. Viral unboxing, every home needs."},
+  "LED Bathroom Mirror": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Lighted vanity mirror upgrade. Bathroom renovation content creator essential."},
+  "Bamboo Bathroom Accessories Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Eco bathroom set, matching aesthetic. Sustainability + aesthetic combo."},
+  "Shower Head High Pressure": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Upgrade shower pressure instantly. Easy DIY install, steady demand."},
+  "Fog-Free Shower Mirror": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Shave in shower without fog. Solves real daily annoyance."},
+  "Bath Bomb Making Kit": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"DIY luxe bath bombs. Self-care craft gift, very giftable."},
+  "Shower Dispensers Set Wall Mount": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Adhesive shampoo dispensers. No more fallen bottles, clean aesthetic."},
+  "Toilet Storage Stand Cabinet": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Over-toilet shelving unit. Storage in unused vertical space."},
+  "Bath Pillow Suction Cup": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Neck support in bathtub. Self-care bath ritual product."},
+  "Bathroom Scale Body Composition": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Track weight, BMI, muscle. Health tracking community product."},
+  "Towel Holder Freestanding": {value:"notbad",wow:"notyet",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Basic bathroom accessory. Better bundled with bathroom set."},
+  "Waterproof Bluetooth Speaker": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Music in the shower. Steady demand, saturated market."},
+  "Disposable Toilet Seat Covers": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hygiene on public toilets. Travel and germaphobe community."},
+  "Toothbrush UV Sanitizer Case": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Kill bacteria on toothbrush. Germ-conscious hygiene product."},
+  "Cotton Towel Set Hotel Quality": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Luxe hotel feel at home. Premium gift, strong repeat purchase."},
+  "Hair Catcher Sink Drain": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Catch hair before clog forms. Satisfying hair removal gross content."},
+  "Bathroom Odor Eliminator Device": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Automatic scent dispenser. Fresh bathroom effortlessly."},
+  "Toilet Roll Holder with Shelf": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Phone shelf on toilet roll holder. Solves phone-in-bathroom need."},
+  "Shower Loofah Back Scrubber": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Long handle back exfoliation. Hard-to-reach back cleaning solution."},
+
+  // Living Room (20)
+  "LED Neon Sign Custom": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Personalized room aesthetic lighting. High perceived value, very giftable."},
+  "Ottoman Storage Coffee Table": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hidden storage in footrest. Multi-function living room furniture."},
+  "TV Stand with Fireplace Insert": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Cozy electric fireplace in media console. High AOV, winter demand."},
+  "Tapestry Wall Hanging Boho": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Instant room makeover decor. Boho aesthetic consistently trending."},
+  "Projector Screen Pull Down": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Home cinema setup essential. Movie night content very popular."},
+  "Bean Bag Chair Adult": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Casual gaming + movie seating. Gaming room + dorm room essential."},
+  "Acrylic Furniture Leg Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Float any piece of furniture visually. Room makeover hack content."},
+  "Gallery Wall Frame Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Curated photo wall easily. Gallery wall trend, strong gifting appeal."},
+  "Bookshelf Ladder Freestanding": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Leaning ladder shelf aesthetic. BookTok community staple product."},
+  "Record Player Suitcase Style": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Retro portable turntable. Vinyl revival + aesthetic room decor."},
+  "Wax Seal Stamp Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Luxe wax seal for letters and journals. Stationery community, gift appeal."},
+  "Magnetic Whiteboard Wall Panel": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Dry erase + magnetic panel. Home office + family planning essential."},
+  "Foldable Room Divider Screen": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Create privacy in open plan. WFH + studio apartment solution."},
+  "Indoor Swing Chair Hanging": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Boho hanging chair inside. Very aspirational aesthetic content."},
+  "Terrarium Glass Geometric": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Modern plant display case. Plant parent + aesthetic home content."},
+  "Throw Blanket Aesthetic": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Cozy seasonal decor staple. Consistent demand, competitive."},
+  "Acoustic Panel Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Reduce room echo professionally. WFH + recording + gaming setup."},
+  "LED Mushroom Lamp": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Cottagecore aesthetic lamp. Very giftable, strong social media presence."},
+  "Cord Hider Raceway Kit": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Hide TV cables on wall cleanly. Room makeover hack, clean setup."},
+  "Velvet Accent Chair": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Affordable luxury room focal point. Furniture aesthetic upgrade."},
+
+  // Smart Home (20)
+  "Smart Blinds Motor Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Automate existing window blinds. Luxury home automation at low cost."},
+  "Smart Leak Detector Sensor": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Alert before water damage. High-anxiety problem, peace of mind."},
+  "Smart Light Switch No Neutral": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Retrofit smart switch old homes. Smart home DIY community."},
+  "Smart Smoke CO2 Combo": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Combined safety alert device. Smart home must-have safety upgrade."},
+  "Smart Irrigation Controller": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Water plants on schedule from phone. Smart garden + eco water saving."},
+  "Smart Baby Monitor Video": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"High-demand parenting product. Saturated but strong buyer emotion."},
+  "Smart Thermostat Budget": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Ecobee/Nest alternative. Energy savings pitch, steady demand."},
+  "Smart Pet Feeder Camera": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Feed pets remotely from phone. Pet parent anxiety product, very giftable."},
+  "Smart Garage Door Opener": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Open garage from anywhere. Security + convenience dual appeal."},
+  "Wi-Fi Extender Mesh Node": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Eliminate dead Wi-Fi zones. Very high intent buyer. Competitive."},
+  "Smart Outlet Energy Monitor": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"See exactly how much each device costs. Energy saving + eco buyer."},
+  "Smart Curtain Motor": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Automate curtains with phone. Luxury bedroom automation upgrade."},
+  "Fingerprint Door Handle": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Biometric entry for interior doors. Home office + bedroom privacy."},
+  "Smart Button Switchbot": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Press any button automatically with robot. Lazy tech hack viral."},
+  "Smart Air Purifier Filter": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"App-controlled air quality auto mode. Allergy + pollution anxiety."},
+  "Smart Doorbell Wired": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Ring alternative, lower price. Security camera + doorbell combo."},
+  "Smart Plant Sensor WiFi": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Tell when plant needs water and light. Plant parent anxiety solution."},
+  "Smart Alarm Clock Projection": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Project time onto ceiling. Bedroom tech upgrade, content-worthy."},
+  "Smart Refrigerator Cam": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"See inside fridge while grocery shopping. Food waste reduction."},
+  "Smart Scale Kitchen Nutrition": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Track macros while cooking. Meal prep + fitness nutrition community."},
+
+  // Office (20)
+  "Standing Desk Converter": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Sit-stand without full desk replacement. WFH ergonomic segment."},
+  "Monitor Arm Dual": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Floating dual screen setup. WFH + gaming setup content."},
+  "Desk Cable Management Tray": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Under-desk cable organization. Setup tour content essential product."},
+  "Ergonomic Footrest Adjustable": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Leg circulation while seated. WFH comfort essential."},
+  "Portable Document Scanner": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Scan docs without phone juggling. Home office productivity tool."},
+  "Paper Shredder Micro Cut": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Secure document destruction. Privacy + identity theft awareness."},
+  "Acrylic Desk Organizer Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Matching clear desk accessories. Aesthetic workspace content."},
+  "Lap Desk Pillow Base": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Work comfortably from bed or sofa. WFH flexibility product."},
+  "Noise Cancelling Headphone Stand": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display headphones with charging. Desk setup aesthetic."},
+  "Whiteboard Easel Portable": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Home office planning + WFH meetings. Hybrid work tool."},
+  "USB Hub Multiport": {value:"good",wow:"good",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Add ports to any laptop. Universal need, competitive segment."},
+  "Desk Pad Wireless Charging": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Charge phone by placing on desk mat. Tech-integrated workspace."},
+  "Planner Notebook System": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Structured daily productivity system. Stationery + productivity community."},
+  "Posture Corrector Wearable": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Vibrates when you slouch. WFH posture awareness growing."},
+  "Anti-Fatigue Standing Mat": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Cushion for standing desk users. Standing desk accessory upsell."},
+  "Printer Ink Refill Kit": {value:"notbad",wow:"notyet",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Save on ink costs. Practical but low excitement product."},
+  "Adjustable Phone Stand Arm": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Flexible gooseneck phone mount for desk. Content creator + WFH."},
+  "Reusable Smart Notebook": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Write, wipe, reuse notebook. Tech stationery innovation, Rocketbook-style."},
+  "Eye Care Desk Lamp": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"No blue light + no flicker. Study + WFH eye strain solution."},
+  "Cable Organizer Charging Station": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Charge 5 devices from one station. Family + multi-device household."},
+
+  // Dining & Entertaining (10)
+  "Wooden Advent House Display": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Decorative holiday countdown display. High perceived value seasonal gift."},
+  "Insulated Tumbler 40oz": {value:"good",wow:"wow",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Stanley-inspired water bottle trend. Very saturated but huge demand."},
+  "Collapsible Laundry Hamper": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Space-saving hamper for small rooms. Easy daily use, apartment essential."},
+  "Magnetic Memo Board Glass": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Frameless glass whiteboard aesthetic. Home office design upgrade."},
+  "Airtight Pantry Container Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Matching pantry organization set. Shelfie content, very satisfying reveal."},
+  "Clip-On Book Light LED": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Read in bed without waking partner. Rechargeable, gift for book lovers."},
+  "Retractable Clothesline Indoor": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Extend to dry clothes, retract when done. Space-saving laundry solution."},
+  "Portable Mini Heater Desktop": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Personal desk heater for cold offices. WFH + winter comfort essential."},
+  "Decorative Ladder Blanket Holder": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display blankets on aesthetic ladder. Cozy living room decor content."},
+  "Bedside Water Carafe Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Elegant water pitcher for nightstand. Hotel luxury at home feel."},
+  "Fondue Set Electric": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Social dining experience at home. Party + date night product."},
+  "Lazy Susan Spice Rack": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Access all spices with one spin. Kitchen countertop organization."},
+  "Stemless Wine Glass Set": {value:"notbad",wow:"notyet",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Basic but consistent gifting appeal. Better as bundle or set."},
+  "Personalized Cutting Board": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Engraved gift for any occasion. Gifting community, high perceived value."},
+  "Sushi Grade Fish Box": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Fresh sashimi-grade fish delivery. Premium food experience at home."},
+  "Grill Mat Non-Stick BBQ": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"No more food falling through grill. BBQ season essential."},
+  "Cocktail Infusion Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Infuse spirits with herbs and fruits. Craft cocktail trend at home."},
+  "Raclette Grill Table Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Swiss melted cheese party grill. Social dining content very shareable."},
+  "Oyster Knife Shucking Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Home oyster shucking experience. Seafood luxury at home trend."},
+  "Cake Decorating Turntable": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Professional cake decoration spin. Baking content creator essential."},
+
+  // Plants & Garden (10)
+  "Mushroom Growing Kit": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Grow gourmet mushrooms at home. Cottagecore + homestead viral trend."},
+  "Aeroponic Tower Garden": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Vertical hydroponic food growing system. Food growing + sustainability."},
+  "Bonsai Starter Kit": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Grow bonsai tree from seed. Patience hobby, mindfulness + zen trend."},
+  "Fairy Garden Miniature Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Miniature garden terrarium world. Gift + craft + display product."},
+  "Succulent Propagation Station": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Root succulent cuttings in glass. Plant parent propagation trend."},
+  "Hydroponic Herb Garden LED": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Grow herbs in water with light. Year-round indoor herb supply."},
+  "Compost Bin Kitchen Small": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Countertop food waste composting. Eco-conscious household product."},
+  "Garden Gnome Solar Light": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Quirky solar garden decoration. Gift + garden aesthetic, seasonal."},
+  "Worm Bin Composter": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Vermicomposting at home. Zero waste living community product."},
+  "Plant Propagation Wall Panel": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display water propagations on wall. Plant parent aesthetic decor."},
+
+  "Wooden Advent House Display": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Decorative holiday countdown display. High perceived value seasonal gift."},
+  "Insulated Tumbler 40oz": {value:"good",wow:"wow",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Stanley-inspired water bottle trend. Very saturated but huge demand."},
+  "Collapsible Laundry Hamper": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Space-saving hamper for small rooms. Easy daily use, apartment essential."},
+  "Magnetic Memo Board Glass": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Frameless glass whiteboard aesthetic. Home office design upgrade."},
+  "Airtight Pantry Container Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Matching pantry organization set. Shelfie content, very satisfying reveal."},
+  "Clip-On Book Light LED": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Read in bed without waking partner. Rechargeable, gift for book lovers."},
+  "Retractable Clothesline Indoor": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Extend to dry clothes, retract when done. Space-saving laundry solution."},
+  "Portable Mini Heater Desktop": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Personal desk heater for cold offices. WFH + winter comfort essential."},
+  "Decorative Ladder Blanket Holder": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display blankets on aesthetic ladder. Cozy living room decor content."},
+  "Bedside Water Carafe Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Elegant water pitcher for nightstand. Hotel luxury at home feel."},
+  // Seasonal & Specialty (5)
+  "Mini Christmas Tree Tabletop": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Apartment-friendly holiday decoration. Seasonal peak demand strong."},
+  "Advent Calendar DIY Box": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Fillable 24-day countdown box. Custom gift + holiday tradition."},
+  "Door Wreath Hanger Hook": {value:"notbad",wow:"notyet",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"No-scratch wreath hanging solution. Seasonal evergreen product."},
+  "Window Snowflake LED": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Suction window holiday lights. Apartment-friendly decoration."},
+  "Firewood Log Carrier": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Carry firewood cleanly indoors. Fireplace + cabin lifestyle product."},
+};
+
+const PRODUCTS = [
+  // Kitchen (25)
+  "Ramen Noodle Maker Machine","Tortilla Press Cast Iron","Dumpling Maker Mold Press",
+  "Waffle Cone Maker","Breakfast Sandwich Maker","Silicone Ice Tray Nugget",
+  "Cocktail Smoking Kit","Pasta Roller Attachment","Sushi Bazooka Roller",
+  "Butter Churner Mini","Rotisserie Oven Countertop","Fermentation Crock Jar",
+  "Whipped Coffee Frother Stand","Mochi Maker Electric","Crepe Maker Pan Electric",
+  "Vacuum Wine Preserver","Sprouting Jar Lid Set","Oil Mister Spray Bottle",
+  "Adjustable Rolling Pin Rings","Soda Maker Machine","Mortar Pestle Granite",
+  "Food Dehydrator Machine","Corn Dog Maker","Takoyaki Pan Cast Iron",
+  "Silicone Bread Loaf Mold",
+  // Organization (20)
+  "Pegboard Wall Organizer","Stackable Acrylic Organizer","Honeycomb Drawer Divider",
+  "Rotating Makeup Organizer Tower","Binder Clip Cable Organizer","Closet Shelf Dividers",
+  "Hat Organizer Wall Rack","Bag Organizer Purse Holder","Corner Shelf Adhesive",
+  "Tension Rod Organizer Under Sink","Vinyl Record Storage Crate","Over Cabinet Door Organizer",
+  "Lego Storage Brick Box","Folding Clothes Board","Bedside Pocket Organizer",
+  "Spice Drawer Insert","Foldable Shopping Bag Holder","Fishing Line Floating Shelf",
+  "Rollout Cabinet Organizer","Magnetic Fridge Organizer Bins",
+  // Cleaning (20)
+  "Scrubbing Bubbles Gel Wand","UV Sanitizer Wand","Steam Mop Floor Cleaner",
+  "Cordless Handheld Vacuum","Pressure Washer Portable","Washing Machine Drum Wipes",
+  "Dish Scrubber Silicone Brush","Window Vacuum Cleaner Electric","Grout Pen White Tile",
+  "Enzyme Drain Cleaner","Flat Mop Squeeze Bucket","Ceiling Fan Duster Brush",
+  "Stainless Steel Cleaner Spray","Keyboard Cleaning Gel","Refrigerator Odor Absorber",
+  "Mattress Stain Remover Spray","Shower Tile Mold Remover","Reusable Lint Remover Brush",
+  "Air Duct Cleaning Brush Kit","Car Interior Detailing Kit",
+  // Bedroom (20)
+  "Sunrise Simulation Lamp","Heated Mattress Pad","Cooling Mattress Topper Gel",
+  "Linen Duvet Cover Set","Bedside Lamp Touch Dimmable","Electric Hot Water Bottle",
+  "Silk Sleep Mask 3D","White Noise Ear Plugs","Adjustable Bed Frame Riser",
+  "Clothes Folding Rack Freestanding","Memory Foam Knee Pillow","Cervical Neck Pillow",
+  "Electric Blanket Foot Warmer","Mattress Vacuum Cleaner","Hanging Wardrobe Organizer Fabric",
+  "Over Door Hook Rail","Charging Nightstand Organizer","Duvet Clips Holder Set",
+  "Sleep Tracking Ring","Bed Canopy Mosquito Net",
+  // Bathroom (20)
+  "Bidet Attachment Cold Warm","Toilet Plunger Beehive","LED Bathroom Mirror",
+  "Bamboo Bathroom Accessories Set","Shower Head High Pressure","Fog-Free Shower Mirror",
+  "Bath Bomb Making Kit","Shower Dispensers Set Wall Mount","Toilet Storage Stand Cabinet",
+  "Bath Pillow Suction Cup","Bathroom Scale Body Composition","Towel Holder Freestanding",
+  "Waterproof Bluetooth Speaker","Disposable Toilet Seat Covers","Toothbrush UV Sanitizer Case",
+  "Cotton Towel Set Hotel Quality","Hair Catcher Sink Drain","Bathroom Odor Eliminator Device",
+  "Toilet Roll Holder with Shelf","Shower Loofah Back Scrubber",
+  // Living Room (20)
+  "LED Neon Sign Custom","Ottoman Storage Coffee Table","TV Stand with Fireplace Insert",
+  "Tapestry Wall Hanging Boho","Projector Screen Pull Down","Bean Bag Chair Adult",
+  "Acrylic Furniture Leg Set","Gallery Wall Frame Set","Bookshelf Ladder Freestanding",
+  "Record Player Suitcase Style","Wax Seal Stamp Kit","Magnetic Whiteboard Wall Panel",
+  "Foldable Room Divider Screen","Indoor Swing Chair Hanging","Terrarium Glass Geometric",
+  "Throw Blanket Aesthetic","Acoustic Panel Set","LED Mushroom Lamp",
+  "Cord Hider Raceway Kit","Velvet Accent Chair",
+  // Smart Home (20)
+  "Smart Blinds Motor Kit","Smart Leak Detector Sensor","Smart Light Switch No Neutral",
+  "Smart Smoke CO2 Combo","Smart Irrigation Controller","Smart Baby Monitor Video",
+  "Smart Thermostat Budget","Smart Pet Feeder Camera","Smart Garage Door Opener",
+  "Wi-Fi Extender Mesh Node","Smart Outlet Energy Monitor","Smart Curtain Motor",
+  "Fingerprint Door Handle","Smart Button Switchbot","Smart Air Purifier Filter",
+  "Smart Doorbell Wired","Smart Plant Sensor WiFi","Smart Alarm Clock Projection",
+  "Smart Refrigerator Cam","Smart Scale Kitchen Nutrition",
+  // Office (20)
+  "Standing Desk Converter","Monitor Arm Dual","Desk Cable Management Tray",
+  "Ergonomic Footrest Adjustable","Portable Document Scanner","Paper Shredder Micro Cut",
+  "Acrylic Desk Organizer Set","Lap Desk Pillow Base","Noise Cancelling Headphone Stand",
+  "Whiteboard Easel Portable","USB Hub Multiport","Desk Pad Wireless Charging",
+  "Planner Notebook System","Posture Corrector Wearable","Anti-Fatigue Standing Mat",
+  "Printer Ink Refill Kit","Adjustable Phone Stand Arm","Reusable Smart Notebook",
+  "Eye Care Desk Lamp","Cable Organizer Charging Station",
+  // Dining & Entertaining (10)
+  "Fondue Set Electric","Lazy Susan Spice Rack","Stemless Wine Glass Set",
+  "Personalized Cutting Board","Sushi Grade Fish Box","Grill Mat Non-Stick BBQ",
+  "Cocktail Infusion Kit","Raclette Grill Table Set","Oyster Knife Shucking Set",
+  "Cake Decorating Turntable",
+  // Plants & Garden (10)
+  "Mushroom Growing Kit","Aeroponic Tower Garden","Bonsai Starter Kit",
+  "Fairy Garden Miniature Set","Succulent Propagation Station","Hydroponic Herb Garden LED",
+  "Compost Bin Kitchen Small","Garden Gnome Solar Light","Worm Bin Composter",
+  "Plant Propagation Wall Panel",
+  // Extra (10)
+  "Wooden Advent House Display","Insulated Tumbler 40oz","Collapsible Laundry Hamper","Magnetic Memo Board Glass","Airtight Pantry Container Set","Clip-On Book Light LED","Retractable Clothesline Indoor","Portable Mini Heater Desktop","Decorative Ladder Blanket Holder","Bedside Water Carafe Set",
+  // Seasonal & Specialty (5)
+  "Mini Christmas Tree Tabletop","Advent Calendar DIY Box","Door Wreath Hanger Hook",
+  "Window Snowflake LED","Firewood Log Carrier",
+];
+
+const CAT_MAP = {
+  "Ramen Noodle Maker Machine":"Kitchen","Tortilla Press Cast Iron":"Kitchen","Dumpling Maker Mold Press":"Kitchen",
+  "Waffle Cone Maker":"Kitchen","Breakfast Sandwich Maker":"Kitchen","Silicone Ice Tray Nugget":"Kitchen",
+  "Cocktail Smoking Kit":"Kitchen","Pasta Roller Attachment":"Kitchen","Sushi Bazooka Roller":"Kitchen",
+  "Butter Churner Mini":"Kitchen","Rotisserie Oven Countertop":"Kitchen","Fermentation Crock Jar":"Kitchen",
+  "Whipped Coffee Frother Stand":"Kitchen","Mochi Maker Electric":"Kitchen","Crepe Maker Pan Electric":"Kitchen",
+  "Vacuum Wine Preserver":"Kitchen","Sprouting Jar Lid Set":"Kitchen","Oil Mister Spray Bottle":"Kitchen",
+  "Adjustable Rolling Pin Rings":"Kitchen","Soda Maker Machine":"Kitchen","Mortar Pestle Granite":"Kitchen",
+  "Food Dehydrator Machine":"Kitchen","Corn Dog Maker":"Kitchen","Takoyaki Pan Cast Iron":"Kitchen",
+  "Silicone Bread Loaf Mold":"Kitchen",
+  "Pegboard Wall Organizer":"Organization","Stackable Acrylic Organizer":"Organization","Honeycomb Drawer Divider":"Organization",
+  "Rotating Makeup Organizer Tower":"Organization","Binder Clip Cable Organizer":"Organization","Closet Shelf Dividers":"Organization",
+  "Hat Organizer Wall Rack":"Organization","Bag Organizer Purse Holder":"Organization","Corner Shelf Adhesive":"Organization",
+  "Tension Rod Organizer Under Sink":"Organization","Vinyl Record Storage Crate":"Organization","Over Cabinet Door Organizer":"Organization",
+  "Lego Storage Brick Box":"Organization","Folding Clothes Board":"Organization","Bedside Pocket Organizer":"Organization",
+  "Spice Drawer Insert":"Organization","Foldable Shopping Bag Holder":"Organization","Fishing Line Floating Shelf":"Organization",
+  "Rollout Cabinet Organizer":"Organization","Magnetic Fridge Organizer Bins":"Organization",
+  "Scrubbing Bubbles Gel Wand":"Cleaning","UV Sanitizer Wand":"Cleaning","Steam Mop Floor Cleaner":"Cleaning",
+  "Cordless Handheld Vacuum":"Cleaning","Pressure Washer Portable":"Cleaning","Washing Machine Drum Wipes":"Cleaning",
+  "Dish Scrubber Silicone Brush":"Cleaning","Window Vacuum Cleaner Electric":"Cleaning","Grout Pen White Tile":"Cleaning",
+  "Enzyme Drain Cleaner":"Cleaning","Flat Mop Squeeze Bucket":"Cleaning","Ceiling Fan Duster Brush":"Cleaning",
+  "Stainless Steel Cleaner Spray":"Cleaning","Keyboard Cleaning Gel":"Cleaning","Refrigerator Odor Absorber":"Cleaning",
+  "Mattress Stain Remover Spray":"Cleaning","Shower Tile Mold Remover":"Cleaning","Reusable Lint Remover Brush":"Cleaning",
+  "Air Duct Cleaning Brush Kit":"Cleaning","Car Interior Detailing Kit":"Cleaning",
+  "Sunrise Simulation Lamp":"Bedroom","Heated Mattress Pad":"Bedroom","Cooling Mattress Topper Gel":"Bedroom",
+  "Linen Duvet Cover Set":"Bedroom","Bedside Lamp Touch Dimmable":"Bedroom","Electric Hot Water Bottle":"Bedroom",
+  "Silk Sleep Mask 3D":"Bedroom","White Noise Ear Plugs":"Bedroom","Adjustable Bed Frame Riser":"Bedroom",
+  "Clothes Folding Rack Freestanding":"Bedroom","Memory Foam Knee Pillow":"Bedroom","Cervical Neck Pillow":"Bedroom",
+  "Electric Blanket Foot Warmer":"Bedroom","Mattress Vacuum Cleaner":"Bedroom","Hanging Wardrobe Organizer Fabric":"Bedroom",
+  "Over Door Hook Rail":"Bedroom","Charging Nightstand Organizer":"Bedroom","Duvet Clips Holder Set":"Bedroom",
+  "Sleep Tracking Ring":"Bedroom","Bed Canopy Mosquito Net":"Bedroom",
+  "Bidet Attachment Cold Warm":"Bathroom","Toilet Plunger Beehive":"Bathroom","LED Bathroom Mirror":"Bathroom",
+  "Bamboo Bathroom Accessories Set":"Bathroom","Shower Head High Pressure":"Bathroom","Fog-Free Shower Mirror":"Bathroom",
+  "Bath Bomb Making Kit":"Bathroom","Shower Dispensers Set Wall Mount":"Bathroom","Toilet Storage Stand Cabinet":"Bathroom",
+  "Bath Pillow Suction Cup":"Bathroom","Bathroom Scale Body Composition":"Bathroom","Towel Holder Freestanding":"Bathroom",
+  "Waterproof Bluetooth Speaker":"Bathroom","Disposable Toilet Seat Covers":"Bathroom","Toothbrush UV Sanitizer Case":"Bathroom",
+  "Cotton Towel Set Hotel Quality":"Bathroom","Hair Catcher Sink Drain":"Bathroom","Bathroom Odor Eliminator Device":"Bathroom",
+  "Toilet Roll Holder with Shelf":"Bathroom","Shower Loofah Back Scrubber":"Bathroom",
+  "LED Neon Sign Custom":"Living Room","Ottoman Storage Coffee Table":"Living Room","TV Stand with Fireplace Insert":"Living Room",
+  "Tapestry Wall Hanging Boho":"Living Room","Projector Screen Pull Down":"Living Room","Bean Bag Chair Adult":"Living Room",
+  "Acrylic Furniture Leg Set":"Living Room","Gallery Wall Frame Set":"Living Room","Bookshelf Ladder Freestanding":"Living Room",
+  "Record Player Suitcase Style":"Living Room","Wax Seal Stamp Kit":"Living Room","Magnetic Whiteboard Wall Panel":"Living Room",
+  "Foldable Room Divider Screen":"Living Room","Indoor Swing Chair Hanging":"Living Room","Terrarium Glass Geometric":"Living Room",
+  "Throw Blanket Aesthetic":"Living Room","Acoustic Panel Set":"Living Room","LED Mushroom Lamp":"Living Room",
+  "Cord Hider Raceway Kit":"Living Room","Velvet Accent Chair":"Living Room",
+  "Smart Blinds Motor Kit":"Smart Home","Smart Leak Detector Sensor":"Smart Home","Smart Light Switch No Neutral":"Smart Home",
+  "Smart Smoke CO2 Combo":"Smart Home","Smart Irrigation Controller":"Smart Home","Smart Baby Monitor Video":"Smart Home",
+  "Smart Thermostat Budget":"Smart Home","Smart Pet Feeder Camera":"Smart Home","Smart Garage Door Opener":"Smart Home",
+  "Wi-Fi Extender Mesh Node":"Smart Home","Smart Outlet Energy Monitor":"Smart Home","Smart Curtain Motor":"Smart Home",
+  "Fingerprint Door Handle":"Smart Home","Smart Button Switchbot":"Smart Home","Smart Air Purifier Filter":"Smart Home",
+  "Smart Doorbell Wired":"Smart Home","Smart Plant Sensor WiFi":"Smart Home","Smart Alarm Clock Projection":"Smart Home",
+  "Smart Refrigerator Cam":"Smart Home","Smart Scale Kitchen Nutrition":"Smart Home",
+  "Standing Desk Converter":"Office","Monitor Arm Dual":"Office","Desk Cable Management Tray":"Office",
+  "Ergonomic Footrest Adjustable":"Office","Portable Document Scanner":"Office","Paper Shredder Micro Cut":"Office",
+  "Acrylic Desk Organizer Set":"Office","Lap Desk Pillow Base":"Office","Noise Cancelling Headphone Stand":"Office",
+  "Whiteboard Easel Portable":"Office","USB Hub Multiport":"Office","Desk Pad Wireless Charging":"Office",
+  "Planner Notebook System":"Office","Posture Corrector Wearable":"Office","Anti-Fatigue Standing Mat":"Office",
+  "Printer Ink Refill Kit":"Office","Adjustable Phone Stand Arm":"Office","Reusable Smart Notebook":"Office",
+  "Eye Care Desk Lamp":"Office","Cable Organizer Charging Station":"Office",
+  "Wooden Advent House Display": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Decorative holiday countdown display. High perceived value seasonal gift."},
+  "Insulated Tumbler 40oz": {value:"good",wow:"wow",saturation:"notbad",easy:"good",margin:"3x",unique:"no",problem:"yes",notes:"Stanley-inspired water bottle trend. Very saturated but huge demand."},
+  "Collapsible Laundry Hamper": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Space-saving hamper for small rooms. Easy daily use, apartment essential."},
+  "Magnetic Memo Board Glass": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Frameless glass whiteboard aesthetic. Home office design upgrade."},
+  "Airtight Pantry Container Set": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Matching pantry organization set. Shelfie content, very satisfying reveal."},
+  "Clip-On Book Light LED": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Read in bed without waking partner. Rechargeable, gift for book lovers."},
+  "Retractable Clothesline Indoor": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Extend to dry clothes, retract when done. Space-saving laundry solution."},
+  "Portable Mini Heater Desktop": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Personal desk heater for cold offices. WFH + winter comfort essential."},
+  "Decorative Ladder Blanket Holder": {value:"good",wow:"wow",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Display blankets on aesthetic ladder. Cozy living room decor content."},
+  "Bedside Water Carafe Set": {value:"good",wow:"good",saturation:"notyet",easy:"vgood",margin:"5x",unique:"yes",problem:"yes",notes:"Elegant water pitcher for nightstand. Hotel luxury at home feel."},
+  "Fondue Set Electric":"Living Room","Lazy Susan Spice Rack":"Kitchen","Stemless Wine Glass Set":"Living Room",
+  "Personalized Cutting Board":"Kitchen","Sushi Grade Fish Box":"Kitchen","Grill Mat Non-Stick BBQ":"Kitchen",
+  "Cocktail Infusion Kit":"Kitchen","Raclette Grill Table Set":"Living Room","Oyster Knife Shucking Set":"Kitchen",
+  "Cake Decorating Turntable":"Kitchen",
+  "Mushroom Growing Kit":"Organization","Aeroponic Tower Garden":"Organization","Bonsai Starter Kit":"Organization",
+  "Fairy Garden Miniature Set":"Living Room","Succulent Propagation Station":"Organization","Hydroponic Herb Garden LED":"Organization",
+  "Compost Bin Kitchen Small":"Kitchen","Garden Gnome Solar Light":"Living Room","Worm Bin Composter":"Organization",
+  "Plant Propagation Wall Panel":"Living Room",
+  "Mini Christmas Tree Tabletop":"Living Room","Advent Calendar DIY Box":"Living Room","Door Wreath Hanger Hook":"Living Room",
+  "Window Snowflake LED":"Living Room","Firewood Log Carrier":"Living Room",
+  "Wooden Advent House Display":"Living Room",
+  "Insulated Tumbler 40oz":"Kitchen",
+  "Collapsible Laundry Hamper":"Bedroom",
+  "Magnetic Memo Board Glass":"Office",
+  "Airtight Pantry Container Set":"Kitchen",
+  "Clip-On Book Light LED":"Bedroom",
+  "Retractable Clothesline Indoor":"Bedroom",
+  "Portable Mini Heater Desktop":"Office",
+  "Decorative Ladder Blanket Holder":"Living Room",
+  "Bedside Water Carafe Set":"Bedroom",
+};
+
+const RATING_LABELS = {value:"Value",wow:"Wow Factor",saturation:"Market Sat.",easy:"Ease",margin:"Margin",unique:"Unique",problem:"Solves Pain"};
+const RATING_OPTS_MAP = {
+  value:["good","notbad","bad"],wow:["wow","good","notyet","bad"],
+  saturation:["notyet","notbad","bad"],easy:["vgood","good","notbad","bad"],
+  margin:["5x","3x"],unique:["yes","no"],problem:["yes","no"]
+};
+const VAL_LABELS = {good:"Good",wow:"Wow",notbad:"Not Bad",bad:"Bad",yes:"Yes",no:"No",notyet:"Not Yet",vgood:"Very Good","3x":"3x","5x":"5x"};
+
+let currentFilter="all", currentIdx=-1, userRatings={};
+
+function checkPwd(){
+  const v=document.getElementById('pwd-input').value.trim();
+  if(v===PASSWORD){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadRatings(); renderAll(); updateStats();
+  } else {
+    const e=document.getElementById('pwd-error');
+    e.style.display='block';
+    setTimeout(()=>e.style.display='none',2000);
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+
+function loadRatings(){try{userRatings=JSON.parse(localStorage.getItem('home_ratings_v1')||'{}');}catch(e){userRatings={};}}
+function saveToStorage(){localStorage.setItem('home_ratings_v1',JSON.stringify(userRatings));}
+function getEffectiveRating(name){return Object.assign({},RATINGS_DATA[name]||{},userRatings[name]||{});}
+
+function valClass(key,val){
+  if(!val)return '';
+  if(['good','wow','yes','vgood','5x'].includes(val))return 'val-'+val;
+  if(['notbad','notyet','3x'].includes(val))return 'val-'+val;
+  if(['bad','no'].includes(val))return 'val-'+val;
+  return '';
+}
+
+function setFilter(btn,cat){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); currentFilter=cat; applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  const rows=document.querySelectorAll('#table-body tr');
+  const cards=document.querySelectorAll('.product-card');
+  PRODUCTS.forEach((name,i)=>{
+    const cat=CAT_MAP[name]||'';
+    const show=(currentFilter==='all'||cat===currentFilter)&&name.toLowerCase().includes(q);
+    if(rows[i])rows[i].style.display=show?'':'none';
+    if(cards[i])cards[i].style.display=show?'':'none';
+  });
+}
+
+function updateStats(){
+  let rated=0,wow=0,fiveX=0;
+  PRODUCTS.forEach(name=>{
+    const r=getEffectiveRating(name);
+    if(r.value)rated++;
+    if(r.wow==='wow')wow++;
+    if(r.margin==='5x')fiveX++;
+  });
+  document.getElementById('stat-rated').textContent=rated;
+  document.getElementById('stat-wow').textContent=wow;
+  document.getElementById('stat-5x').textContent=fiveX;
+}
+
+function renderAll(){renderTable();renderCards();}
+
+function renderTable(){
+  const tbody=document.getElementById('table-body');
+  if(!tbody)return;
+  tbody.innerHTML=PRODUCTS.map((name,i)=>{
+    const cat=CAT_MAP[name]||'Home';
+    const R=getEffectiveRating(name);
+    const enc=encodeURIComponent(name);
+    const lb=(cls,lbl,href)=>`<a class="link-btn ${cls}" href="${href}" target="_blank"><span class="dot"></span>${lbl}</a>`;
+    const ratings=Object.keys(RATING_LABELS).map(key=>{
+      const val=R[key];const cls=valClass(key,val);
+      return `<div class="rating-row"><span class="rating-key">${RATING_LABELS[key]}</span><span class="rating-badge ${cls}">${VAL_LABELS[val]||'—'}</span></div>`;
+    }).join('');
+    return `<tr onclick="openPanel(${i})" id="row-${i}">
+      <td class="td-num">${String(i+1).padStart(3,'0')}</td>
+      <td class="td-name">${name}</td>
+      <td><span class="td-cat">${cat}</span></td>
+      <td><div class="links-col"><div class="link-row">
+        ${lb('ali','ALI',`https://www.aliexpress.com/wholesale?SearchText=${enc}`)}${lb('tik','TIK',`https://www.tiktok.com/search?q=${enc}`)}${lb('ig','IG',`https://www.instagram.com/explore/tags/${encodeURIComponent(name.replace(/ /g,''))}`)}${lb('amz','AMZ',`https://www.amazon.com/s?k=${enc}`)}${lb('fb','FB',`https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=ALL&q=${enc}&search_type=keyword_unordered`)}
+      </div></div></td>
+      <td><div class="ratings-col">${ratings}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCards(){
+  const cl=document.getElementById('card-list');
+  if(!cl)return;
+  cl.innerHTML=PRODUCTS.map((name,i)=>{
+    const cat=CAT_MAP[name]||'Home';
+    const R=getEffectiveRating(name);
+    const chips=Object.keys(RATING_LABELS).map(key=>{
+      const val=R[key];if(!val)return '';
+      return `<span class="card-rating-chip chip-${val}">${RATING_LABELS[key]}: ${VAL_LABELS[val]||'—'}</span>`;
+    }).join('');
+    return `<div class="product-card" onclick="openPanel(${i})" id="card-${i}">
+      <div class="card-top">
+        <div class="card-left">
+          <span class="card-num">${String(i+1).padStart(3,'0')}</span>
+          <span class="card-name">${name}</span>
+        </div>
+        <span class="card-cat">${cat}</span>
+      </div>
+      <div class="card-ratings-mini">${chips}</div>
+    </div>`;
+  }).join('');
+}
+
+function openPanel(idx){
+  currentIdx=idx;
+  const name=PRODUCTS[idx];
+  const cat=CAT_MAP[name]||'Home';
+  const R=getEffectiveRating(name);
+  document.getElementById('panel-title').textContent=name;
+  document.getElementById('panel-cat').textContent=cat;
+  const enc2=encodeURIComponent(name);
+  document.getElementById('panel-links').innerHTML=`
+    <a class="link-btn ali" href="https://www.aliexpress.com/wholesale?SearchText=${enc2}" target="_blank"><span class="dot"></span>AliExpress</a>
+    <a class="link-btn tik" href="https://www.tiktok.com/search?q=${enc2}" target="_blank"><span class="dot"></span>TikTok</a>
+    <a class="link-btn ig" href="https://www.instagram.com/explore/tags/${encodeURIComponent(name.replace(/ /g,''))}" target="_blank"><span class="dot"></span>Instagram</a>
+    <a class="link-btn amz" href="https://www.amazon.com/s?k=${enc2}" target="_blank"><span class="dot"></span>Amazon</a>
+    <a class="link-btn fb" href="https://www.facebook.com/ads/library/?active_status=all&ad_type=all&country=ALL&q=${enc2}&search_type=keyword_unordered" target="_blank"><span class="dot"></span>FB Ads</a>
+  `;
+  let fieldsHtml='';
+  for(const [key,opts] of Object.entries(RATING_OPTS_MAP)){
+    const cur=R[key]||'';
+    fieldsHtml+=`<div class="rating-field">
+      <label class="rating-field-label">${RATING_LABELS[key]}</label>
+      <div class="rating-options">
+        ${opts.map(o=>`<button class="rating-opt ${cur===o?'selected-'+o:''}" onclick="selectOpt('${key}','${o}',this)">${VAL_LABELS[o]}</button>`).join('')}
+      </div>
+    </div>`;
+  }
+  fieldsHtml+=`<div class="rating-field">
+    <label class="rating-field-label">Notes</label>
+    <textarea class="notes-field" id="notes-ta" placeholder="Research notes...">${R.notes||''}</textarea>
+  </div>`;
+  document.getElementById('rating-fields').innerHTML=fieldsHtml;
+  const defNotes=RATINGS_DATA[name]?.notes||'';
+  document.getElementById('notes-preview').textContent=defNotes?'💡 '+defNotes:'';
+  document.getElementById('rating-panel').classList.add('open');
+}
+
+function selectOpt(key,val,btn){
+  btn.closest('.rating-options').querySelectorAll('.rating-opt').forEach(b=>{b.className='rating-opt';});
+  btn.className=`rating-opt selected-${val}`;
+  if(!userRatings[PRODUCTS[currentIdx]])userRatings[PRODUCTS[currentIdx]]={};
+  userRatings[PRODUCTS[currentIdx]][key]=val;
+}
+
+function saveRatings(){
+  if(currentIdx<0)return;
+  const name=PRODUCTS[currentIdx];
+  if(!userRatings[name])userRatings[name]={};
+  userRatings[name].notes=document.getElementById('notes-ta').value;
+  saveToStorage(); renderAll(); updateStats(); closePanel();
+}
+
+function closePanel(){
+  document.getElementById('rating-panel').classList.remove('open');
+  currentIdx=-1;
+}
+</script>
+</body>
+</html>
